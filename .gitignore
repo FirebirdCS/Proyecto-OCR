@@ -1,0 +1,76 @@
+# ---- Dependencies ----
+node_modules/
+.pnpm-store/
+.pnpm-debug.log*
+.pnp/
+.pnp.js
+
+# pnpm is the package manager for this repo; keep other lockfiles out.
+package-lock.json
+yarn.lock
+
+# ---- Build output ----
+dist/
+build/
+out/
+.vite/
+*.tsbuildinfo
+
+# ---- Environment / secrets ----
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+serviceAccount*.json
+firebase-adminsdk*.json
+gcp-credentials*.json
+
+# ---- Logs ----
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ---- Testing / coverage ----
+coverage/
+.nyc_output/
+
+# ---- Caches ----
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+.npm/
+.temp/
+tmp/
+temp/
+
+# ---- Firebase ----
+.firebase/
+firebase-debug.log*
+firestore-debug.log*
+ui-debug.log*
+database-debug.log*
+pubsub-debug.log*
+.runtimeconfig.json
+
+# ---- Uploads / local artifacts ----
+uploads/
+storage/
+
+# ---- Editors / tooling ----
+.claude/
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+
+# ---- OS ----
+.DS_Store
+Thumbs.db
+Desktop.ini

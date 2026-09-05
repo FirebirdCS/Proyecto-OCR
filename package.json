@@ -1,0 +1,26 @@
+{
+  "name": "ocr-platform",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Base for an OCR platform: React + TypeScript client, Node + TypeScript API, Firebase Auth/Firestore with admin+user roles, Cloud Vision OCR and SMTP mail.",
+  "type": "module",
+  "packageManager": "pnpm@11.15.1",
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=9"
+  },
+  "scripts": {
+    "dev": "concurrently -n server,client -c blue,magenta \"pnpm dev:server\" \"pnpm dev:client\"",
+    "dev:client": "pnpm --filter @ocr/client dev",
+    "dev:server": "pnpm --filter @ocr/server dev",
+    "build": "pnpm --filter @ocr/server build && pnpm --filter @ocr/client build",
+    "start": "pnpm --filter @ocr/server start",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm -r --if-present lint",
+    "role:grant": "pnpm --filter @ocr/server role:grant",
+    "user:create": "pnpm --filter @ocr/server user:create"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

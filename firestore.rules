@@ -1,0 +1,62 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // The role lives in a custom claim on the ID token, stamped by the API.
+    function role() {
+      return request.auth.token.role;
+    }
+
+    function isAdmin() {
+      return signedIn() && role() == 'admin';
+    }
+
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    // Every write in this project goes through the API, which uses the Admin
+    // SDK and bypasses these rules. Denying client writes everywhere is what
+    // stops a user from granting themselves a role, inventing a campaign, or
+    // rewriting what a product is worth.
+
+    match /users/{uid} {
+      allow read: if isOwner(uid) || isAdmin();
+      allow write: if false;
+    }
+
+    match /documents/{documentId} {
+      allow read: if isAdmin() || isOwner(resource.data.ownerUid);
+      allow write: if false;
+    }
+
+    // Products are the scoring table. Any signed-in user may read them so the
+    // app can show what each one is worth; only admins change them.
+    match /products/{productId} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    // A campaign is readable by the users it was assigned to, and by admins.
+    match /campaigns/{campaignId} {
+      allow read: if isAdmin() ||
+                     (signedIn() && request.auth.uid in resource.data.participantUids);
+      allow write: if false;
+
+      // Per-user progress against this campaign's milestones.
+      match /participants/{uid} {
+        allow read: if isOwner(uid) || isAdmin();
+        allow write: if false;
+      }
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,60 @@
+:root {
+  color-scheme: light dark;
+
+  /* ---- brand — corporate blue family shared with corvelsa.com / the logo ---- */
+  --color-primary: light-dark(#0d4f8b, #5ba3e0);
+  --color-primary-hover: light-dark(#0a3f70, #7ab8ea);
+  --color-primary-soft: light-dark(#e5eff8, #16283b);
+  --color-secondary: light-dark(#1a6ba3, #6cb8e2);
+  --color-accent: light-dark(#00a8cc, #33c2e0);
+
+  --color-bg: light-dark(#f6f8fb, #0d1117);
+  --color-bg-alt: light-dark(#eef3f9, #10151c);
+  --color-surface: light-dark(#ffffff, #151b23);
+  --color-surface-secondary: light-dark(#f8fafc, #18212c);
+  --color-border: light-dark(#e5eaf0, #273242);
+  --color-border-strong: light-dark(#d3dbe4, #37455a);
+
+  --color-text: light-dark(#18212f, #f3f6fa);
+  --color-text-secondary: light-dark(#667085, #98a6b8);
+  --color-text-tertiary: light-dark(#98a2b3, #6c7a8e);
+
+  --color-success: light-dark(#0f7a45, #4ade80);
+  --color-success-bg: light-dark(#e6f6ec, #10301f);
+  --color-warning: light-dark(#9a5b0a, #f0b458);
+  --color-warning-bg: light-dark(#fdf1de, #302209);
+  --color-danger: light-dark(#c22b2b, #f28b84);
+  --color-danger-bg: light-dark(#fbeaea, #351512);
+  --color-info: light-dark(#1a6ba3, #6cb8e2);
+  --color-info-bg: light-dark(#e5eff8, #16283b);
+  --color-neutral-bg: light-dark(#eef1f5, #1c2531);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  --shadow-xs: light-dark(0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 2px rgba(0, 0, 0, 0.4));
+  --shadow-sm: light-dark(0 1px 3px rgba(16, 24, 40, 0.08), 0 2px 6px rgba(0, 0, 0, 0.45));
+  --shadow-md: light-dark(0 4px 16px rgba(16, 24, 40, 0.08), 0 8px 24px rgba(0, 0, 0, 0.5));
+
+  --sidebar-width: 248px;
+  --sidebar-width-collapsed: 72px;
+  --topbar-height: 60px;
+  --content-max-width: 1360px;
+
+  --transition: 160ms ease;
+
+  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  line-height: 1.5;
+}
+
+/* An explicit choice from the theme toggle wins over the OS preference in
+   both directions — see ThemeContext. */
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+}
