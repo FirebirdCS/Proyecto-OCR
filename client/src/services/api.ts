@@ -1,6 +1,14 @@
 import { auth } from '../lib/firebase';
 import type { Role } from '../types/roles';
 import type { Campaign, CampaignInput, CampaignStatus, Product } from '../types/campaigns';
+import type {
+  CampaignProgress,
+  CampaignScore,
+  DashboardStats,
+  ReceiptIssue,
+  ScanRecord,
+  ScanScoring,
+} from '../types/scoring';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
 
@@ -63,6 +71,8 @@ export interface OcrResponse {
   text: string;
   locale?: string;
   blocks: { text: string; confidence: number }[];
+  /** What the receipt earned in the campaign it was filed under, and why not more. */
+  scoring: ScanScoring;
 }
 
 export interface DocumentRecord {
@@ -70,15 +80,29 @@ export interface DocumentRecord {
   filename: string;
   text: string;
   locale?: string;
+  campaignId: string | null;
+  pointsAwarded: number;
+  campaign: CampaignScore | null;
+  issues: ReceiptIssue[];
+  receiptDate: string | null;
   createdAt: string | null;
+}
+
+export interface MyCampaignsResponse {
+  campaigns: Campaign[];
+  progress: CampaignProgress[];
+  /** productId -> name, since users cannot read the admin product list. */
+  productNames: Record<string, string>;
 }
 
 export const api = {
   /** Also provisions the profile and role claim for first-time accounts. */
   me: () => request<UserProfile>('/me'),
 
-  ocr: (file: File) => {
+  /** Scores the receipt against `campaignId` only. */
+  ocr: (file: File, campaignId: string) => {
     const form = new FormData();
+    form.append('campaignId', campaignId);
     form.append('file', file);
     return request<OcrResponse>('/ocr', { method: 'POST', body: form });
   },
@@ -89,9 +113,31 @@ export const api = {
     ),
 
   /** Active campaigns the signed-in user is assigned to. */
-  myCampaigns: () => request<{ campaigns: Campaign[] }>('/campaigns'),
+  myCampaigns: () => request<MyCampaignsResponse>('/campaigns'),
 
   admin: {
+    dashboard: () => request<DashboardStats>('/admin/dashboard'),
+
+    /** Newest first. `before` is the `createdAt` of the last scan already shown. */
+    listScans: (options: { flaggedOnly?: boolean; before?: string } = {}) => {
+      const params = new URLSearchParams();
+      if (options.flaggedOnly) params.set('flagged', 'true');
+      if (options.before) params.set('before', options.before);
+      const query = params.toString();
+      return request<{ scans: ScanRecord[]; nextBefore: string | null }>(
+        `/admin/scans${query ? `?${query}` : ''}`,
+      );
+    },
+
+    /** A link to the stored receipt file, valid for a few minutes. */
+    scanFileUrl: (id: string) => request<{ url: string }>(`/admin/scans/${id}/file`),
+
+    voidScan: (id: string, reason: string) =>
+      request<ScanRecord>(`/admin/scans/${id}/void`, {
+        method: 'POST',
+        body: JSON.stringify({ reason }),
+      }),
+
     listUsers: (pageToken?: string) =>
       request<{ users: UserProfile[]; nextPageToken: string | null }>(
         pageToken ? `/admin/users?pageToken=${encodeURIComponent(pageToken)}` : '/admin/users',

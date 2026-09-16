@@ -55,6 +55,15 @@ service cloud.firestore {
       }
     }
 
+    // Per-day sales totals behind the admin dashboard.
+    match /salesDaily/{day} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    // receiptGuards (duplicate-scan fingerprints) stays server-only and falls
+    // through to the deny-all below.
+
     match /{document=**} {
       allow read, write: if false;
     }

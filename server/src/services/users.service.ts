@@ -88,6 +88,21 @@ function toProfile(record: UserRecord): UserProfile {
   };
 }
 
+/** Email and name per uid from the Firestore mirror — for labelling lists, never for authorization. */
+export async function getProfileSummaries(
+  uids: string[],
+): Promise<Map<string, { email: string | null; displayName: string | null }>> {
+  if (uids.length === 0) return new Map();
+
+  const snapshots = await firestore.getAll(...uids.map((uid) => firestore.collection(COLLECTION).doc(uid)));
+  return new Map(
+    snapshots.map((snapshot) => [
+      snapshot.id,
+      { email: snapshot.data()?.email ?? null, displayName: snapshot.data()?.displayName ?? null },
+    ]),
+  );
+}
+
 export async function listUsers(limit = 100, pageToken?: string) {
   const result = await auth.listUsers(Math.min(limit, 1000), pageToken);
   return {

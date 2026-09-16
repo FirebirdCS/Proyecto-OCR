@@ -33,6 +33,30 @@ export async function getProduct(id: string): Promise<Product> {
   return toProduct(doc.id, doc.data()!);
 }
 
+/** Products by id; ids that no longer exist are simply absent from the map. */
+export async function getProductsByIds(ids: string[]): Promise<Map<string, Product>> {
+  if (ids.length === 0) return new Map();
+
+  const collection = firestore.collection(COLLECTION);
+  const snapshots = await firestore.getAll(...ids.map((id) => collection.doc(id)));
+
+  return new Map(
+    snapshots
+      .filter((snapshot) => snapshot.exists)
+      .map((snapshot) => [snapshot.id, toProduct(snapshot.id, snapshot.data()!)]),
+  );
+}
+
+export async function countProducts(): Promise<{ total: number; active: number }> {
+  const collection = firestore.collection(COLLECTION);
+  const [total, active] = await Promise.all([
+    collection.count().get(),
+    collection.where('active', '==', true).count().get(),
+  ]);
+
+  return { total: total.data().count, active: active.data().count };
+}
+
 export async function createProduct(input: ProductInput): Promise<Product> {
   const ref = await firestore.collection(COLLECTION).add({
     ...input,

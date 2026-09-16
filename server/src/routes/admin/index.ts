@@ -3,6 +3,8 @@ import { requireAdmin, requireAuth } from '../../middleware/auth.js';
 import { adminUsersRouter } from './users.routes.js';
 import { adminProductsRouter } from './products.routes.js';
 import { adminCampaignsRouter } from './campaigns.routes.js';
+import { adminDashboardRouter } from './dashboard.routes.js';
+import { adminScansRouter } from './scans.routes.js';
 
 export const adminRouter = Router();
 
@@ -12,3 +14,5 @@ adminRouter.use(requireAuth, requireAdmin);
 adminRouter.use('/users', adminUsersRouter);
 adminRouter.use('/products', adminProductsRouter);
 adminRouter.use('/campaigns', adminCampaignsRouter);
+adminRouter.use('/dashboard', adminDashboardRouter);
+adminRouter.use('/scans', adminScansRouter);

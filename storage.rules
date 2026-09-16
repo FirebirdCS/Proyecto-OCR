@@ -1,0 +1,12 @@
+rules_version = '2';
+
+// Receipt files are written by the API (Admin SDK) and shown to admins through
+// short-lived signed URLs. Neither path goes through these rules, so nothing
+// here needs to be readable or writable from the browser.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
 import { auth } from '../config/firebase.js';
+import { isProduction } from '../config/env.js';
 import { HttpError } from '../utils/httpError.js';
 import { DEFAULT_ROLE, ROLE_CLAIM, isRole, type Role } from '../types/roles.js';
 
@@ -47,7 +48,16 @@ export async function requireAuth(
     };
     next();
   } catch (error) {
-    next(error instanceof HttpError ? error : new HttpError(401, 'Invalid or expired token'));
+    if (error instanceof HttpError) {
+      next(error);
+      return;
+    }
+    // The client only ever sees a generic 401, which also hides server-side
+    // misconfiguration (missing credentials, wrong project). Say which in dev.
+    if (!isProduction) {
+      console.warn('[requireAuth] verifyIdToken failed:', (error as Error).message);
+    }
+    next(new HttpError(401, 'Invalid or expired token'));
   }
 }
 

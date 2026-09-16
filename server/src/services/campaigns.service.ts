@@ -2,9 +2,11 @@ import { FieldValue } from 'firebase-admin/firestore';
 import { firestore } from '../config/firebase.js';
 import { HttpError } from '../utils/httpError.js';
 import { assertActivatable, type Campaign, type CampaignInput, type CampaignStatus } from '../types/campaigns.js';
+import type { CampaignProgress } from '../types/scoring.js';
 import { listProducts } from './products.service.js';
 
 const COLLECTION = 'campaigns';
+const PARTICIPANTS = 'participants';
 
 function toCampaign(id: string, data: FirebaseFirestore.DocumentData): Campaign {
   return {
@@ -73,6 +75,42 @@ export async function listCampaignsForUser(uid: string): Promise<Campaign[]> {
     .get();
 
   return snapshot.docs.map((doc) => toCampaign(doc.id, doc.data()));
+}
+
+export async function countCampaigns(status: CampaignStatus): Promise<number> {
+  const snapshot = await firestore.collection(COLLECTION).where('status', '==', status).count().get();
+  return snapshot.data().count;
+}
+
+/** `campaigns/{id}/participants/{uid}` holds one user's standing in one campaign. */
+export function participantRef(campaignId: string, uid: string) {
+  return firestore.collection(COLLECTION).doc(campaignId).collection(PARTICIPANTS).doc(uid);
+}
+
+/** A participant who has not scored yet reads as an all-zero record. */
+export function toProgress(
+  campaignId: string,
+  data: FirebaseFirestore.DocumentData | undefined,
+): CampaignProgress {
+  return {
+    campaignId,
+    points: data?.points ?? 0,
+    units: data?.units ?? {},
+    milestoneId: data?.milestoneId ?? null,
+    requirementsMet: data?.requirementsMet ?? false,
+    receipts: data?.receipts ?? 0,
+    updatedAt: data?.updatedAt?.toDate().toISOString() ?? null,
+  };
+}
+
+export async function getProgressForUser(
+  uid: string,
+  campaignIds: string[],
+): Promise<CampaignProgress[]> {
+  if (campaignIds.length === 0) return [];
+
+  const snapshots = await firestore.getAll(...campaignIds.map((id) => participantRef(id, uid)));
+  return snapshots.map((snapshot, index) => toProgress(campaignIds[index]!, snapshot.data()));
 }
 
 export async function getCampaign(id: string): Promise<Campaign> {

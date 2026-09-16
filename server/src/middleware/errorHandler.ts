@@ -24,6 +24,16 @@ export function errorHandler(
     return;
   }
 
+  // Firestore's FAILED_PRECONDITION is almost always a composite index that
+  // firestore.indexes.json declares but nobody has deployed yet.
+  if ((error as { code?: unknown }).code === 9) {
+    console.error('[firestore] missing index:', (error as Error).message);
+    res.status(503).json({
+      error: 'A Firestore index is missing. Deploy firestore.indexes.json (firebase deploy --only firestore:indexes).',
+    });
+    return;
+  }
+
   console.error(error);
   res.status(500).json({
     error: 'Internal server error',

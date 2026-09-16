@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Ticket de prueba (fuera de fecha)</title>
+<style>
+  @page { size: 80mm 150mm; margin: 0; }
+  html, body { margin: 0; background: #fff; }
+  body {
+    width: 80mm;
+    padding: 6mm 5mm;
+    box-sizing: border-box;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 12px;
+    line-height: 1.45;
+    color: #000;
+  }
+  .center { text-align: center; }
+  .title { font-size: 16px; font-weight: bold; }
+  .rule { border-top: 1px dashed #000; margin: 6px 0; }
+  .row { display: flex; justify-content: space-between; gap: 8px; }
+  .row span:last-child { white-space: nowrap; }
+  .strong { font-weight: bold; font-size: 14px; }
+</style>
+</head>
+<body>
+  <!-- A real-looking receipt dated before the "Farmacia" campaign started (27/08/2026). -->
+  <div class="center title">FARMACIA EJEMPLO</div>
+  <div class="center">Av. Siempre Viva 123, Centro</div>
+  <div class="rule"></div>
+  <div class="row"><span>TICKET: 000311</span><span>10/07/2026 18:05</span></div>
+  <div class="row"><span>CAJA: 01</span><span>CAJERO: LUIS</span></div>
+  <div class="rule"></div>
+  <div class="row"><span>CANT DESCRIPCION</span><span>IMPORTE</span></div>
+  <div class="rule"></div>
+  <div class="row"><span>4 PARACETAMOL 500MG 10 TAB</span><span>180.00</span></div>
+  <div class="row"><span>1 JARABE PARA LA TOS 120ML</span><span>95.00</span></div>
+  <div class="rule"></div>
+  <div class="row"><span>SUBTOTAL</span><span>275.00</span></div>
+  <div class="row strong"><span>TOTAL</span><span>$275.00</span></div>
+  <div class="rule"></div>
+  <div class="center">COMPROBANTE DE PRUEBA</div>
+  <div class="center">SIN VALOR FISCAL</div>
+</body>
+</html>

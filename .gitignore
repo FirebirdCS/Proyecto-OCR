@@ -20,11 +20,25 @@ out/
 .env
 .env.*
 !.env.example
+.envrc
 *.pem
 *.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+id_rsa*
+id_ed25519*
+secrets/
+.secret*
+# Google / Firebase credentials under their usual download names.
 serviceAccount*.json
+*service-account*.json
 firebase-adminsdk*.json
 gcp-credentials*.json
+client_secret*.json
+application_default_credentials.json
+credentials.json
 
 # ---- Logs ----
 logs/

@@ -51,6 +51,11 @@ export type CampaignInput = Pick<
   'name' | 'description' | 'startsAt' | 'endsAt' | 'products' | 'milestones' | 'participantUids'
 >;
 
+/** Mirrors the server helper: every required product has reached its minimum. */
+export function requirementsMet(products: CampaignProduct[], units: Record<string, number>): boolean {
+  return products.every((entry) => !entry.required || (units[entry.productId] ?? 0) >= entry.minQuantity);
+}
+
 /** Mirrors the server check that gates draft -> active. */
 export function activationProblems(campaign: Pick<CampaignInput, 'products' | 'milestones'>): string[] {
   const problems: string[] = [];

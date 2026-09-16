@@ -8,6 +8,7 @@ import {
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getDatabase } from 'firebase-admin/database';
+import { getStorage } from 'firebase-admin/storage';
 import { env } from './env.js';
 
 function createApp(): App {
@@ -29,6 +30,7 @@ function createApp(): App {
   return initializeApp({
     credential,
     ...(env.FIREBASE_DATABASE_URL ? { databaseURL: env.FIREBASE_DATABASE_URL } : {}),
+    ...(env.FIREBASE_STORAGE_BUCKET ? { storageBucket: env.FIREBASE_STORAGE_BUCKET } : {}),
   });
 }
 
@@ -38,3 +40,6 @@ export const firestore = getFirestore(firebaseApp);
 
 /** Realtime Database. Only usable when FIREBASE_DATABASE_URL is configured. */
 export const realtimeDb = env.FIREBASE_DATABASE_URL ? getDatabase(firebaseApp) : null;
+
+/** Cloud Storage for receipt files. Only usable when FIREBASE_STORAGE_BUCKET is configured. */
+export const bucket = env.FIREBASE_STORAGE_BUCKET ? getStorage(firebaseApp).bucket() : null;

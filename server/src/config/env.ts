@@ -1,6 +1,15 @@
 import 'dotenv/config';
 import { z } from 'zod';
 
+function isTimeZone(value: string): boolean {
+  try {
+    new Intl.DateTimeFormat('en-US', { timeZone: value });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 const booleanish = z
   .enum(['true', 'false'])
   .transform((value) => value === 'true');
@@ -25,6 +34,17 @@ const schema = z.object({
   // OCR
   VISION_KEY_FILE: z.string().optional(),
   OCR_MAX_UPLOAD_MB: z.coerce.number().positive().default(10),
+
+  // IANA zone the admin dashboard buckets sales days in; defaults to the server's.
+  STATS_TIME_ZONE: z.string().refine(isTimeZone, 'Unknown IANA time zone').optional(),
+
+  // Scanned receipts are kept here as evidence for review. Empty: not stored.
+  FIREBASE_STORAGE_BUCKET: z.string().optional(),
+
+  // Abuse limits: scans per user in any rolling 24 hours, and units a single
+  // receipt may count in a campaign before the excess is dropped.
+  SCAN_DAILY_LIMIT: z.coerce.number().int().positive().default(20),
+  RECEIPT_MAX_UNITS: z.coerce.number().int().positive().default(50),
 
   // SMTP
   SMTP_HOST: z.string().optional(),

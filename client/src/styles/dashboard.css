@@ -1,0 +1,544 @@
+/* ==== admin dashboard: KPI tiles ==== */
+
+.kpi-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  margin-bottom: 1.5rem;
+}
+
+.kpi-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 1.25rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-xs);
+}
+
+.kpi-tile-label {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.kpi-tile-label svg {
+  width: 16px;
+  height: 16px;
+  color: var(--color-text-tertiary);
+}
+
+.kpi-tile-value {
+  font-size: 1.85rem;
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--color-text);
+}
+
+.kpi-tile-meta {
+  font-size: 0.78rem;
+  color: var(--color-text-tertiary);
+}
+
+/* ==== section header + segmented control ==== */
+
+.section-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.section-header .panel-section-hint {
+  margin-bottom: 0;
+}
+
+.section-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.segmented {
+  display: inline-flex;
+  padding: 3px;
+  background: var(--color-surface-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.segmented button {
+  height: 32px;
+  padding: 0 0.8rem;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+}
+
+.segmented button:hover:not(:disabled) {
+  color: var(--color-text);
+  background: transparent;
+}
+
+.segmented button[aria-pressed='true'],
+.segmented button[aria-pressed='true']:hover:not(:disabled) {
+  color: var(--color-primary);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-xs);
+}
+
+.is-refreshing {
+  opacity: 0.55;
+  transition: opacity var(--transition);
+}
+
+.numeric {
+  text-align: right !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.dashboard-footnote {
+  font-size: 0.78rem;
+  color: var(--color-text-tertiary);
+}
+
+/* ==== bar chart ==== */
+
+.chart {
+  margin: 0;
+  padding-top: 0.5rem;
+}
+
+.chart-body {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 0.6rem;
+}
+
+.chart-y,
+.chart-plot {
+  position: relative;
+  height: 220px;
+}
+
+.chart-y {
+  min-width: 2rem;
+  font-size: 0.72rem;
+  color: var(--color-text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.chart-y span {
+  position: absolute;
+  right: 0;
+  transform: translateY(50%);
+  line-height: 1;
+}
+
+.chart-plot {
+  border-bottom: 1px solid var(--color-border-strong);
+}
+
+.chart-gridline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--color-border);
+}
+
+.chart-bars {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+}
+
+/* The whole column is the hit target, not just the painted bar. The 1px
+   padding on each side is the 2px surface gap between neighbouring bars. */
+.chart-slot {
+  display: flex;
+  flex: 1 1 0;
+  align-items: flex-end;
+  justify-content: center;
+  height: 100%;
+  padding: 0 1px;
+  outline-offset: -2px;
+}
+
+.chart-bar {
+  width: 100%;
+  max-width: 24px;
+  background: var(--color-primary);
+  border-radius: 4px 4px 0 0;
+  transition: background var(--transition);
+}
+
+.chart-slot[data-active='true'] .chart-bar {
+  background: color-mix(in srgb, var(--color-primary) 70%, var(--color-surface));
+}
+
+.chart-tooltip {
+  position: absolute;
+  top: 0.25rem;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.5rem 0.7rem;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
+  pointer-events: none;
+}
+
+.chart-tooltip strong {
+  font-size: 0.9rem;
+  color: var(--color-text);
+}
+
+.chart-x {
+  display: flex;
+  height: 1.4rem;
+  margin-top: 0.4rem;
+  font-size: 0.72rem;
+  color: var(--color-text-tertiary);
+}
+
+.chart-x-cell {
+  position: relative;
+  flex: 1 1 0;
+}
+
+.chart-x-cell span {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.chart-table {
+  margin-top: 1rem;
+}
+
+details > summary {
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  cursor: pointer;
+}
+
+@media (max-width: 600px) {
+  .chart-x-cell--minor span {
+    display: none;
+  }
+}
+
+/* ==== share bar in the top-products table ==== */
+
+.share {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 120px;
+}
+
+.share-track {
+  flex: 1;
+  height: 6px;
+  background: var(--color-primary-soft);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+
+.share-fill {
+  display: block;
+  height: 100%;
+  background: var(--color-primary);
+  border-radius: inherit;
+}
+
+.share-value {
+  min-width: 2.5rem;
+  font-size: 0.78rem;
+  color: var(--color-text-secondary);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ==== loading placeholder ==== */
+
+.skeleton {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  background: var(--color-neutral-bg);
+  border-radius: 6px;
+}
+
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    light-dark(rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.06)),
+    transparent
+  );
+  transform: translateX(-100%);
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after {
+    display: none;
+  }
+}
+
+.skeleton-text {
+  height: 0.8rem;
+}
+
+.skeleton-value {
+  width: 45%;
+  height: 2.1rem;
+  margin: 0.1rem 0;
+}
+
+.skeleton-control {
+  width: 15rem;
+  max-width: 100%;
+  height: 38px;
+}
+
+.skeleton-chart {
+  height: 240px;
+  margin-top: 1rem;
+}
+
+.skeleton-row {
+  height: 2.4rem;
+  margin-top: 0.6rem;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ==== user dashboard: campaign progress + scan result ==== */
+
+.campaign-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+}
+
+.campaign-points {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--color-text);
+}
+
+.campaign-points .muted {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.progress {
+  height: 8px;
+  overflow: hidden;
+  background: var(--color-primary-soft);
+  border-radius: var(--radius-pill);
+}
+
+.progress-fill {
+  display: block;
+  height: 100%;
+  background: var(--color-primary);
+  border-radius: inherit;
+  transition: width 400ms ease;
+}
+
+.progress-meta {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+}
+
+.milestone-timeline-check {
+  flex-shrink: 0;
+  align-self: center;
+  width: 14px;
+  height: 14px;
+  margin: 0 -3.5px;
+  color: var(--color-success);
+}
+
+.milestone-timeline-item--reached .milestone-timeline-name {
+  color: var(--color-success);
+}
+
+.product-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.9rem;
+}
+
+.product-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-text);
+  background: var(--color-surface-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+}
+
+.product-chip-meta {
+  font-weight: 400;
+  color: var(--color-text-secondary);
+}
+
+.notice-title {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-weight: 700;
+}
+
+.scan-campaign-select {
+  max-width: 360px;
+}
+
+/* ==== admin: receipt review ==== */
+
+.review-layout {
+  display: grid;
+  gap: 0 1.5rem;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 1200px) {
+  .review-layout {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .review-detail {
+    position: sticky;
+    top: calc(var(--topbar-height) + 1rem);
+    max-height: calc(100vh - var(--topbar-height) - 2rem);
+    overflow-y: auto;
+  }
+}
+
+.table tr.clickable {
+  cursor: pointer;
+}
+
+.table tr.row-selected td {
+  background: var(--color-primary-soft);
+}
+
+.badge-danger {
+  color: var(--color-danger);
+  background: var(--color-danger-bg);
+}
+
+.meta-list {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.35rem 1rem;
+  margin: 0.75rem 0 1rem;
+  font-size: 0.85rem;
+}
+
+.meta-list dt {
+  color: var(--color-text-secondary);
+}
+
+.meta-list dd {
+  margin: 0;
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+
+.evidence-frame {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem;
+  background: var(--color-surface-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.scan-evidence {
+  display: block;
+  max-width: 100%;
+  max-height: 520px;
+  object-fit: contain;
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.evidence-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.83rem;
+}
+
+.skeleton-evidence {
+  height: 320px;
+}
+
+.void-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.6rem;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.void-form label {
+  flex: 1 1 220px;
+  margin-bottom: 0;
+}

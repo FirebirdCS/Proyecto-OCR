@@ -1,10 +1,18 @@
 import { Router } from 'express';
 import multer from 'multer';
+import { z } from 'zod';
 import { env } from '../config/env.js';
-import { requireAuth } from '../middleware/auth.js';
+import { requireAuth, requireRole } from '../middleware/auth.js';
 import { HttpError } from '../utils/httpError.js';
-import { extractTextFromImage } from '../services/ocr.service.js';
-import { listDocuments, saveDocument } from '../services/documents.service.js';
+import { extractText } from '../services/ocr.service.js';
+import { listDocuments } from '../services/documents.service.js';
+import {
+  assertCanScan,
+  assertReceiptIsNew,
+  assertUnderDailyLimit,
+  fingerprint,
+  scanReceipt,
+} from '../services/scoring.service.js';
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -19,21 +27,43 @@ export const ocrRouter = Router();
 
 ocrRouter.use(requireAuth);
 
-/** POST /api/ocr — multipart/form-data with a single `file` field. */
-ocrRouter.post('/', upload.single('file'), async (req, res, next) => {
+/** The campaign the receipt is filed under travels as a form field next to the file. */
+const scanBody = z.object({ campaignId: z.string().trim().min(1) });
+
+/**
+ * POST /api/ocr — multipart/form-data with a `file` and a `campaignId`. Checks
+ * the caller may score in that campaign, extracts the text, then scores it
+ * against that campaign only.
+ *
+ * Only `user` accounts scan: points belong to participants, and an admin who
+ * could score receipts could also award themselves the rewards they define.
+ * The role check runs before multer so a refused upload is never buffered.
+ */
+ocrRouter.post('/', requireRole('user'), upload.single('file'), async (req, res, next) => {
   try {
     if (!req.file) {
       throw new HttpError(400, 'Expected a file upload in the "file" field');
     }
 
-    const result = await extractTextFromImage(req.file.buffer);
-    const documentId = await saveDocument({
+    const { campaignId } = scanBody.parse(req.body);
+    const campaign = await assertCanScan(req.user!.uid, campaignId);
+    const recentScans = await assertUnderDailyLimit(req.user!.uid);
+
+    const fileHash = fingerprint(req.file.buffer);
+    await assertReceiptIsNew(fileHash);
+
+    const result = await extractText(req.file.buffer, req.file.mimetype);
+    const { documentId, scoring } = await scanReceipt({
       ownerUid: req.user!.uid,
       filename: req.file.originalname,
+      fileHash,
+      file: { buffer: req.file.buffer, contentType: req.file.mimetype },
       result,
+      campaign,
+      recentScans,
     });
 
-    res.status(201).json({ documentId, ...result });
+    res.status(201).json({ documentId, ...result, scoring });
   } catch (error) {
     next(error);
   }

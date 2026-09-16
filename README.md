@@ -207,8 +207,33 @@ the Cloud Vision API in the Google Cloud console and grant the service account
 the *Cloud Vision AI User* role. The same credentials serve firebase-admin and
 Vision.
 
-`POST /api/ocr` takes `multipart/form-data` with a single `file` field, runs
-document text detection, stores the result in Firestore, and returns the text.
+`POST /api/ocr` takes `multipart/form-data` with a `file` and a `campaignId`.
+It is open only to `user` accounts that take part in that campaign, and only
+while the campaign is running. It runs text detection (PDFs through Vision's
+file endpoint), rebuilds the receipt row by row, and finds that campaign's
+products. Each one is worth *units × points per unit*.
+
+A receipt earns nothing without a TOTAL line and a printed date inside the
+campaign's dates. A product line with no price on it is not counted. The
+response carries the text, and a `scoring` breakdown with any `issues`. The
+same receipt gets a 409 if it's scanned twice, even from a new photo or a
+different account. `samples/` has a valid ticket, an out-of-date one, and a
+hand-written note to try each case.
+
+Every uploaded file is kept in Cloud Storage (`FIREBASE_STORAGE_BUCKET`) as
+evidence. Admins review scans under **Comprobantes**, where they can see the
+file, the matched lines and any flags, and void a scan to take its points back.
+`SCAN_DAILY_LIMIT` caps scans per user per 24 hours. `RECEIPT_MAX_UNITS` caps
+the units one receipt can count.
+
+Unusual receipts are flagged for review: capped units, a line with 10 or more
+units, a user with 5 or more scans in a day, or a file that could not be kept.
+Run `firebase deploy --only firestore:indexes,storage` after pulling this.
+
+`GET /api/admin/dashboard` feeds the admin landing page: products registered,
+units sold per day (30 days), per week (12 weeks) and per month (12 months), and
+the best sellers. Days are cut in `STATS_TIME_ZONE`; empty means the server's
+own zone.
 `GET /api/ocr/documents` returns the caller's history; admins may add
 `?ownerUid=<uid>` to read someone else's.
 
