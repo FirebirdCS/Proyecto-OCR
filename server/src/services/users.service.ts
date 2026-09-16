@@ -2,7 +2,7 @@ import { randomBytes } from 'node:crypto';
 import { FieldValue } from 'firebase-admin/firestore';
 import type { UserRecord } from 'firebase-admin/auth';
 import { auth, firestore } from '../config/firebase.js';
-import { env } from '../config/env.js';
+import { clientAppUrl, env } from '../config/env.js';
 import { DEFAULT_ROLE, ROLE_CLAIM, isRole, type Role } from '../types/roles.js';
 import { HttpError } from '../utils/httpError.js';
 import { isResendConfigured, sendResendMail } from './resend.service.js';
@@ -157,13 +157,13 @@ export interface CreateUserResult {
 
 /**
  * Builds the one-time link that lets a new account choose its own password.
- * `CLIENT_ORIGIN/login` has to be listed under Authentication > Settings >
+ * `CLIENT_APP_URL/login` has to be listed under Authentication > Settings >
  * Authorized domains in the Firebase console, or Firebase refuses the continue
  * URL.
  */
 async function buildInviteLink(email: string): Promise<string> {
   return auth.generatePasswordResetLink(email, {
-    url: `${env.CLIENT_ORIGIN}/login`,
+    url: `${clientAppUrl}/login`,
     handleCodeInApp: false,
   });
 }

@@ -244,6 +244,110 @@ own zone.
 needs `SMTP_SECURE=true`. `POST /api/mail/send` is authenticated and takes
 `{ to, subject, text | html }`.
 
+## Deploying the API to Cloud Run
+
+The `Dockerfile` builds the server alone. **No key file goes into the image** —
+the service runs as a service account, and firebase-admin, Firestore, Storage
+and Vision all authenticate as that identity.
+
+`scripts/deploy-api.ps1` runs every step below, so nothing long has to be pasted
+into a shell. After `gcloud auth login`:
+
+```powershell
+.\scripts\deploy-api.ps1
+# ...and again once the site is live, to let the API accept that origin:
+.\scripts\deploy-api.ps1 -SkipSetup `
+  -ClientOrigins http://localhost:5173,https://<user>.github.io `
+  -ClientAppUrl https://<user>.github.io/Proyecto-OCR
+```
+
+`-TimeZone`, `-ScanDailyLimit`, `-ReceiptMaxUnits` and the rest are parameters
+with defaults; `Get-Help .\scripts\deploy-api.ps1 -Detailed` lists them. What
+the script does, by hand:
+
+```bash
+gcloud config set project proyecto-ocr-d3ecd
+
+gcloud services enable run.googleapis.com cloudbuild.googleapis.com \
+  artifactregistry.googleapis.com
+
+# The Firebase Admin SDK account already has Firestore, Auth and Storage access.
+# It is the "client_email" in serviceAccount.json (IAM > Service accounts).
+SA=firebase-adminsdk-XXXXX@proyecto-ocr-d3ecd.iam.gserviceaccount.com
+
+# Signed URLs for receipt evidence are signed through IAM, because the image
+# holds no private key. This lets the account sign as itself.
+gcloud iam service-accounts add-iam-policy-binding "$SA" \
+  --member "serviceAccount:$SA" --role roles/iam.serviceAccountTokenCreator
+
+gcloud run deploy ocr-api \
+  --source . \
+  --region us-central1 \
+  --service-account "$SA" \
+  --allow-unauthenticated \
+  --memory 1Gi \
+  --timeout 120 \
+  --max-instances 3 \
+  --set-env-vars "NODE_ENV=production,APP_NAME=Plataforma OCR,\
+CLIENT_ORIGIN=http://localhost:5173,\
+FIREBASE_STORAGE_BUCKET=proyecto-ocr-d3ecd.firebasestorage.app,\
+STATS_TIME_ZONE=America/Mexico_City,SCAN_DAILY_LIMIT=20,RECEIPT_MAX_UNITS=50"
+```
+
+`--allow-unauthenticated` lets the browser reach the service; the API still
+rejects every request without a Firebase ID token.
+
+Leave `GOOGLE_APPLICATION_CREDENTIALS` and `VISION_KEY_FILE` unset in Cloud Run.
+Setting them makes the server look for a file that is not there.
+
+### The Resend key
+
+Invite emails need `RESEND_API_KEY`, which belongs in Secret Manager, never in
+`--set-env-vars`. `scripts/set-resend-key.ps1` asks for the key without echoing
+it, stores it, grants the service account access and points the service at it:
+
+```powershell
+.\scripts\set-resend-key.ps1
+```
+
+Rotating the key is the same command again — it adds a version, and the service
+picks it up when it next starts. Without the key the API still creates accounts
+and returns the invite link; only the email is skipped.
+
+Deploy prints a service URL like `https://ocr-api-xxxxxxxx-uc.a.run.app`. Check
+it with `curl <url>/api/health`, then feed it to the client build as
+`VITE_API_BASE_URL`. Once the site is live, point the API back at it:
+
+```bash
+gcloud run services update ocr-api --region us-central1 \
+  --update-env-vars "CLIENT_ORIGIN=http://localhost:5173\,https://<user>.github.io,\
+CLIENT_APP_URL=https://<user>.github.io/Proyecto-OCR"
+```
+
+The comma inside `CLIENT_ORIGIN` is escaped as `\,` because gcloud splits on
+commas.
+
+## Deploying the client to GitHub Pages
+
+`.github/workflows/pages.yml` builds `client/` on every push to `master` and
+publishes it. **Pages serves static files only, so the API is not deployed with
+it** — host the server elsewhere and point the build at it.
+
+1. **Settings > Pages > Source:** GitHub Actions.
+2. **Settings > Secrets and variables > Actions > Variables:** add every
+   `VITE_FIREBASE_*` value from `client/.env` (they ship in the bundle anyway,
+   so they are variables, not secrets), plus `VITE_API_BASE_URL` with the API's
+   public address.
+3. **Firebase console > Authentication > Settings > Authorized domains:** add
+   `<user>.github.io`, or sign-in is refused.
+4. **On the server:** put the Pages origin in `CLIENT_ORIGIN` (comma-separated,
+   alongside `http://localhost:5173`) and the full address, sub-path included,
+   in `CLIENT_APP_URL`.
+
+The build sets Vite's `base` to `/<repo>/`, and the router picks that up through
+`import.meta.env.BASE_URL`. Deep links work because `404.html` is a copy of
+`index.html`.
+
 ## Not included yet
 
 Tests, linting config, CI, file storage, and rate limiting — all deliberately

@@ -72,6 +72,9 @@ database-debug.log*
 pubsub-debug.log*
 .runtimeconfig.json
 
+# Written by scripts/deploy-api.ps1 so the URL survives the window closing.
+scripts/.last-deploy-url.txt
+
 # ---- Uploads / local artifacts ----
 uploads/
 storage/

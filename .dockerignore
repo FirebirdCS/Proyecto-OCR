@@ -1,0 +1,21 @@
+# The image builds the server from source; nothing below belongs in it.
+node_modules
+**/node_modules
+**/dist
+.git
+.github
+.claude
+client
+# ...except its manifest: a frozen-lockfile install validates every workspace package.
+!client/package.json
+samples
+*.log
+
+# Secrets never enter the image: Cloud Run injects configuration as environment
+# variables and gets its credentials from the runtime service account.
+.env
+**/.env
+**/.env.*
+!**/.env.example
+serviceAccount*.json
+**/serviceAccount*.json

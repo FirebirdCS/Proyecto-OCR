@@ -15,7 +15,8 @@ export default function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <BrowserRouter>
+        {/* BASE_URL is "/" locally and "/<repo>/" on GitHub Pages. */}
+        <BrowserRouter basename={import.meta.env.BASE_URL}>
           <Routes>
             <Route path="/login" element={<LoginPage />} />
 

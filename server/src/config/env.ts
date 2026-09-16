@@ -17,7 +17,23 @@ const booleanish = z
 const schema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.coerce.number().int().positive().default(4000),
-  CLIENT_ORIGIN: z.string().url().default('http://localhost:5173'),
+  /**
+   * Origins allowed to call the API, comma-separated — the dev server and the
+   * deployed site can both be listed. An origin is scheme + host + port only.
+   */
+  CLIENT_ORIGIN: z
+    .string()
+    .default('http://localhost:5173')
+    .refine(
+      (value) => value.split(',').every((entry) => z.string().url().safeParse(entry.trim()).success),
+      'Every CLIENT_ORIGIN entry must be a URL',
+    ),
+  /**
+   * Where the app actually lives, including any sub-path (GitHub Pages serves a
+   * project at /<repo>/). Used for the links in invite emails. Defaults to the
+   * first CLIENT_ORIGIN.
+   */
+  CLIENT_APP_URL: z.string().url().optional(),
   /** Used in invite emails and their subject lines. */
   APP_NAME: z.string().default('OCR Platform'),
 
@@ -74,3 +90,9 @@ if (!parsed.success) {
 
 export const env = parsed.data;
 export const isProduction = env.NODE_ENV === 'production';
+
+/** Every origin the browser may call the API from. */
+export const clientOrigins = env.CLIENT_ORIGIN.split(',').map((entry) => entry.trim());
+
+/** The app's public address, without a trailing slash. */
+export const clientAppUrl = (env.CLIENT_APP_URL ?? clientOrigins[0]!).replace(/\/$/, '');

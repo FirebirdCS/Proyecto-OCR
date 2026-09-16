@@ -1,5 +1,5 @@
 import { auth } from '../config/firebase.js';
-import { env } from '../config/env.js';
+import { clientAppUrl } from '../config/env.js';
 import { HttpError } from '../utils/httpError.js';
 import { credentialsTemplate } from './mail.templates.js';
 import { sendResendMail } from './resend.service.js';
@@ -25,7 +25,7 @@ export async function sendCredentialsEmail(input: SendCredentialsInput): Promise
   }
 
   const actionLink = await auth.generatePasswordResetLink(email, {
-    url: `${env.CLIENT_ORIGIN}/login`,
+    url: `${clientAppUrl}/login`,
     handleCodeInApp: false,
   });
 
