@@ -1,0 +1,77 @@
+# Comprobantes de prueba
+
+Muestras para probar el escáner con la campaña **Farmacia** (producto
+**Paracetamol**, 2 pts por unidad). Los puntos esperados de abajo suponen esa
+configuración: si el producto vale otra cantidad, multiplica las unidades por
+su valor.
+
+## Generarlas
+
+```powershell
+python samples\generate_samples.py
+```
+
+Crea `samples\casos\` con 15 archivos fechados respecto a **hoy**. Si la campaña
+cambia de fechas o de producto:
+
+```powershell
+python samples\generate_samples.py --date 2026-09-18 --product PARACETAMOL
+```
+
+Solo necesita Python y Microsoft Edge; no hay que instalar nada más.
+
+## Antes de escanear
+
+- Escanea con una cuenta de rol **Usuario** que participe en la campaña.
+- **Límite diario:** 20 escaneos por usuario en 24 horas, incluidos los
+  rechazados. Si ya escaneaste otros hoy, usa dos cuentas o sube
+  `SCAN_DAILY_LIMIT` con `scripts\deploy-api.ps1 -SkipSetup -ScanDailyLimit 50`.
+- **A partir del quinto escaneo** en 24 horas, los comprobantes que sumen
+  puntos aparecerán además como *Revisar* en Comprobantes («El usuario envió
+  muchos comprobantes en 24 horas»). Es lo esperado.
+- Cada comprobante válido suma **una sola vez**. Para repetir la prueba,
+  vuelve a generarlas con otra fecha (`--date`), o anula el escaneo en
+  Comprobantes (anular no libera el comprobante: sigue bloqueado).
+
+## Qué debe pasar con cada uno
+
+### Válidos (suman puntos)
+
+| Archivo | Qué prueba | Resultado esperado |
+|---|---|---|
+| `valido-cantidad-x.png` | Cantidad escrita como «2 X 45.00» | 2 u → **4 pts** |
+| `valido-cantidad-abajo.png` | Cantidad en una línea aparte, debajo del producto; fecha de ayer | 3 u → **6 pts** |
+| `valido-unidades-fecha-corta.png` | Cantidad «4 UN» y fecha corta `dd-mm-aa` | 4 u → **8 pts** |
+| `valido-error-de-lectura.png` | Nombre con una letra mal impresa («PARACETAMOI») | 2 u → **4 pts** |
+| `valido-foto-celular.png` | Foto inclinada, en perspectiva y con luz desigual | 3 u → **6 pts** |
+| `valido-factura.pdf` | Factura A4 en columnas, folio y fecha en palabras («16 de septiembre de 2026»), «TOTAL A PAGAR» | 6 u → **12 pts** |
+
+### Suman, pero quedan para revisar
+
+| Archivo | Qué prueba | Resultado esperado |
+|---|---|---|
+| `revisar-cantidad-grande.png` | 12 unidades en una línea | 12 u → **24 pts**, marcado *Revisar*: «Muchas unidades en una sola línea» |
+| `revisar-tope-de-unidades.png` | 60 unidades, más que el máximo | Se cuentan 50 → **100 pts**, aviso de máximo de unidades y marcado *Revisar* |
+
+### Rechazados (0 puntos)
+
+| Archivo | Qué prueba | Resultado esperado |
+|---|---|---|
+| `rechazo-sin-total.png` | Solo SUBTOTAL, sin línea de TOTAL | «No encontramos el total del comprobante…» |
+| `rechazo-sin-fecha.png` | Sin fecha impresa | «No pudimos leer la fecha del comprobante…» |
+| `rechazo-fecha-futura.png` | Fechado dentro de una semana | «La fecha del comprobante (…) está fuera de las fechas de la campaña.» |
+| `rechazo-sin-precio.png` | Paracetamol sin importe en su línea | «Estos productos no muestran su precio en el comprobante y no se contaron: Paracetamol.» |
+| `rechazo-sin-productos.png` | Ningún producto de la campaña | «No encontramos productos de esta campaña en el comprobante.» |
+| `rechazo-nombre-abreviado.png` | Producto abreviado («PARACET») | No se reconoce → sin productos de la campaña. Muestra por qué conviene registrar el nombre tal como sale en los tickets |
+
+### Duplicado
+
+| Archivo | Qué prueba | Resultado esperado |
+|---|---|---|
+| `duplicado-foto-nueva.png` | El mismo ticket que `valido-cantidad-x.png`, fotografiado de nuevo | **Escanéalo después** de `valido-cantidad-x.png`: «Este comprobante ya fue registrado…» |
+
+## Muestras anteriores
+
+`ticket-farmacia`, `ticket-fuera-de-fecha` y `nota-sin-ticket` (en esta
+carpeta) son las primeras muestras, con fechas fijas de septiembre de 2026.
+`ticket-farmacia` ya se usó, así que hoy dará «ya fue registrado».
