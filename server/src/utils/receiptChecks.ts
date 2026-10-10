@@ -49,10 +49,25 @@ export function hasTotal(text: string): boolean {
 const TICKET_NUMBER =
   /\b(?:ticket|folio|factura|boleta|recibo|transacci[oó]n|trx|operaci[oó]n)\b\s*(?:n[°º.]?|no\.?|num\.?|#)?\s*[:.#-]?\s*([a-z]{0,3}-?\d[\d-]{2,})/i;
 
+// Guatemalan FEL invoices print the word FACTURA on a line of its own and the
+// document's identity several lines below, as "Serie: 22C1EE21" / "Numero:
+// 1,428,178,504" — too far apart for TICKET_NUMBER, which wants them adjacent.
+// The serie repeats across a till's whole roll, so the correlative is what
+// identifies the document; the serie only narrows it further when it is legible.
+const FEL_NUMBER = /\bn[uú]mero\b\s*:?\s*(\d[\d,.]{3,})/i;
+const FEL_SERIE = /\bserie\b\s*:?\s*([a-z0-9-]{4,})/i;
+
 /** The receipt's own number ("TICKET: 000482", "FOLIO A-1234"), normalized, or null. */
 export function findTicketNumber(text: string): string | null {
   const found = TICKET_NUMBER.exec(text);
-  return found ? found[1]!.toUpperCase().replace(/[^A-Z0-9]/g, '') : null;
+  if (found) return found[1]!.toUpperCase().replace(/[^A-Z0-9]/g, '');
+
+  const number = FEL_NUMBER.exec(text);
+  if (!number) return null;
+
+  const serie = FEL_SERIE.exec(text);
+  const raw = `${serie ? serie[1]! : ''}${number[1]!}`;
+  return raw.toUpperCase().replace(/[^A-Z0-9]/g, '');
 }
 
 const TIME = /(?<!\d)([01]?\d|2[0-3]):([0-5]\d)(?::[0-5]\d)?(?!\d)/;

@@ -239,9 +239,11 @@ export function matchReceipt(text: string, candidates: MatchCandidate[]): Receip
   // A description that wraps onto a second line with no digits, price or count of
   // its own ("DAKENX DEXKETOPROFENO 25MG X" / "AMPOLLA BEBIBLE"), as Guatemalan FEL
   // receipts print it. The name may span both lines, and the count sits below them.
+  // Note this is the line's *shape* only: a line that matched a product on its own
+  // still qualifies, because on a wrapped description the tail often is a product
+  // name ("Ampolla Bebible") without being a second item.
   const isContinuation = (index: number) =>
     index < lines.length &&
-    !hits[index] &&
     quantities[index] === null &&
     !hasAmount(lines[index]!) &&
     /[a-z]/i.test(lines[index]!) &&
@@ -249,14 +251,26 @@ export function matchReceipt(text: string, candidates: MatchCandidate[]): Receip
   const wrapped = lines.map(() => false);
   for (let index = 0; index + 1 < lines.length; index++) {
     if (wrapped[index] || !isContinuation(index + 1)) continue;
-    if (!hits[index]) {
-      const firstLength = tokens[index]!.length;
-      const joined = bestHit([...tokens[index]!, ...tokens[index + 1]!], keys);
-      // Only a name that really crosses the break; a hit wholly on the second line is not this item.
-      if (!joined || joined.start >= firstLength || joined.end <= firstLength) continue;
-      hits[index] = { ...joined, end: firstLength };
+
+    const firstLength = tokens[index]!.length;
+    const joined = bestHit([...tokens[index]!, ...tokens[index + 1]!], keys);
+    // Only a name that really crosses the break; a hit wholly on one side is not
+    // this item. It also has to beat what either line matched alone, or a short
+    // "Dakenx" — or a generic "Ampolla Bebible" sitting on the tail — would shadow
+    // the "Dakenx ... Ampolla Bebible" that can only be seen once both lines are
+    // joined. Longest-match-wins has to hold across the break too.
+    const crosses = joined !== null && joined.start < firstLength && joined.end > firstLength;
+    const alone = Math.max(hits[index]?.score ?? 0, hits[index + 1]?.score ?? 0);
+    if (crosses && joined!.score > alone) {
+      hits[index] = { ...joined!, end: firstLength };
     }
-    wrapped[index + 1] = true;
+
+    // The two lines are one item. Whatever matched the tail on its own does not
+    // score again, or a single 2-unit line would award a product for each half.
+    if (hits[index]) {
+      hits[index + 1] = null;
+      wrapped[index + 1] = true;
+    }
   }
 
   const side = quantityLineSide(hits, quantities, wrapped);

@@ -73,6 +73,52 @@ del diseño de pruebas (ver «Valores límite» al final).
 |---|---|---|
 | `duplicado-foto-nueva.png` | El mismo ticket que `valido-cantidad-x.png`, fotografiado de nuevo | **Escanéalo después** de `valido-cantidad-x.png`: «Este comprobante ya fue registrado…» |
 
+## Cómo nombrar los productos
+
+Probado el 2026-10-10 contra una factura FEL real de farmacia, cuyo renglón sale
+del OCR partido en tres líneas:
+
+```
+DAKENX DEXKETOPROFENO 25MG X
+AMPOLLA BEBIBLE
+2 UN X 13.89920      Q27.80
+```
+
+| Nombre registrado | Resultado |
+|---|---|
+| `Dakenx Dexketoprofeno 25mg Ampolla Bebible` | 2 u ✅ (el nombre cruza el salto de línea) |
+| `DAKENX DEXKETOPROFENO 25MG` | 2 u ✅ |
+| `Dexketoprofeno 25mg` | 2 u ✅ |
+| `Dexketoprofeno` | 2 u ✅ |
+| `Dakenz Dexketoprofeno 25mg…` (una letra mal) | 2 u ✅ (tolera 1 error en nombres de 12+) |
+| `Dakenx 25mg` | ❌ — las palabras tienen que ir **seguidas** tal como se imprimen |
+| `Dakenx Dexketoprofeno 50mg…` | ❌ — los dígitos deben coincidir exactos (50 ≠ 25) |
+
+En la práctica:
+
+- **Copia el nombre como sale impreso en el ticket**, en el orden en que sale.
+  No intercales ni quites palabras intermedias.
+- **La dosis tiene que ser exacta.** `25mg` nunca va a casar con `50mg`; eso es
+  deliberado, no un fallo.
+- **Evita nombres genéricos** (`Ampolla Bebible`, `Tabletas`). Casan con casi
+  cualquier renglón de la farmacia y le quitan el punto al producto correcto.
+- Si dudas, pasa el comprobante por el script de diagnóstico: imprime las líneas
+  tal como las reconstruye el OCR, que es lo que el matcher lee de verdad.
+
+  ```powershell
+  pnpm --filter @ocr/server exec tsx src/scripts/diagnose-receipt.ts rutal	icket.pdf "Nombre del producto"
+  ```
+
+## Regresión
+
+```powershell
+pnpm --filter @ocr/server exec tsx src/scripts/check-samples.ts samples\casos
+```
+
+Pasa los 15 archivos por Vision real y los compara con las unidades de este
+documento. No escribe nada ni suma puntos. **Córrelo después de tocar
+`receiptMatching.ts` o `receiptChecks.ts`.**
+
 ### Valores límite (`--limites`)
 
 | Archivo | Qué prueba | Resultado esperado |

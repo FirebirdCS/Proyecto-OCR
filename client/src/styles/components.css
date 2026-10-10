@@ -580,10 +580,6 @@ fieldset:disabled {
 
 .actions-menu-panel,
 .user-menu-panel {
-  position: absolute;
-  top: calc(100% + 0.35rem);
-  right: 0;
-  z-index: 30;
   min-width: 190px;
   padding: 0.35rem;
   background: var(--color-surface);
@@ -592,7 +588,23 @@ fieldset:disabled {
   box-shadow: var(--shadow-md);
 }
 
+/*
+ * Row menus are rendered into <body> and placed from script, because the tables
+ * they sit in scroll sideways: `overflow-x: auto` forces `overflow-y` to `auto`
+ * as well (the spec has no "clip one axis, overflow the other"), so an absolutely
+ * positioned panel got clipped and left the card with a stray vertical scrollbar.
+ * Above the mobile sidebar (40), since the menu is transient and always on top.
+ */
+.actions-menu-panel {
+  position: fixed;
+  z-index: 50;
+}
+
 .user-menu-panel {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  right: 0;
+  z-index: 30;
   min-width: 220px;
   padding: 0.6rem;
 }
