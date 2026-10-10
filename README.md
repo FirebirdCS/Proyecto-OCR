@@ -348,6 +348,25 @@ The build sets Vite's `base` to `/<repo>/`, and the router picks that up through
 `import.meta.env.BASE_URL`. Deep links work because `404.html` is a copy of
 `index.html`.
 
+## Test plan in Jira
+
+`scripts/test-plan.json` holds the QA plan derived from the project documents:
+7 epics, 17 user stories with acceptance criteria and traceability to the
+HU/RF/RN/CP codes, each assigned to Sprint 1, 2 or 3, and 34 QA sub-tasks wired
+to the fixtures in `samples/casos`. `scripts/jira-import.ps1` creates it in a
+Jira Cloud Scrum space, moves each story into its existing sprint (dates are
+never changed) and sets story points, so nobody types the board by hand:
+
+```powershell
+.\scripts\jira-import.ps1 -DryRun                       # prints the tree, creates nothing
+.\scripts\jira-import.ps1 -Site https://<site>.atlassian.net `
+  -Email <you>@<company>.com -Project <KEY>             # needs $env:JIRA_API_TOKEN
+.\scripts\jira-import.ps1 -Csv .\plan-de-pruebas.csv    # for Jira's own CSV importer
+```
+
+Re-running it skips whatever already carries the plan's label, so cases added to
+the JSON can be pushed without duplicating the board.
+
 ## Not included yet
 
 Tests, linting config, CI, file storage, and rate limiting — all deliberately

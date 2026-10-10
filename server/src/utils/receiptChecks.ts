@@ -4,15 +4,15 @@
  * "write PARACETAMOL on a napkin" worth nothing.
  */
 
-// "135.00", "$1,234.50", "1.234,50", "$ 99.50". Two decimals is what separates
-// an amount from a quantity ("2.000") or a pack size.
-const AMOUNT = /(?:^|[\s$:])\$?\s?\d{1,3}(?:[.,]\d{3})*[.,]\d{2}(?=\s|$)/;
+// "135.00", "$1,234.50", "1.234,50", "$ 99.50", and quetzales: "Q27.80", "Q. 27.80".
+// Two decimals is what separates an amount from a quantity ("2.000") or a pack size.
+const AMOUNT = /(?:^|[\s$:])(?:\$|q\.?)?\s?\d{1,3}(?:[.,]\d{3})*[.,]\d{2}(?=\s|$)/i;
 
 export function hasAmount(line: string): boolean {
   return AMOUNT.test(line);
 }
 
-const AMOUNT_VALUE = /(?:^|[\s$:])\$?\s?(\d{1,3}(?:[.,]\d{3})*[.,]\d{2})(?=\s|$)/g;
+const AMOUNT_VALUE = /(?:^|[\s$:])(?:\$|q\.?)?\s?(\d{1,3}(?:[.,]\d{3})*[.,]\d{2})(?=\s|$)/gi;
 
 /** Every amount always carries two decimals, so the digits alone are the value in cents. */
 function amountsIn(line: string): number[] {

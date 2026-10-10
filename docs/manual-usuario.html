@@ -1,0 +1,925 @@
+<title>Manual Plataforma OCR</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --primary: #0d4f8b;
+    --primary-soft: #e5eff8;
+    --accent: #00a8cc;
+    --ink: #18212f;
+    --ink-2: #4f5b6e;
+    --ink-3: #7c8799;
+    --ground: #f6f8fb;
+    --surface: #ffffff;
+    --surface-2: #f1f5fa;
+    --line: #e2e8f0;
+    --line-strong: #cfd8e3;
+    --ok: #0f7a45;
+    --ok-bg: #e6f6ec;
+    --warn: #8a520a;
+    --warn-bg: #fdf1de;
+    --bad: #b42626;
+    --bad-bg: #fbeaea;
+    --paper: #fffdf7;
+    --paper-ink: #2a2a2a;
+    --sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --mono: 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --primary: #6fb0e8;
+      --primary-soft: #16283b;
+      --accent: #33c2e0;
+      --ink: #eef2f7;
+      --ink-2: #aab6c6;
+      --ink-3: #7d8a9c;
+      --ground: #0d1117;
+      --surface: #151b23;
+      --surface-2: #1a222d;
+      --line: #273242;
+      --line-strong: #37455a;
+      --ok: #4ade80;
+      --ok-bg: #10301f;
+      --warn: #f0b458;
+      --warn-bg: #302209;
+      --bad: #f28b84;
+      --bad-bg: #351512;
+      --paper: #e9e5da;
+      --paper-ink: #1d1d1d;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --primary: #6fb0e8;
+    --primary-soft: #16283b;
+    --accent: #33c2e0;
+    --ink: #eef2f7;
+    --ink-2: #aab6c6;
+    --ink-3: #7d8a9c;
+    --ground: #0d1117;
+    --surface: #151b23;
+    --surface-2: #1a222d;
+    --line: #273242;
+    --line-strong: #37455a;
+    --ok: #4ade80;
+    --ok-bg: #10301f;
+    --warn: #f0b458;
+    --warn-bg: #302209;
+    --bad: #f28b84;
+    --bad-bg: #351512;
+    --paper: #e9e5da;
+    --paper-ink: #1d1d1d;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font: 400 16px/1.65 var(--sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: var(--primary); text-underline-offset: 3px; }
+  a:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+
+  /* ---------- masthead ---------- */
+  .masthead {
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+    padding-inline: 16px;
+  }
+  .masthead-inner {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding-block: 40px 32px;
+    display: grid;
+    gap: 14px;
+  }
+  .eyebrow {
+    font: 600 12px/1 var(--mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--primary);
+  }
+  .masthead h1 {
+    margin: 0;
+    font-size: clamp(30px, 5vw, 44px);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+    text-wrap: balance;
+  }
+  .masthead p { margin: 0; max-width: 62ch; color: var(--ink-2); font-size: 17px; }
+  .audience { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+  .audience a {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 7px 14px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--ink);
+    font-size: 14px; font-weight: 500;
+    text-decoration: none;
+  }
+  .audience a:hover { border-color: var(--primary); color: var(--primary); }
+  .audience b { font: 600 11px/1 var(--mono); color: var(--ink-3); letter-spacing: 0.04em; }
+
+  /* ---------- layout ---------- */
+  .layout {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 32px 16px 80px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  @media (min-width: 980px) {
+    .layout { grid-template-columns: 250px minmax(0, 1fr); gap: 56px; }
+    .toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; max-height: calc(100vh - 48px); overflow-y: auto; }
+    .toc details > summary { display: none; }
+  }
+
+  .toc details { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+  @media (min-width: 980px) { .toc details { background: none; border: 0; } }
+  .toc summary {
+    list-style: none; cursor: pointer;
+    padding: 12px 16px;
+    font-weight: 600; font-size: 15px;
+  }
+  .toc summary::-webkit-details-marker { display: none; }
+  .toc summary::after { content: '▾'; float: right; color: var(--ink-3); }
+  .toc ol { margin: 0; padding: 4px 16px 16px; list-style: none; counter-reset: ch; display: grid; gap: 2px; }
+  @media (min-width: 980px) { .toc ol { padding: 0; } }
+  .toc li { counter-increment: ch; }
+  .toc a {
+    display: grid; grid-template-columns: 26px 1fr; gap: 6px;
+    padding: 6px 8px; border-radius: 6px;
+    color: var(--ink-2); text-decoration: none; font-size: 14px; line-height: 1.4;
+  }
+  .toc a::before { content: counter(ch, decimal-leading-zero); font: 500 12px/1.7 var(--mono); color: var(--ink-3); }
+  .toc a:hover { background: var(--primary-soft); color: var(--primary); }
+  .toc .toc-label { font: 600 11px/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); padding: 0 8px 10px; display: none; }
+  @media (min-width: 980px) { .toc .toc-label { display: block; } }
+
+  /* ---------- content ---------- */
+  main { min-width: 0; }
+  .chapter { padding-block: 8px 40px; border-bottom: 1px solid var(--line); margin-bottom: 40px; }
+  .chapter:last-child { border-bottom: 0; margin-bottom: 0; }
+  .chapter-head { display: grid; gap: 6px; margin-bottom: 20px; }
+  .chapter-num { font: 600 12px/1 var(--mono); color: var(--accent); letter-spacing: 0.06em; }
+  h2 { margin: 0; font-size: clamp(24px, 3.4vw, 30px); line-height: 1.2; letter-spacing: -0.015em; text-wrap: balance; }
+  h3 { margin: 32px 0 10px; font-size: 19px; line-height: 1.3; letter-spacing: -0.01em; text-wrap: balance; }
+  h4 { margin: 22px 0 8px; font-size: 15px; font-weight: 600; }
+  p, li { max-width: 68ch; }
+  p { margin: 0 0 14px; }
+  ul, ol { margin: 0 0 16px; padding-left: 22px; }
+  li { margin-bottom: 6px; }
+  .lead { font-size: 17px; color: var(--ink-2); }
+  strong { font-weight: 600; }
+
+  /* inline UI labels: how the reader will see them on screen */
+  .ui {
+    display: inline-block;
+    padding: 0 7px;
+    border: 1px solid var(--line-strong);
+    border-radius: 5px;
+    background: var(--surface);
+    font: 500 0.86em/1.7 var(--sans);
+    color: var(--ink);
+    white-space: nowrap;
+  }
+  .ui.btn { background: var(--primary); border-color: var(--primary); color: #fff; }
+  :root[data-theme="dark"] .ui.btn { color: #0d1117; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .ui.btn { color: #0d1117; } }
+  code, .mono { font-family: var(--mono); font-size: 0.88em; }
+  code { background: var(--surface-2); border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px; }
+  pre {
+    margin: 0 0 16px; padding: 14px 16px;
+    background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px;
+    overflow-x: auto; font: 13.5px/1.6 var(--mono);
+  }
+  pre code { background: none; border: 0; padding: 0; font-size: inherit; }
+
+  /* status pills that mirror the app */
+  .pill { display: inline-block; padding: 1px 9px; border-radius: 999px; font: 600 11px/1.8 var(--sans); letter-spacing: 0.03em; text-transform: uppercase; white-space: nowrap; }
+  .pill.ok { color: var(--ok); background: var(--ok-bg); }
+  .pill.warn { color: var(--warn); background: var(--warn-bg); }
+  .pill.bad { color: var(--bad); background: var(--bad-bg); }
+  .pill.neutral { color: var(--ink-2); background: var(--surface-2); }
+  .pill.info { color: var(--primary); background: var(--primary-soft); }
+
+  /* callouts */
+  .note {
+    margin: 18px 0; padding: 14px 16px;
+    border: 1px solid var(--line); border-left: 3px solid var(--primary);
+    border-radius: 6px; background: var(--surface);
+  }
+  .note.warn { border-left-color: var(--warn); background: var(--warn-bg); border-color: transparent; border-left-color: var(--warn); }
+  .note p:last-child, .note ul:last-child { margin-bottom: 0; }
+  .note-title { display: block; font-weight: 600; margin-bottom: 4px; }
+
+  /* steps: a real sequence */
+  .steps { list-style: none; padding: 0; counter-reset: step; display: grid; gap: 12px; margin: 0 0 18px; }
+  .steps > li {
+    counter-increment: step;
+    display: grid; grid-template-columns: 30px 1fr; gap: 12px;
+    max-width: 72ch; margin: 0;
+  }
+  .steps > li::before {
+    content: counter(step);
+    width: 28px; height: 28px; border-radius: 50%;
+    display: grid; place-items: center;
+    background: var(--primary-soft); color: var(--primary);
+    font: 600 13px/1 var(--mono);
+  }
+
+  /* tables */
+  .table-wrap { overflow-x: auto; margin: 0 0 18px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+  table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+  th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+  tr:last-child td { border-bottom: 0; }
+  th { font: 600 11px/1.4 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); background: var(--surface-2); white-space: nowrap; }
+  td:first-child { font-weight: 500; }
+  .table-wrap table { min-width: 560px; }
+  .num { font-variant-numeric: tabular-nums; }
+
+  /* the receipt anatomy figure — the subject's own document */
+  .anatomy { display: grid; gap: 20px; margin: 20px 0 24px; align-items: start; }
+  @media (min-width: 760px) { .anatomy { grid-template-columns: minmax(0, 300px) minmax(0, 1fr); } }
+  .receipt {
+    background: var(--paper); color: var(--paper-ink);
+    font: 12.5px/1.55 var(--mono);
+    padding: 18px 16px 22px;
+    border-radius: 2px;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.08), 0 8px 24px rgba(16, 24, 40, 0.08);
+    position: relative;
+    max-width: 100%;
+    -webkit-mask: radial-gradient(circle 5px at 50% 100%, transparent 98%, #000) 0 0 / 12px 100% repeat-x;
+            mask: radial-gradient(circle 5px at 50% 100%, transparent 98%, #000) 0 0 / 12px 100% repeat-x;
+  }
+  .receipt .c { text-align: center; }
+  .receipt .t { font-weight: 600; font-size: 14px; }
+  .receipt .r { display: flex; justify-content: space-between; gap: 10px; }
+  .receipt .rule { border-top: 1px dashed #777; margin: 7px 0; }
+  .receipt mark { background: none; color: inherit; border-radius: 2px; padding: 0 2px; margin: 0 -2px; }
+  .receipt mark[data-k="1"] { box-shadow: inset 0 -2px 0 #00a8cc; background: rgba(0, 168, 204, 0.14); }
+  .receipt mark[data-k="2"] { box-shadow: inset 0 -2px 0 #0d4f8b; background: rgba(13, 79, 139, 0.12); }
+  .receipt mark[data-k="3"] { box-shadow: inset 0 -2px 0 #0f7a45; background: rgba(15, 122, 69, 0.13); }
+  .receipt mark[data-k="4"] { box-shadow: inset 0 -2px 0 #b76a00; background: rgba(183, 106, 0, 0.14); }
+  .keys { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+  .keys li { display: grid; grid-template-columns: 24px 1fr; gap: 10px; margin: 0; }
+  .keys .k {
+    width: 22px; height: 22px; border-radius: 50%;
+    display: grid; place-items: center;
+    font: 600 11px/1 var(--mono); color: #fff;
+  }
+  .k1 { background: #00a8cc; } .k2 { background: #0d4f8b; } .k3 { background: #0f7a45; } .k4 { background: #b76a00; }
+  .keys strong { display: block; }
+
+  /* role cards at the start */
+  .roles { display: grid; gap: 14px; margin: 18px 0; }
+  @media (min-width: 700px) { .roles { grid-template-columns: 1fr 1fr; } }
+  .role { border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; background: var(--surface); }
+  .role h4 { margin: 0 0 6px; display: flex; align-items: center; gap: 8px; }
+  .role ul { margin: 0; }
+  .role li { font-size: 15px; }
+
+  /* flow strip */
+  .flow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0 20px; padding: 0; list-style: none; }
+  .flow li { margin: 0; padding: 7px 12px; border-radius: 8px; background: var(--surface); border: 1px solid var(--line); font-size: 14px; }
+  .flow li + li::before { content: '→'; margin-right: 10px; color: var(--ink-3); }
+  .flow li { display: inline-flex; align-items: center; }
+
+  dl.gloss { display: grid; grid-template-columns: 1fr; gap: 4px 20px; margin: 0; }
+  @media (min-width: 700px) { dl.gloss { grid-template-columns: 200px 1fr; } }
+  dl.gloss dt { font-weight: 600; padding-top: 10px; }
+  dl.gloss dd { margin: 0; padding-top: 10px; color: var(--ink-2); max-width: 64ch; }
+  @media (min-width: 700px) { dl.gloss dt, dl.gloss dd { border-top: 1px solid var(--line); } }
+
+  .footer-note { font-size: 13px; color: var(--ink-3); margin-top: 8px; }
+
+  /* ---------- print / PDF: always light, A4, one chapter per page ---------- */
+  @media print {
+    /* the id in :not() outranks both dark-theme selectors above */
+    html:not(#print) {
+      --primary: #0d4f8b; --primary-soft: #e5eff8; --accent: #00a8cc;
+      --ink: #18212f; --ink-2: #4f5b6e; --ink-3: #7c8799;
+      --ground: #ffffff; --surface: #ffffff; --surface-2: #f1f5fa;
+      --line: #e2e8f0; --line-strong: #cfd8e3;
+      --ok: #0f7a45; --ok-bg: #e6f6ec; --warn: #8a520a; --warn-bg: #fdf1de;
+      --bad: #b42626; --bad-bg: #fbeaea; --paper: #fffdf7; --paper-ink: #2a2a2a;
+      color-scheme: light;
+    }
+    @page { size: A4; margin: 16mm 15mm 18mm; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { font-size: 10.5pt; line-height: 1.55; }
+    html:not(#print) .ui.btn { color: #ffffff; }
+    .masthead { border: 0; padding: 0; }
+    .masthead-inner { padding-block: 40mm 12mm; max-width: none; }
+    .masthead h1 { font-size: 30pt; }
+    .audience { display: none; }
+    .layout { display: block; padding: 0; max-width: none; }
+    .toc { position: static; max-height: none; overflow: visible; break-after: page; margin-top: 10mm; }
+    .toc details { border: 0; background: none; }
+    .toc summary { display: none; }
+    .toc .toc-label { display: block; font-size: 10pt; padding: 0 0 8px; }
+    .toc ol { padding: 0; }
+    .toc a { font-size: 11pt; padding: 4px 0; color: var(--ink); }
+    .chapter { break-before: page; border: 0; margin: 0; padding: 0; }
+    .chapter:first-child { break-before: auto; }
+    h2, h3, h4, .chapter-head { break-after: avoid; }
+    table, tr, pre, .note, .receipt, .role, .steps > li, .keys li, dl.gloss dt, dl.gloss dd { break-inside: avoid; }
+    .table-wrap { overflow: visible; }
+    .table-wrap table { min-width: 0; }
+    a { color: inherit; text-decoration: none; }
+    p, li { max-width: none; }
+  }
+
+  /* screenshots */
+  .shot { margin: 18px 0 26px; }
+  .shot img { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 1px 2px rgba(16,24,40,.06), 0 8px 24px rgba(16,24,40,.06); background: #fff; }
+  .shot.narrow img { max-width: 300px; }
+  .shot figcaption { margin-top: 8px; font-size: 13px; color: var(--ink-3); }
+  .shot figcaption b { color: var(--ink-2); font-weight: 600; }
+  @media print { .masthead-inner { padding-block: 26mm 8mm !important; } .toc a { padding: 2px 0 !important; } .shot { break-inside: avoid; } .shot img { box-shadow: none; max-height: 235mm; width: auto; max-width: 100%; } .shot.narrow img { max-width: 70mm; } }
+</style>
+<header class="masthead">
+<div class="masthead-inner">
+<span class="eyebrow">Plataforma OCR · CORVELSA · Manual de uso</span>
+<h1>Manual de la Plataforma OCR</h1>
+<p>Todo lo que hace la plataforma, explicado para quien la usa: cómo se escanean comprobantes y se ganan puntos, cómo se administran productos, campañas y usuarios, y cómo se revisa y opera el sistema.</p><p class="footer-note">Las capturas de pantalla usan datos de ejemplo: los nombres, correos y cifras no son reales.</p>
+<nav aria-label="Ir a la sección de tu rol" class="audience">
+<a href="#usuario"><b>USUARIO</b> Escanear y ganar puntos</a>
+<a href="#admin-panel"><b>ADMIN</b> Administrar la plataforma</a>
+<a href="#tecnico"><b>TI</b> Operación y despliegue</a>
+</nav>
+</div>
+</header>
+<div class="layout">
+<aside class="toc">
+<details open="">
+<summary>Contenido</summary>
+<span class="toc-label">Contenido</span>
+<ol>
+<li><a href="#intro">Qué es la plataforma</a></li>
+<li><a href="#acceso">Acceso y navegación</a></li>
+<li><a href="#usuario">Guía del usuario</a></li>
+<li><a href="#comprobante">Qué debe tener un comprobante</a></li>
+<li><a href="#puntos">Cómo se calculan los puntos</a></li>
+<li><a href="#admin-panel">Panel del administrador</a></li>
+<li><a href="#productos">Productos</a></li>
+<li><a href="#campanas">Campañas</a></li>
+<li><a href="#usuarios">Usuarios</a></li>
+<li><a href="#comprobantes">Revisión de comprobantes</a></li>
+<li><a href="#mensajes">Mensajes y solución de problemas</a></li>
+<li><a href="#faq">Preguntas frecuentes</a></li>
+<li><a href="#glosario">Glosario</a></li>
+<li><a href="#tecnico">Anexo técnico</a></li>
+<li><a href="#riesgos">Mitigación de riesgos del OCR</a></li></ol>
+</details>
+</aside>
+<main>
+<!-- 01 -->
+<section class="chapter" id="intro">
+<div class="chapter-head">
+<span class="chapter-num">01</span>
+<h2>Qué es la plataforma</h2>
+</div>
+<p class="lead">Es una plataforma de incentivos de venta. Los participantes fotografían sus recibos o facturas, el sistema lee el texto automáticamente (OCR) y, cuando encuentra productos de una campaña, les suma puntos. Al acumular puntos, cada participante va superando hitos que pueden tener recompensas.</p>
+<ol aria-label="Flujo general" class="flow">
+<li>El admin crea productos</li>
+<li>Arma una campaña</li>
+<li>El usuario escanea su comprobante</li>
+<li>Se validan fecha, total y precios</li>
+<li>Se suman puntos e hitos</li>
+</ol>
+<h3>Los dos roles</h3>
+<div class="roles">
+<div class="role">
+<h4><span class="pill info">Usuario</span></h4>
+<ul>
+<li>Ve sus campañas, sus puntos y los hitos que le faltan.</li>
+<li>Escanea comprobantes para sumar puntos.</li>
+<li>Es el único rol que puede escanear.</li>
+</ul>
+</div>
+<div class="role">
+<h4><span class="pill info">Administrador</span></h4>
+<ul>
+<li>Ve el panel de ventas y los productos más vendidos.</li>
+<li>Gestiona productos, campañas y usuarios.</li>
+<li>Revisa los comprobantes y anula puntos si algo no es válido.</li>
+</ul>
+</div>
+</div>
+<p>No existe registro público: toda cuenta la crea un administrador, que invita a la persona por correo.</p>
+</section>
+<!-- 02 -->
+<section class="chapter" id="acceso">
+<div class="chapter-head">
+<span class="chapter-num">02</span>
+<h2>Acceso y navegación</h2>
+</div>
+<h3>Activar tu cuenta</h3>
+<ol class="steps">
+<li><span>Un administrador crea tu cuenta con tu correo. Recibes un correo con un enlace para <strong>elegir tu contraseña</strong>. Nunca se envían contraseñas por correo.</span></li>
+<li><span>Abre el enlace, escribe tu contraseña nueva y confírmala.</span></li>
+<li><span>Vuelve a la plataforma e inicia sesión con tu correo y esa contraseña.</span></li>
+</ol>
+<p>Si no te llegó el correo, pide al administrador que use <span class="ui">Reenviar invitación</span>, o que te comparta el enlace directamente.</p>
+<h3>Iniciar sesión</h3>
+<p>En la pantalla <strong>Iniciar sesión</strong> escribe tu <span class="ui">Correo electrónico</span> y tu <span class="ui">Contraseña</span> y pulsa <span class="ui btn">Iniciar sesión</span>. El ícono del ojo muestra u oculta lo que escribes.</p>
+<p>Si los datos no coinciden verás <em>«Esa combinación de correo y contraseña no funcionó.»</em> El mensaje es el mismo si el correo no existe o si la contraseña es incorrecta; así nadie puede averiguar qué correos están registrados.</p><figure class="shot"><img alt="Pantalla de inicio de sesión." loading="lazy" src="capturas/01-inicio-sesion.png"/><figcaption><b>Figura 1.</b> Pantalla de inicio de sesión.</figcaption></figure><figure class="shot"><img alt="Mensaje cuando el correo o la contraseña no coinciden." loading="lazy" src="capturas/02-inicio-sesion-error.png"/><figcaption><b>Figura 2.</b> Mensaje cuando el correo o la contraseña no coinciden.</figcaption></figure>
+<h3>Olvidé mi contraseña</h3>
+<p>Escribe tu correo en el campo y pulsa <span class="ui">¿Olvidaste tu contraseña?</span>. Aparecerá: <em>«Si tu correo tiene una cuenta, un enlace para la contraseña está en camino.»</em> Revisa también la carpeta de spam.</p><figure class="shot"><img alt="Aviso tras pedir el enlace para restablecer la contraseña." loading="lazy" src="capturas/03-recuperar-contrasena.png"/><figcaption><b>Figura 3.</b> Aviso tras pedir el enlace para restablecer la contraseña.</figcaption></figure>
+<h3>Moverte por la plataforma</h3>
+<ul>
+<li><strong>Menú lateral:</strong> <span class="ui">Panel</span> para todos; <span class="ui">Campañas</span>, <span class="ui">Productos</span>, <span class="ui">Comprobantes</span> y <span class="ui">Usuarios</span> solo para administradores. Se puede contraer con el botón junto al logo. En el celular se abre con el botón de menú de la barra superior.</li>
+<li><strong>Tema claro u oscuro:</strong> el botón de la barra superior cambia entre ambos. La plataforma recuerda tu elección.</li>
+<li><strong>Tu cuenta:</strong> pulsa tu avatar (tus iniciales) arriba a la derecha para ver tu nombre, correo y rol, y para <span class="ui">Cerrar sesión</span>.</li>
+</ul>
+<p>Si entras a una página que tu rol no permite, verás <strong>No permitido</strong>.</p><figure class="shot"><img alt="Menú de la cuenta, con nombre, correo, rol y «Cerrar sesión»." loading="lazy" src="capturas/05-usuario-menu-cuenta.png"/><figcaption><b>Figura 4.</b> Menú de la cuenta, con nombre, correo, rol y «Cerrar sesión».</figcaption></figure><figure class="shot"><img alt="Pantalla «No permitido» al abrir una página de otro rol." loading="lazy" src="capturas/09-no-permitido.png"/><figcaption><b>Figura 5.</b> Pantalla «No permitido» al abrir una página de otro rol.</figcaption></figure><figure class="shot narrow"><img alt="La plataforma en el navegador del celular." loading="lazy" src="capturas/10-usuario-movil.png"/><figcaption><b>Figura 6.</b> La plataforma en el navegador del celular.</figcaption></figure>
+</section>
+<!-- 03 -->
+<section class="chapter" id="usuario">
+<div class="chapter-head">
+<span class="chapter-num">03</span>
+<h2>Guía del usuario</h2>
+</div>
+<p class="lead">Al entrar llegas a tu <strong>Panel</strong>: tus campañas arriba y el escáner de comprobantes abajo.</p>
+<h3>Tus campañas</h3>
+<p>Cada campaña en la que participas muestra:</p>
+<ul>
+<li><strong>Tus puntos acumulados</strong> en esa campaña.</li>
+<li><strong>Una barra de progreso</strong> hacia el siguiente hito, con el texto <em>«Te faltan N pts para «Nombre del hito»»</em>. Al superar el último verás <em>«¡Completaste todos los hitos!»</em>.</li>
+<li><strong>La escalera de hitos</strong>: cada hito con su meta en puntos y su recompensa. Los alcanzados aparecen con una marca de verificación verde.</li>
+<li><strong>Los productos que suman</strong>, con los puntos que vale cada unidad (<span class="mono">pts/u</span>). Si un producto es <em>obligatorio</em>, verás cuántas unidades llevas y el mínimo exigido (por ejemplo <span class="mono">obligatorio 1/3</span>).</li>
+<li>Un aviso <em>«Aún te faltan productos obligatorios»</em> mientras no cumplas esos mínimos.</li>
+</ul><figure class="shot"><img alt="Panel del usuario: campañas, puntos, hitos y escáner." loading="lazy" src="capturas/04-usuario-panel.png"/><figcaption><b>Figura 7.</b> Panel del usuario: campañas, puntos, hitos y escáner.</figcaption></figure>
+<h3>Escanear un comprobante</h3>
+<ol class="steps">
+<li><span>En <strong>Escanear comprobante</strong>, elige la <span class="ui">Campaña</span> a la que corresponde. Solo aparecen las campañas vigentes; si participas en una sola, ya viene seleccionada.</span></li>
+<li><span>Pulsa la zona <span class="ui">Selecciona o arrastra una imagen</span> y elige la foto o el PDF del comprobante (o arrástralo encima). Formatos: PNG, JPG, WebP, TIFF o PDF, hasta 10 MB. En un PDF se leen las primeras 5 páginas.</span></li>
+<li><span>Espera mientras aparece <em>«Leyendo el comprobante...»</em>.</span></li>
+<li><span>Revisa el resultado debajo.</span></li>
+</ol><figure class="shot"><img alt="El escáner mientras lee el comprobante." loading="lazy" src="capturas/06-usuario-leyendo.png"/><figcaption><b>Figura 8.</b> El escáner mientras lee el comprobante.</figcaption></figure>
+<h3>Entender el resultado</h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Ves</th><th>Significa</th></tr></thead>
+<tbody>
+<tr><td>«¡Sumaste N puntos en «Campaña»!»</td><td>El comprobante es válido. La tabla muestra cada producto, unidades, puntos por unidad y puntos ganados, además de la fecha del comprobante y tu total en la campaña.</td></tr>
+<tr><td>«¡Alcanzaste el hito «X»!»</td><td>Este comprobante te hizo superar un hito. Si tiene recompensa, se indica debajo.</td></tr>
+<tr><td>«Este comprobante no suma puntos en «Campaña»»</td><td>No se otorgaron puntos. Debajo se explica el motivo (sin total, sin fecha, fecha fuera de campaña o ningún producto de la campaña).</td></tr>
+<tr><td>Aviso amarillo junto a puntos ganados</td><td>Se contaron algunos productos pero otros no (por ejemplo, un producto sin precio en su línea, o se superó el máximo de unidades).</td></tr>
+</tbody>
+</table>
+</div>
+<p>En <span class="ui">Ver texto extraído</span> puedes ver exactamente lo que el sistema leyó de la imagen. Es útil para entender por qué un producto no se reconoció.</p>
+<p>Tras un escaneo con puntos, tus campañas se actualizan solas con el nuevo total.</p><figure class="shot"><img alt="Resultado de un comprobante válido, con el texto extraído abierto." loading="lazy" src="capturas/07-usuario-resultado.png"/><figcaption><b>Figura 9.</b> Resultado de un comprobante válido, con el texto extraído abierto.</figcaption></figure><figure class="shot"><img alt="Resultado de un comprobante rechazado por no tener TOTAL." loading="lazy" src="capturas/08-usuario-rechazo.png"/><figcaption><b>Figura 10.</b> Resultado de un comprobante rechazado por no tener TOTAL.</figcaption></figure>
+<h3>Consejos para una buena foto</h3>
+<ul>
+<li>Toma el comprobante <strong>completo</strong>, de la cabecera al TOTAL. Si es muy largo, no lo dividas en dos fotos: la fecha y el total tienen que salir en la misma imagen.</li>
+<li>Apóyalo sobre una superficie plana, con buena luz y sin sombras ni reflejos.</li>
+<li>Asegúrate de que se lean la <strong>fecha</strong>, las <strong>líneas de productos con su precio</strong> y el <strong>TOTAL</strong>.</li>
+<li>Una ligera inclinación no importa; el sistema endereza la imagen.</li>
+</ul>
+</section>
+<!-- 04 -->
+<section class="chapter" id="comprobante">
+<div class="chapter-head">
+<span class="chapter-num">04</span>
+<h2>Qué debe tener un comprobante</h2>
+</div>
+<p class="lead">Para evitar abusos, un comprobante solo suma puntos si parece un comprobante real y de las fechas de la campaña. Esto es lo que el sistema busca:</p>
+<div class="anatomy">
+<figure aria-label="Ticket de ejemplo con las partes que el sistema revisa" class="receipt">
+<div class="c t">FARMACIA EJEMPLO</div>
+<div class="c">Av. Siempre Viva 123, Centro</div>
+<div class="rule"></div>
+<div class="r"><span><mark data-k="4">TICKET: 000482</mark></span><span><mark data-k="1">15/09/2026</mark> 11:42</span></div>
+<div class="rule"></div>
+<div class="r"><span>CANT DESCRIPCION</span><span>IMPORTE</span></div>
+<div class="rule"></div>
+<div class="r"><span>3 PARACETAMOL 500MG</span><span><mark data-k="2">135.00</mark></span></div>
+<div class="r"><span>1 IBUPROFENO 400MG</span><span>58.00</span></div>
+<div class="r"><span>2 PARACETAMOL INF.</span><span><mark data-k="2">76.00</mark></span></div>
+<div class="rule"></div>
+<div class="r"><span>SUBTOTAL</span><span>269.00</span></div>
+<div class="r"><strong><mark data-k="3">TOTAL</mark></strong><strong><mark data-k="3">$269.00</mark></strong></div>
+</figure>
+<ol class="keys">
+<li><span class="k k1">1</span><span><strong>Fecha dentro de la campaña</strong>La fecha impresa debe estar entre el inicio de la campaña y hoy. Un ticket de antes de la campaña, o con fecha futura, no suma.</span></li>
+<li><span class="k k2">2</span><span><strong>Precio en la línea del producto</strong>Cada producto de la campaña debe aparecer con su importe. Una línea sin precio no cuenta (una nota escrita a mano con el nombre del producto no sirve).</span></li>
+<li><span class="k k3">3</span><span><strong>Línea de TOTAL con importe</strong>Sin total, el comprobante no suma nada. El SUBTOTAL no cuenta como total.</span></li>
+<li><span class="k k4">4</span><span><strong>Identidad del comprobante</strong>Número de ticket o folio (o la hora), fecha y total se usan para reconocer el mismo papel aunque se vuelva a fotografiar.</span></li>
+</ol>
+</div>
+<h3>Otras reglas</h3>
+<ul>
+<li><strong>Un comprobante suma una sola vez.</strong> Volver a subir el mismo archivo, una copia, o una foto nueva del mismo papel (incluso desde otra cuenta) se rechaza.</li>
+<li><strong>Máximo de unidades por comprobante:</strong> 50 unidades por campaña. Lo que exceda no se cuenta y se te avisa.</li>
+<li><strong>Límite diario:</strong> 20 escaneos por usuario en cualquier periodo de 24 horas, incluidos los rechazados.</li>
+<li><strong>Solo la campaña elegida:</strong> se buscan únicamente los productos de la campaña que seleccionaste, y solo si está vigente y participas en ella.</li>
+<li><strong>Productos desactivados</strong> por el administrador no suman, aunque sigan en la campaña.</li>
+</ul>
+<div class="note">
+<span class="note-title">Si tu comprobante fue rechazado</span>
+<p>Los rechazados no quedan bloqueados: puedes tomar una foto mejor y volver a intentarlo. Solo los comprobantes que ya ganaron puntos no se pueden volver a usar.</p>
+</div>
+</section>
+<!-- 05 -->
+<section class="chapter" id="puntos">
+<div class="chapter-head">
+<span class="chapter-num">05</span>
+<h2>Cómo se calculan los puntos</h2>
+</div>
+<p class="lead"><strong>Puntos = unidades × puntos por unidad en esa campaña.</strong> Cada campaña puede dar un valor distinto al mismo producto.</p>
+<p>Ejemplo con el ticket anterior en una campaña donde Paracetamol vale 2 pts por unidad: 3 + 2 = 5 unidades × 2 = <strong>10 puntos</strong>. El ibuprofeno no suma porque no está en la campaña.</p>
+<h3>Cómo se lee la cantidad</h3>
+<p>El sistema reconoce las formas más comunes de escribir la cantidad en un ticket:</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>En el ticket</th><th>Unidades</th></tr></thead>
+<tbody>
+<tr><td><code>3 PARACETAMOL 500MG 135.00</code></td><td class="num">3</td></tr>
+<tr><td><code>PARACETAMOL 500MG 2 X 45.00</code></td><td class="num">2</td></tr>
+<tr><td><code>PARACETAMOL 500MG x3</code></td><td class="num">3</td></tr>
+<tr><td><code>PARACETAMOL 500MG 4 UN</code></td><td class="num">4</td></tr>
+<tr><td><code>PARACETAMOL CANT: 2</code></td><td class="num">2</td></tr>
+<tr><td>Cantidad en una línea aparte (<code>3 X 45.00</code>) arriba o abajo del producto</td><td class="num">3</td></tr>
+<tr><td>Sin cantidad visible</td><td class="num">1</td></tr>
+</tbody>
+</table>
+</div>
+<div class="note">
+<span class="note-title">Ante la duda, 1 unidad</span>
+<p>Cuando la cantidad no es clara, el sistema cuenta una sola unidad. Prefiere dar de menos a dar de más; un administrador puede revisar el caso.</p>
+</div>
+<h3>Cómo se reconoce el producto</h3>
+<ul>
+<li>No importan mayúsculas, acentos, guiones ni espacios: «COCA-COLA» y «Coca Cola» son lo mismo.</li>
+<li>Se tolera una letra mal leída en nombres de 5 letras o más (dos en nombres largos).</li>
+<li>Los números deben coincidir exactos: «500ML» nunca se confunde con «600ML».</li>
+<li>El SKU o código se compara exacto.</li>
+<li>Si dos productos encajan en la misma línea, gana el nombre más largo y específico («Coca Cola Zero» antes que «Coca Cola»).</li>
+</ul>
+<h3>Hitos</h3>
+<p>Los hitos se alcanzan por puntos acumulados en la campaña. Cada participante avanza por su cuenta sobre la misma escalera. Los productos obligatorios se muestran como pendientes mientras no se cumpla su mínimo, pero no impiden alcanzar hitos.</p>
+</section>
+<!-- 06 -->
+<section class="chapter" id="admin-panel">
+<div class="chapter-head">
+<span class="chapter-num">06</span>
+<h2>Panel del administrador</h2>
+</div>
+<p class="lead">Como administrador, tu <span class="ui">Panel</span> es el resumen de ventas. Mientras carga, verás una vista previa gris con la misma forma del panel.</p>
+<h3>Tarjetas de resumen</h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Tarjeta</th><th>Muestra</th></tr></thead>
+<tbody>
+<tr><td>Productos registrados</td><td>Total de productos, cuántos están activos y cuántas campañas están activas.</td></tr>
+<tr><td>Vendidos hoy</td><td>Unidades vendidas hoy, con comprobantes y puntos otorgados.</td></tr>
+<tr><td>Vendidos esta semana</td><td>Desde el lunes de esta semana.</td></tr>
+<tr><td>Vendidos este mes</td><td>Desde el día 1 del mes.</td></tr>
+</tbody>
+</table>
+</div><figure class="shot"><img alt="Panel del administrador: resumen, unidades vendidas y productos más vendidos." loading="lazy" src="capturas/11-admin-panel.png"/><figcaption><b>Figura 11.</b> Panel del administrador: resumen, unidades vendidas y productos más vendidos.</figcaption></figure>
+<h3>Unidades vendidas</h3>
+<p>El gráfico de barras muestra las unidades vendidas. Cambia la agrupación con <span class="ui">Por día</span> (últimos 30 días), <span class="ui">Por semana</span> (últimas 12 semanas) o <span class="ui">Por mes</span> (últimos 12 meses). Pasa el cursor o el teclado sobre una barra para ver unidades, puntos y comprobantes de ese periodo. En <span class="ui">Ver datos en tabla</span> están los mismos números. El botón de flechas circulares actualiza los datos.</p>
+<h3>Productos más vendidos</h3>
+<p>Los productos con más unidades en el mismo periodo, con los puntos otorgados y su participación sobre el total.</p>
+<div class="note">
+<span class="note-title">Qué cuenta como venta</span>
+<p>Solo las unidades de comprobantes que ganaron puntos. Los días se cortan en la zona horaria indicada al pie del panel. Si anulas un comprobante, sus unidades se restan del día en que se escaneó.</p>
+</div>
+</section>
+<!-- 07 -->
+<section class="chapter" id="productos">
+<div class="chapter-head">
+<span class="chapter-num">07</span>
+<h2>Productos</h2>
+</div>
+<p class="lead">Los productos son la tabla de puntos: qué se puede vender y cuánto vale por defecto cada unidad.</p>
+<h3>Agregar un producto</h3>
+<ol class="steps">
+<li><span>Ve a <span class="ui">Productos</span>.</span></li>
+<li><span>Completa <span class="ui">Nombre</span>, <span class="ui">SKU (opcional)</span> y <span class="ui">Puntos por unidad</span>.</span></li>
+<li><span>Pulsa <span class="ui btn">Agregar producto</span>.</span></li>
+</ol>
+<div class="note">
+<span class="note-title">Nombra el producto como aparece en los tickets</span>
+<p>El sistema busca el nombre en el texto del comprobante. Si las tiendas lo abrevian (por ejemplo «PARACET 500MG»), usa ese texto, o registra como SKU el código que imprimen, que se compara exacto.</p>
+</div><figure class="shot"><img alt="Catálogo de productos." loading="lazy" src="capturas/12-admin-productos.png"/><figcaption><b>Figura 12.</b> Catálogo de productos.</figcaption></figure>
+<h3>Editar, desactivar y eliminar</h3>
+<ul>
+<li><strong>Puntos:</strong> cambia el número en la tabla; se guarda al salir del campo. Esto cambia el valor por defecto, no el de campañas ya creadas.</li>
+<li><strong>Activo:</strong> desmarcarlo desactiva el producto. Un producto inactivo no suma puntos y no se puede añadir a campañas nuevas.</li>
+<li><strong>Eliminar</strong> (ícono de papelera): no se permite si una campaña en borrador o activa lo usa. En ese caso desactívalo, o archiva primero la campaña.</li>
+</ul>
+</section>
+<!-- 08 -->
+<section class="chapter" id="campanas">
+<div class="chapter-head">
+<span class="chapter-num">08</span>
+<h2>Campañas</h2>
+</div>
+<p class="lead">Una campaña define qué productos suman, cuánto vale cada uno en ella, los hitos a alcanzar y quién participa.</p>
+<h3>Crear una campaña</h3>
+<ol class="steps">
+<li><span>En <span class="ui">Campañas</span>, pulsa <span class="ui btn">+ Nueva campaña</span>.</span></li>
+<li><span><strong>Datos:</strong> <span class="ui">Nombre</span>, <span class="ui">Descripción</span>, fecha y hora de <span class="ui">Inicia</span> y <span class="ui">Termina</span>. El fin debe ser posterior al inicio.</span></li>
+<li><span><strong>Productos que cuentan:</strong> marca la casilla de cada producto. <span class="ui">Puntos aquí</span> parte del valor por defecto y puedes cambiarlo solo para esta campaña. Marca <span class="ui">Obligatorio</span> y fija una <span class="ui">Cant. mín.</span> de al menos 1 si quieres exigir un mínimo de unidades.</span></li>
+<li><span><strong>Hitos:</strong> pulsa <span class="ui">Agregar hito</span> y define <span class="ui">Nombre</span>, <span class="ui">Puntos meta</span> y <span class="ui">Recompensa (opcional)</span>. Cada hito debe tener una meta mayor que el anterior. <span class="ui">Quitar</span> elimina un hito.</span></li>
+<li><span><strong>Quién participa:</strong> marca las cuentas que compiten en la campaña. Las cuentas deshabilitadas no aparecen.</span></li>
+<li><span>Pulsa <span class="ui btn">Crear campaña</span>. Se guarda como <span class="pill neutral">Borrador</span>.</span></li>
+</ol><figure class="shot"><img alt="Formulario de una campaña: datos, productos, hitos y participantes." loading="lazy" src="capturas/15-admin-campana-editor.png"/><figcaption><b>Figura 13.</b> Formulario de una campaña: datos, productos, hitos y participantes.</figcaption></figure>
+<h3>Estados de una campaña</h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Estado</th><th>Qué pasa</th><th>Acción siguiente</th></tr></thead>
+<tbody>
+<tr><td><span class="pill neutral">Borrador</span></td><td>Se puede editar. Los participantes aún no pueden escanear en ella.</td><td><span class="ui">Iniciar</span> (exige al menos un producto y un hito)</td></tr>
+<tr><td><span class="pill ok">Activa</span></td><td>Los participantes la ven y escanean en ella mientras esté dentro de sus fechas. Se puede editar. No se puede eliminar.</td><td><span class="ui">Archivar</span></td></tr>
+<tr><td><span class="pill neutral">Archivada</span></td><td>Solo lectura. Nadie escanea en ella.</td><td><span class="ui">Volver a borrador</span></td></tr>
+</tbody>
+</table>
+</div>
+<p>Las acciones están en el menú de tres puntos de cada fila: <span class="ui">Editar</span> (o <span class="ui">Ver</span> si está archivada), el cambio de estado y <span class="ui">Eliminar</span>.</p>
+<div class="note warn">
+<span class="note-title">Activa no siempre significa vigente</span>
+<p>Una campaña activa solo acepta comprobantes entre su fecha de inicio y de fin. Antes de empezar o después de terminar, los participantes no pueden escanear en ella.</p>
+</div>
+<p>Al guardar una edición se reemplaza toda la configuración de la campaña con lo que ves en el formulario.</p><figure class="shot"><img alt="Lista de campañas con su estado." loading="lazy" src="capturas/13-admin-campanas.png"/><figcaption><b>Figura 14.</b> Lista de campañas con su estado.</figcaption></figure><figure class="shot"><img alt="Menú de acciones de una campaña." loading="lazy" src="capturas/14-admin-campanas-acciones.png"/><figcaption><b>Figura 15.</b> Menú de acciones de una campaña.</figcaption></figure>
+</section>
+<!-- 09 -->
+<section class="chapter" id="usuarios">
+<div class="chapter-head">
+<span class="chapter-num">09</span>
+<h2>Usuarios</h2>
+</div>
+<h3>Invitar a alguien</h3>
+<ol class="steps">
+<li><span>En <span class="ui">Usuarios</span>, escribe el <span class="ui">Correo</span> y, si quieres, el <span class="ui">Nombre (opcional)</span>.</span></li>
+<li><span>Pulsa <span class="ui btn">Crear e invitar</span>. La cuenta nueva siempre empieza con rol <strong>Usuario</strong>.</span></li>
+<li><span>Si el envío de correos está configurado verás <em>«Invitación enviada a …»</em>. Si no, la plataforma muestra el enlace de invitación para que se lo envíes tú a la persona.</span></li>
+</ol>
+<h3>Gestionar cuentas</h3>
+<ul>
+<li><strong>Rol:</strong> cambia entre <em>Usuario</em> y <em>Administrador</em> con el selector de la fila. El cambio llega a la otra persona en menos de una hora, o de inmediato si cierra sesión y vuelve a entrar.</li>
+<li><strong>Reenviar invitación</strong> (ícono de avión de papel): genera un enlace nuevo para elegir contraseña.</li>
+<li><strong>Deshabilitar</strong> (ícono de prohibido): bloquea el acceso sin borrar la cuenta ni su historial. El mismo botón la vuelve a <strong>habilitar</strong>.</li>
+</ul>
+<p>No puedes quitarte tu propio rol de administrador ni deshabilitar tu propia cuenta; así nadie deja la plataforma sin administradores por accidente.</p>
+<p>Para que un usuario gane puntos, además de tener cuenta debe estar marcado como participante en la campaña.</p><figure class="shot"><img alt="Gestión de usuarios e invitaciones." loading="lazy" src="capturas/16-admin-usuarios.png"/><figcaption><b>Figura 16.</b> Gestión de usuarios e invitaciones.</figcaption></figure>
+</section>
+<!-- 10 -->
+<section class="chapter" id="comprobantes">
+<div class="chapter-head">
+<span class="chapter-num">10</span>
+<h2>Revisión de comprobantes</h2>
+</div>
+<p class="lead">En <span class="ui">Comprobantes</span> ves cada escaneo con su evidencia, y puedes anular los puntos de los que no sean válidos.</p>
+<h3>La lista</h3>
+<p>Filtra con <span class="ui">Todos</span> o <span class="ui">Para revisar</span>. Cada fila muestra fecha, usuario, campaña, puntos y estado. Usa <span class="ui">Cargar más</span> para ver escaneos anteriores.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Estado</th><th>Significa</th></tr></thead>
+<tbody>
+<tr><td><span class="pill ok">Con puntos</span></td><td>El comprobante ganó puntos.</td></tr>
+<tr><td><span class="pill neutral">Sin puntos</span></td><td>Fue rechazado o no tenía productos de la campaña.</td></tr>
+<tr><td><span class="pill bad">Anulado</span></td><td>Un administrador retiró sus puntos.</td></tr>
+<tr><td><span class="pill warn">Revisar</span></td><td>Ganó puntos, pero algo inusual merece una mirada (ver abajo).</td></tr>
+</tbody>
+</table>
+</div><figure class="shot"><img alt="Lista de comprobantes escaneados." loading="lazy" src="capturas/17-admin-comprobantes.png"/><figcaption><b>Figura 17.</b> Lista de comprobantes escaneados.</figcaption></figure>
+<h3>Motivos para revisar</h3>
+<p>Estas marcas no cambian los puntos; solo llevan el comprobante a <span class="ui">Para revisar</span>.</p>
+<ul>
+<li><strong>Superó el máximo de unidades por comprobante.</strong></li>
+<li><strong>Muchas unidades en una sola línea</strong> (10 o más): puede ser una compra grande o una lectura errónea.</li>
+<li><strong>El usuario envió muchos comprobantes en 24 horas</strong> (5 o más).</li>
+<li><strong>No se pudo guardar el archivo como evidencia.</strong></li>
+</ul>
+<h3>El detalle</h3>
+<p>Selecciona una fila para ver: usuario, campaña, fechas y puntos; la <strong>imagen del comprobante</strong> (<span class="ui">Abrir el original</span> la abre en otra pestaña; los PDF se abren así); los productos contados; los problemas detectados; y el texto extraído.</p>
+<h3>Anular puntos</h3>
+<ol class="steps">
+<li><span>En el detalle de un comprobante <span class="pill ok">Con puntos</span>, escribe el <span class="ui">Motivo de la anulación</span> (mínimo 3 caracteres).</span></li>
+<li><span>Pulsa <span class="ui">Anular puntos</span> y confirma.</span></li>
+</ol>
+<p>Al anular se restan los puntos y unidades del participante, se recalcula su hito y se descuenta la venta del panel. <strong>No se puede deshacer</strong>, y ese comprobante tampoco se podrá volver a subir.</p><figure class="shot"><img alt="Detalle de un comprobante para revisar, con el formulario de anulación." loading="lazy" src="capturas/18-admin-comprobante-detalle.png"/><figcaption><b>Figura 18.</b> Detalle de un comprobante para revisar, con el formulario de anulación.</figcaption></figure>
+</section>
+<!-- 11 -->
+<section class="chapter" id="mensajes">
+<div class="chapter-head">
+<span class="chapter-num">11</span>
+<h2>Mensajes y solución de problemas</h2>
+</div>
+<h3>Al escanear</h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Mensaje</th><th>Por qué</th><th>Qué hacer</th></tr></thead>
+<tbody>
+<tr><td>Este comprobante ya fue registrado. Cada comprobante suma puntos una sola vez.</td><td>Ese comprobante ya ganó puntos, en esta cuenta u otra.</td><td>Nada: cada papel cuenta una vez.</td></tr>
+<tr><td>No encontramos el total del comprobante…</td><td>No se leyó una línea TOTAL con importe.</td><td>Vuelve a tomar la foto con el TOTAL visible.</td></tr>
+<tr><td>No pudimos leer la fecha del comprobante…</td><td>No se encontró una fecha legible.</td><td>Foto nueva con la fecha nítida.</td></tr>
+<tr><td>La fecha del comprobante (…) está fuera de las fechas de la campaña.</td><td>El ticket es anterior a la campaña, posterior a su fin o con fecha futura.</td><td>Solo cuentan compras dentro de la campaña.</td></tr>
+<tr><td>Estos productos no muestran su precio en el comprobante y no se contaron…</td><td>Se encontró el producto pero sin importe en su línea.</td><td>Asegúrate de que la columna de precios salga en la foto.</td></tr>
+<tr><td>Un comprobante puede sumar como máximo N unidades por campaña…</td><td>Se superó el máximo por comprobante.</td><td>Se contó hasta el máximo; un administrador puede revisarlo.</td></tr>
+<tr><td>No encontramos productos de esta campaña en el comprobante.</td><td>Ningún producto coincidió.</td><td>Revisa la campaña elegida y <span class="ui">Ver texto extraído</span>.</td></tr>
+<tr><td>Alcanzaste el límite de comprobantes por día…</td><td>20 escaneos en 24 horas.</td><td>Espera y vuelve a intentarlo más tarde.</td></tr>
+<tr><td>No participas en esta campaña.</td><td>No estás asignado a ella.</td><td>Pide al administrador que te agregue.</td></tr>
+<tr><td>Esta campaña no está vigente en este momento.</td><td>Aún no empieza, ya terminó o no está activa.</td><td>Elige otra campaña o espera a que empiece.</td></tr>
+<tr><td>No tienes campañas vigentes…</td><td>No participas en ninguna campaña en curso.</td><td>Consulta al administrador.</td></tr>
+<tr><td>Solo las cuentas de usuario pueden escanear comprobantes.</td><td>Los administradores no escanean.</td><td>Usa una cuenta de rol Usuario.</td></tr>
+</tbody>
+</table>
+</div>
+<h3>Otros</h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Situación</th><th>Qué hacer</th></tr></thead>
+<tbody>
+<tr><td>No puedo iniciar sesión</td><td>Usa «¿Olvidaste tu contraseña?». Si tu cuenta fue deshabilitada, habla con el administrador.</td></tr>
+<tr><td>Me cambiaron el rol y no lo veo</td><td>Cierra sesión y vuelve a entrar.</td></tr>
+<tr><td>No aparece una campaña para escanear</td><td>Solo aparecen las activas, dentro de sus fechas y en las que participas.</td></tr>
+<tr><td>No puedo eliminar un producto</td><td>Una campaña en borrador o activa lo usa: desactívalo o archiva la campaña.</td></tr>
+<tr><td>No puedo iniciar una campaña</td><td>Necesita al menos un producto y un hito.</td></tr>
+<tr><td>Un error en inglés que menciona «Firestore index»</td><td>Es un problema de configuración, no de tus datos: avisa al equipo técnico (ver anexo).</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- 12 -->
+<section class="chapter" id="faq">
+<div class="chapter-head">
+<span class="chapter-num">12</span>
+<h2>Preguntas frecuentes</h2>
+</div>
+<h4>¿Puedo escanear un mismo ticket para dos campañas?</h4>
+<p>No. Cada escaneo se asigna a una sola campaña, y un comprobante que ya ganó puntos no se vuelve a aceptar.</p>
+<h4>¿Qué pasa si el sistema leyó mal una cantidad?</h4>
+<p>Ante la duda cuenta 1 unidad. Si crees que te corresponde más, avisa al administrador; puede revisar la imagen original.</p>
+<h4>¿Se guardan mis fotos?</h4>
+<p>Sí. Cada archivo se guarda como evidencia y solo los administradores pueden verlo, mediante enlaces temporales.</p>
+<h4>Si el administrador cambia los puntos de un producto, ¿cambian mis puntos?</h4>
+<p>No. Los puntos ya ganados se quedan; el cambio solo afecta escaneos futuros.</p>
+<h4>¿Hay aplicación para el celular?</h4>
+<p>No hace falta: la plataforma funciona en el navegador del celular y permite subir fotos directamente desde la cámara o la galería.</p>
+</section>
+<!-- 13 -->
+<section class="chapter" id="glosario">
+<div class="chapter-head">
+<span class="chapter-num">13</span>
+<h2>Glosario</h2>
+</div>
+<dl class="gloss">
+<dt>Comprobante</dt><dd>Recibo, ticket o factura de compra que se fotografía o sube en PDF.</dd>
+<dt>OCR</dt><dd>Reconocimiento óptico de caracteres: la lectura automática del texto de la imagen.</dd>
+<dt>Campaña</dt><dd>Conjunto de reglas con fechas: productos que suman, sus puntos, hitos y participantes.</dd>
+<dt>Vigente</dt><dd>Campaña activa cuya fecha actual está entre su inicio y su fin.</dd>
+<dt>Puntos por unidad</dt><dd>Lo que vale una unidad de un producto dentro de una campaña.</dd>
+<dt>Hito</dt><dd>Meta de puntos dentro de una campaña, con recompensa opcional.</dd>
+<dt>Producto obligatorio</dt><dd>Producto con una cantidad mínima exigida en la campaña.</dd>
+<dt>Participante</dt><dd>Usuario asignado a una campaña.</dd>
+<dt>Evidencia</dt><dd>El archivo original del comprobante, guardado para revisión.</dd>
+<dt>Anular</dt><dd>Retirar los puntos de un comprobante ya aceptado.</dd>
+</dl>
+</section>
+<!-- 14 -->
+<section class="chapter" id="tecnico">
+<div class="chapter-head">
+<span class="chapter-num">14</span>
+<h2>Anexo técnico</h2>
+</div>
+<p class="lead">Para quien instala y opera la plataforma.</p><p>El detalle completo de arquitectura, API, datos, despliegue y operación está en el Manual técnico de la plataforma (Manual-Tecnico-Plataforma-OCR).</p>
+<h3>Cómo está armada</h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Parte</th><th>Tecnología</th><th>Dónde vive</th></tr></thead>
+<tbody>
+<tr><td>Sitio web</td><td>React 19 + Vite</td><td>GitHub Pages — <code>https://firebirdcs.github.io/Proyecto-OCR/</code></td></tr>
+<tr><td>API</td><td>Node + Express 5</td><td>Cloud Run (servicio <code>ocr-api</code>, región <code>us-central1</code>)</td></tr>
+<tr><td>Cuentas y roles</td><td>Firebase Authentication</td><td>Proyecto <code>proyecto-ocr-d3ecd</code></td></tr>
+<tr><td>Datos</td><td>Cloud Firestore</td><td>Mismo proyecto</td></tr>
+<tr><td>Archivos de comprobantes</td><td>Cloud Storage</td><td>Bucket privado del proyecto</td></tr>
+<tr><td>Lectura de texto</td><td>Google Cloud Vision</td><td>Mismo proyecto</td></tr>
+<tr><td>Correos de invitación</td><td>Resend</td><td>Clave en Secret Manager</td></tr>
+</tbody>
+</table>
+</div>
+<h3>Primer administrador</h3>
+<p>No hay registro público, así que la primera cuenta se crea desde la terminal, en la raíz del proyecto:</p>
+<pre><code>pnpm user:create correo@empresa.com admin "Nombre Apellido"</code></pre>
+<p>Imprime el enlace para elegir contraseña. Para cambiar un rol por correo: <code>pnpm role:grant correo@empresa.com admin</code>.</p>
+<h3>Ajustes de la API</h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Variable</th><th>Para qué</th><th>Por defecto</th></tr></thead>
+<tbody>
+<tr><td><code>SCAN_DAILY_LIMIT</code></td><td>Escaneos por usuario en 24 horas.</td><td class="num">20</td></tr>
+<tr><td><code>RECEIPT_MAX_UNITS</code></td><td>Unidades máximas por comprobante y campaña.</td><td class="num">50</td></tr>
+<tr><td><code>STATS_TIME_ZONE</code></td><td>Zona horaria en que se cortan los días del panel.</td><td>La del servidor</td></tr>
+<tr><td><code>OCR_MAX_UPLOAD_MB</code></td><td>Tamaño máximo del archivo.</td><td class="num">10</td></tr>
+<tr><td><code>CLIENT_ORIGIN</code></td><td>Sitios que pueden llamar a la API, separados por comas.</td><td><code>http://localhost:5173</code></td></tr>
+<tr><td><code>CLIENT_APP_URL</code></td><td>Dirección pública del sitio, para los enlaces de invitación.</td><td>El primer origen</td></tr>
+<tr><td><code>FIREBASE_STORAGE_BUCKET</code></td><td>Dónde se guarda la evidencia.</td><td>—</td></tr>
+<tr><td><code>RESEND_FROM</code></td><td>Remitente de los correos.</td><td>—</td></tr>
+<tr><td><code>BOOTSTRAP_ADMIN_EMAILS</code></td><td>Correos que siempre recuperan el rol de admin al entrar.</td><td>Vacío</td></tr>
+</tbody>
+</table>
+</div>
+<h3>Desplegar la API</h3>
+<p>Desde la raíz del proyecto, en PowerShell, con la CLI de Google Cloud instalada y <code>gcloud auth login</code> hecho:</p>
+<pre><code>.\scripts\deploy-api.ps1 -SkipSetup -ClientOrigins http://localhost:5173,https://firebirdcs.github.io -ClientAppUrl https://firebirdcs.github.io/Proyecto-OCR</code></pre>
+<p>Sin <code>-SkipSetup</code> también habilita las APIs y permisos (solo la primera vez). Acepta <code>-TimeZone</code>, <code>-ScanDailyLimit</code> y <code>-ReceiptMaxUnits</code>. La dirección de la API queda en <code>scripts\.last-deploy-url.txt</code>.</p>
+<p>Para la clave de Resend, en una ventana de PowerShell normal:</p>
+<pre><code>.\scripts\set-resend-key.ps1</code></pre>
+<p>La clave se escribe en un aviso oculto, nunca como parámetro. Repítelo al rotar la clave.</p>
+<h3>Publicar el sitio</h3>
+<p>Cada envío a la rama <code>master</code> publica el sitio automáticamente (GitHub Actions). Requiere, en el repositorio: <strong>Settings → Pages → Source: GitHub Actions</strong>, y en <strong>Settings → Secrets and variables → Actions → Variables</strong> los valores <code>VITE_FIREBASE_*</code> y <code>VITE_API_BASE_URL</code>. En Firebase, el dominio <code>firebirdcs.github.io</code> debe estar en <strong>Authentication → Settings → Authorized domains</strong>.</p>
+<h3>Firestore y Storage</h3>
+<pre><code>npx firebase-tools deploy --only firestore:indexes,firestore:rules,storage</code></pre>
+<p>Si el panel muestra que falta un índice, este comando lo resuelve; el índice tarda unos minutos en construirse.</p>
+<div class="note warn">
+<span class="note-title">Secretos</span>
+<p><code>server/serviceAccount.json</code> y <code>server/.env</code> dan acceso total al proyecto. Nunca se suben al repositorio (ya están excluidos) ni se comparten por chat. Si una clave se expone, revócala y crea otra.</p>
+</div>
+
+</section><section class="chapter" id="riesgos">
+<div class="chapter-head">
+<span class="chapter-num">15</span>
+<h2>Política de mitigación de riesgo del OCR</h2>
+</div>
+<p class="lead">Riesgos técnicos del pipeline de OCR — extracción de texto con Google Cloud Vision, validación del comprobante, emparejamiento de productos y otorgamiento de puntos — y las mitigaciones ya implementadas en el código. No cubre riesgos de negocio, legales ni de continuidad fuera del software.</p>
+<h3>Precisión del OCR (Google Cloud Vision)</h3>
+<ul>
+<li><strong>Ángulo y rotación.</strong> Fotos inclinadas: se corrige el ángulo medio de lectura, pero una perspectiva fuerte puede seguir mezclando columnas.</li>
+<li><strong>Recibos borrosos o tinta desgastada.</strong> Vision puede devolver texto parcial sin marcarlo como error; el campo confidence no se usa para descartar lecturas de baja confianza.</li>
+<li><strong>Confusión de columnas.</strong> La reconstrucción de filas por altura puede fusionar o separar líneas en recibos muy angostos o con tipografía variable.</li>
+<li><strong>PDFs largos.</strong> Solo se leen las páginas 1 a 5 de un PDF; el resto se pierde sin aviso.</li>
+<li><strong>Idioma y formato regional.</strong> Los patrones de fecha y monto asumen formato latino/español; otros formatos pueden no detectar fecha o total.</li>
+<li><strong>Errores del servicio.</strong> Cualquier falla de Vision se devuelve como error 502 sin reintento automático.</li>
+</ul>
+<h3>Fraude y abuso del sistema de puntos</h3>
+<ul>
+<li><strong>Nota a mano como recibo.</strong> Mitigado: una línea solo cuenta si lleva un monto con dos decimales, y el recibo necesita TOTAL y fecha dentro de la campaña.</li>
+<li><strong>Reenvío del mismo recibo.</strong> Mitigado con tres guardas (hash de archivo, hash de texto, identidad del recibo). Riesgo residual cuando no hay folio ni hora: la identidad de respaldo puede fallar en ambos sentidos.</li>
+<li><strong>Doble cuenta.</strong> El límite diario es por cuenta, no por dispositivo; dos cuentas duplican la cuota, aunque el duplicado de recibo sí aplica globalmente.</li>
+<li><strong>Sobre-conteo de unidades.</strong> Mitigado por diseño: cantidad ambigua cuenta 1 unidad, y RECEIPT_MAX_UNITS topa el total por recibo.</li>
+<li><strong>Líneas sospechosas.</strong> No bloqueados, solo marcados para revisión manual (flags de cantidad alta y escaneo frecuente); el control depende de que un admin revise la cola.</li>
+<li><strong>Abuso de rol admin.</strong> Mitigado por diseño: solo el rol user puede escanear; un admin no puede auto-otorgarse puntos.</li>
+</ul>
+<h3>Disponibilidad y dependencia de terceros</h3>
+<ul>
+<li><strong>Punto único de falla.</strong> No hay OCR alterno: si Vision cae, ningún escaneo puede procesarse.</li>
+<li><strong>Costo por volumen.</strong> Cada intento de escaneo cuesta una llamada a Vision aunque no puntúe; un ataque de escaneos inválidos genera costo real.</li>
+<li><strong>Límites de Cloud Run.</strong> --max-instances 3 puede saturarse en picos de uso simultáneo (cierre de campaña).</li>
+</ul>
+<h3>Seguridad y credenciales</h3>
+<ul>
+<li><strong>Llave de servicio local.</strong> Existe en server/serviceAccount.json, excluido del repositorio, pero sin rotación programada; una copia local expuesta da acceso total al proyecto.</li>
+<li><strong>Despliegue en producción.</strong> En Cloud Run el servicio corre con identidad nativa de GCP, sin llave en la imagen — control ya aplicado correctamente.</li>
+<li><strong>Evidencia en Cloud Storage.</strong> Las fotos de recibos pueden incluir datos personales o de tarjeta; dependen de las reglas de acceso del bucket configurado en FIREBASE_STORAGE_BUCKET.</li>
+</ul>
+<h3>Operación e infraestructura</h3>
+<div class="note warn"><span class="note-title">Hallazgo crítico</span><p>Si el índice compuesto de firestore.indexes.json no está desplegado, el límite diario de escaneos (SCAN_DAILY_LIMIT) se desactiva silenciosamente — el código lo permite a propósito para no bloquear el servicio, y solo queda un console.error en el servidor. Un despliegue incompleto abre la puerta a abuso sin que nadie lo note.</p></div>
+<ul>
+<li><strong>Zona horaria no fijada.</strong> STATS_TIME_ZONE es opcional; vacío, el panel corta los días según la zona del servidor y puede desalinear las métricas.</li>
+<li><strong>Atomicidad del puntaje.</strong> Todo el otorgamiento de puntos corre en una transacción de Firestore; si algo falla, la evidencia ya subida se borra — buen control existente.</li>
+</ul>
+<h3>Matriz de riesgo</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Riesgo</th><th>Probabilidad</th><th>Impacto</th><th>Mitigación vigente</th></tr></thead><tbody>
+<tr><td>Índice de Firestore no desplegado → límite diario queda desactivado</td><td>Media</td><td>Alto</td><td>Ninguna automática; solo se registra en logs del servidor</td></tr>
+<tr><td>Caída o error de Google Cloud Vision (sin OCR alterno)</td><td>Baja</td><td>Alto</td><td>Ninguna; el escaneo falla con HTTP 502, sin reintento</td></tr>
+<tr><td>Fotos borrosas, mal iluminadas o PDFs de más de 5 páginas</td><td>Alta</td><td>Medio</td><td>Parcial: reconstrucción de filas, pero no usa el confidence de Vision</td></tr>
+<tr><td>Recibo reenviado cuando la identidad de respaldo es ambigua (sin folio ni hora)</td><td>Baja</td><td>Medio</td><td>Parcial: 3 guardas de duplicado, pero la identidad de respaldo puede fallar en ambos sentidos</td></tr>
+<tr><td>Doble cuenta para duplicar la cuota diaria de escaneos</td><td>Media</td><td>Bajo/Medio</td><td>Parcial: el duplicado de recibo es global, la cuota es por cuenta</td></tr>
+<tr><td>Exposición de server/serviceAccount.json fuera del repositorio</td><td>Baja</td><td>Alto</td><td>Parcial: excluido del repositorio (.gitignore), sin rotación programada</td></tr>
+<tr><td>Saturación de Cloud Run en picos de uso (cierre de campaña)</td><td>Media</td><td>Medio</td><td>Parcial: --max-instances 3, sin autoescalado adicional configurado</td></tr>
+<tr><td>Zona horaria de estadísticas (STATS_TIME_ZONE) sin fijar</td><td>Media</td><td>Bajo</td><td>Ninguna; el campo es opcional y cae en la zona del servidor</td></tr>
+</tbody></table></div>
+<h3>Recomendaciones</h3>
+<ul>
+<li>Convertir la falta del índice de Firestore en una alerta visible al admin, no solo un log de servidor.</li>
+<li>Añadir un límite de escaneos adicional por dispositivo o verificación extra en altas de cuenta nuevas.</li>
+<li>Usar el confidence de Vision para marcar líneas de baja confianza en la cola de revisión.</li>
+<li>Avisar explícitamente cuando un PDF tiene más de 5 páginas y el resto no se procesó.</li>
+<li>Fijar STATS_TIME_ZONE en el despliegue en vez de dejarlo opcional.</li>
+<li>Añadir reintento con backoff ante errores transitorios de Vision antes de fallar al usuario.</li>
+<li>Programar revisión y rotación periódica de server/serviceAccount.json.</li>
+<li>Monitorear instancias de Cloud Run durante cierres de campaña y ajustar max-instances si hace falta.</li>
+</ul>
+<p class="footer-note">Manual correspondiente a la versión de la plataforma de octubre de 2026.</p></section>
+</main>
+</div>

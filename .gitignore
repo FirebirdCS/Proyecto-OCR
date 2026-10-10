@@ -74,6 +74,8 @@ pubsub-debug.log*
 
 # Written by scripts/deploy-api.ps1 so the URL survives the window closing.
 scripts/.last-deploy-url.txt
+# Keys of the Jira issues scripts/jira-import.ps1 created.
+scripts/.jira-created.json
 
 # ---- Uploads / local artifacts ----
 uploads/
@@ -93,3 +95,6 @@ Thumbs.db
 Desktop.ini
 
 #
+
+# Boundary samples (three ~10 MB files); regenerate with generate_samples.py --limites
+samples/casos/limites/

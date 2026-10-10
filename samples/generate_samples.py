@@ -8,6 +8,10 @@ so nothing beyond the standard library is needed.
 
     python samples/generate_samples.py
     python samples/generate_samples.py --date 2026-09-18 --product PARACETAMOL
+    python samples/generate_samples.py --limites
+
+--limites adds samples/casos/limites/: the boundary values of the test design
+(units per line, units per receipt, upload size and an empty file).
 
 samples/README.md lists what each file tests and what the scanner should answer.
 """
@@ -18,7 +22,9 @@ import datetime as dt
 import html
 import os
 import shutil
+import struct
 import subprocess
+import zlib
 import sys
 import tempfile
 from dataclasses import dataclass
@@ -248,12 +254,43 @@ def cases(today: dt.date, product: str) -> list[Ticket]:
     ]
 
 
+MAX_UPLOAD = 10 * 1024 * 1024
+
+
+def limit_cases(today: dt.date, product: str) -> list[Ticket]:
+    p = f'{product} 500MG'
+    ibu = Item(1, 'IBUPROFENO 400MG', 58)
+    lines = [Ticket(f'limite-linea-{qty:02d}.png', f'00052{i}', dmy(today), [Item(qty, p, 45), ibu])
+             for i, qty in enumerate((9, 10, 11), 1)]
+    # Lines of 9 units at most, so only the per-receipt cap is under test, not the per-line flag.
+    caps = [Ticket(f'limite-tope-{units}.png', f'00053{i}', dmy(today),
+                   [Item(9, p, 45)] * 5 + [Item(units - 45, p, 45), ibu])
+            for i, units in enumerate((49, 50, 51), 1)]
+    return lines + caps
+
+
+def pad_png(source: Path, out: Path, size: int) -> None:
+    """Copies a PNG and grows it to exactly `size` bytes with a tEXt chunk before IEND."""
+    data = source.read_bytes()
+    iend = data.rindex(b'IEND') - 4
+    keyword = b'Comment' + bytes(1)
+    fill = size - len(data) - 12 - len(keyword)
+    if fill < 0:
+        sys.exit(f'{source.name} ya pesa más de {size} bytes.')
+    body = b'tEXt' + keyword + b'A' * fill
+    chunk = struct.pack('>I', len(body) - 4) + body + struct.pack('>I', zlib.crc32(body) & 0xFFFFFFFF)
+    out.write_bytes(data[:iend] + chunk + data[iend:])
+    assert out.stat().st_size == size
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description='Genera comprobantes de prueba para el escáner.')
     parser.add_argument('--date', type=dt.date.fromisoformat, default=dt.date.today(),
                         help='Fecha "de hoy" para las muestras (AAAA-MM-DD). Por defecto, hoy.')
     parser.add_argument('--product', default='PARACETAMOL',
                         help='Nombre del producto de la campaña, tal como está registrado.')
+    parser.add_argument('--limites', action='store_true',
+                        help='Genera también samples/casos/limites/ con los valores límite del diseño de pruebas.')
     parser.add_argument('--out', type=Path, default=Path(__file__).resolve().parent / 'casos',
                         help='Carpeta de salida. Por defecto, samples/casos.')
     args = parser.parse_args()
@@ -280,6 +317,22 @@ def main() -> None:
                              Item(1, 'ALCOHOL ETILICO 250ML', 32)]),
                invoice, size=None)
         print(f'  {invoice.name}')
+
+        if args.limites:
+            limits = args.out / 'limites'
+            limits.mkdir(exist_ok=True)
+            for ticket in limit_cases(args.date, product):
+                height = int(len(ticket_lines(ticket)) * 19 + 90)
+                render(edge, profile, ticket_page(ticket), limits / ticket.file, size=(340, height))
+                print(f'  limites/{ticket.file}')
+            base = args.out / 'rechazo-sin-productos.png'
+            for name, size in (('tamano-10MB-menos-1B.png', MAX_UPLOAD - 1),
+                               ('tamano-10MB-exacto.png', MAX_UPLOAD),
+                               ('tamano-10MB-mas-1B.png', MAX_UPLOAD + 1)):
+                pad_png(base, limits / name, size)
+                print(f'  limites/{name}')
+            (limits / 'vacio.png').write_bytes(b'')
+            print('  limites/vacio.png')
 
     print(f'\nListo: 15 comprobantes en {args.out}, fechados alrededor del {dmy(args.date)}.')
     print('Qué debe responder el escáner con cada uno: samples/README.md')

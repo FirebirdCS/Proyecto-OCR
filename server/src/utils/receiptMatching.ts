@@ -191,7 +191,10 @@ function sameLineQuantity(tokens: Token[], hit: LineHit): number | null {
 /** A line that holds nothing but "2 x 15.00": the count for a neighbouring item. */
 function quantityOnlyLine(line: string): number | null {
   const lower = line.toLowerCase().trim();
-  const withoutUnits = lower.replace(new RegExp(`\\b${UNIT_WORD}\\b\\.?`, 'g'), ' ');
+  // Units and the quetzal sign ("2 UN X 13.89920 Q27.80") are the only letters allowed.
+  const withoutUnits = lower
+    .replace(new RegExp(`\\b${UNIT_WORD}\\b\\.?`, 'g'), ' ')
+    .replace(/(^|\s)q\.?(?=\s?\d)/g, ' ');
   if (/[a-wyz]/.test(withoutUnits)) return null;
 
   const found = QTY_ONLY_LINE.exec(lower);
@@ -206,6 +209,7 @@ function quantityOnlyLine(line: string): number | null {
 function quantityLineSide(
   hits: (LineHit | null)[],
   quantities: (number | null)[],
+  wrapped: boolean[],
 ): 'above' | 'below' | null {
   let above = 0;
   let below = 0;
@@ -213,7 +217,7 @@ function quantityLineSide(
   quantities.forEach((quantity, index) => {
     if (quantity === null || hits[index]) return;
     if (hits[index + 1]) above++;
-    if (hits[index - 1]) below++;
+    if (hits[index - 1] || (wrapped[index - 1] && hits[index - 2])) below++;
   });
 
   if (above === below) return null;
@@ -231,14 +235,38 @@ export function matchReceipt(text: string, candidates: MatchCandidate[]): Receip
   const tokens = lines.map(tokenize);
   const hits = tokens.map((lineTokens) => bestHit(lineTokens, keys));
   const quantities = lines.map((line, index) => (hits[index] ? null : quantityOnlyLine(line)));
-  const side = quantityLineSide(hits, quantities);
 
+  // A description that wraps onto a second line with no digits, price or count of
+  // its own ("DAKENX DEXKETOPROFENO 25MG X" / "AMPOLLA BEBIBLE"), as Guatemalan FEL
+  // receipts print it. The name may span both lines, and the count sits below them.
+  const isContinuation = (index: number) =>
+    index < lines.length &&
+    !hits[index] &&
+    quantities[index] === null &&
+    !hasAmount(lines[index]!) &&
+    /[a-z]/i.test(lines[index]!) &&
+    !/\d/.test(lines[index]!);
+  const wrapped = lines.map(() => false);
+  for (let index = 0; index + 1 < lines.length; index++) {
+    if (wrapped[index] || !isContinuation(index + 1)) continue;
+    if (!hits[index]) {
+      const firstLength = tokens[index]!.length;
+      const joined = bestHit([...tokens[index]!, ...tokens[index + 1]!], keys);
+      // Only a name that really crosses the break; a hit wholly on the second line is not this item.
+      if (!joined || joined.start >= firstLength || joined.end <= firstLength) continue;
+      hits[index] = { ...joined, end: firstLength };
+    }
+    wrapped[index + 1] = true;
+  }
+
+  const side = quantityLineSide(hits, quantities, wrapped);
   const byProduct = new Map<string, ReceiptMatch>();
 
   hits.forEach((hit, index) => {
     if (!hit) return;
 
-    const neighbour = side === 'above' ? index - 1 : side === 'below' ? index + 1 : -1;
+    const below = wrapped[index + 1] ? index + 2 : index + 1;
+    const neighbour = side === 'above' ? index - 1 : side === 'below' ? below : -1;
     const own = sameLineQuantity(tokens[index]!, hit);
     const borrowed = own === null ? (quantities[neighbour] ?? null) : null;
     const quantity = Math.min(own ?? borrowed ?? 1, MAX_LINE_QUANTITY);

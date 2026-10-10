@@ -20,13 +20,16 @@ python samples\generate_samples.py --date 2026-09-18 --product PARACETAMOL
 
 Solo necesita Python y Microsoft Edge; no hay que instalar nada más.
 
+Con `--limites` también crea `samples\casos\limites\` con los valores límite
+del diseño de pruebas (ver «Valores límite» al final).
+
 ## Antes de escanear
 
 - Escanea con una cuenta de rol **Usuario** que participe en la campaña.
 - **Límite diario:** 20 escaneos por usuario en 24 horas, incluidos los
   rechazados. Si ya escaneaste otros hoy, usa dos cuentas o sube
   `SCAN_DAILY_LIMIT` con `scripts\deploy-api.ps1 -SkipSetup -ScanDailyLimit 50`.
-- **A partir del quinto escaneo** en 24 horas, los comprobantes que sumen
+- **A partir del sexto escaneo** en 24 horas (con cinco ya hechos), los comprobantes que sumen
   puntos aparecerán además como *Revisar* en Comprobantes («El usuario envió
   muchos comprobantes en 24 horas»). Es lo esperado.
 - Cada comprobante válido suma **una sola vez**. Para repetir la prueba,
@@ -69,6 +72,21 @@ Solo necesita Python y Microsoft Edge; no hay que instalar nada más.
 | Archivo | Qué prueba | Resultado esperado |
 |---|---|---|
 | `duplicado-foto-nueva.png` | El mismo ticket que `valido-cantidad-x.png`, fotografiado de nuevo | **Escanéalo después** de `valido-cantidad-x.png`: «Este comprobante ya fue registrado…» |
+
+### Valores límite (`--limites`)
+
+| Archivo | Qué prueba | Resultado esperado |
+|---|---|---|
+| `limite-linea-09.png` / `-10` / `-11` | 9, 10 y 11 unidades en una línea | 18, 20 y 22 pts; los de 10 y 11 quedan para revisar |
+| `limite-tope-49.png` / `-50` / `-51` | 49, 50 y 51 unidades, en líneas de 9 como máximo | 98, 100 y 100 pts; el de 51 cuenta 50, avisa y queda para revisar |
+| `tamano-10MB-menos-1B.png` | 10 485 759 bytes | Se lee (0 pts: no trae productos de la campaña) |
+| `tamano-10MB-exacto.png` | 10 485 760 bytes | Según el criterio «hasta 10 MB», se lee |
+| `tamano-10MB-mas-1B.png` | 10 485 761 bytes | Se rechaza por tamaño |
+| `vacio.png` | 0 bytes | Se rechaza con un mensaje claro |
+
+Los de tamaño son `rechazo-sin-productos.png` rellenado hasta el tamaño exacto,
+así que se pueden repetir. Para no mezclar la marca de usuario frecuente, reparte
+los seis tickets entre dos cuentas con pocos escaneos ese día.
 
 ## Muestras anteriores
 

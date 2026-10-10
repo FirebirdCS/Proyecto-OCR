@@ -1,0 +1,1159 @@
+{
+  "label": "qa-ocr",
+  "sprints": ["Sprint 1", "Sprint 2", "Sprint 3"],
+  "epics": [
+    {
+      "key": "acceso",
+      "summary": "Acceso y seguridad",
+      "description": "Inicio de sesión, recuperación de contraseña, perfiles y protección de accesos.\nOrigen: épica Acceso del documento de entregables (HU-01 a HU-03)."
+    },
+    {
+      "key": "admin",
+      "summary": "Administración",
+      "description": "Usuarios, catálogo de productos y campañas de incentivo.\nOrigen: épica Administración (HU-18, HU-19) y casos de uso CU-07 a CU-09."
+    },
+    {
+      "key": "captura",
+      "summary": "Captura de facturas",
+      "description": "Carga de la factura desde el navegador y control de duplicados.\nOrigen: épica Captura (HU-04, HU-06) y caso de uso CU-02."
+    },
+    {
+      "key": "extraccion",
+      "summary": "Extracción OCR",
+      "description": "Lectura del texto de la factura y conciliación con el catálogo de productos.\nOrigen: épica Extracción (HU-08 a HU-11) y caso de uso CU-03."
+    },
+    {
+      "key": "validacion",
+      "summary": "Validación y acreditación",
+      "description": "Reglas de negocio, acreditación de puntos, revisión y anulación.\nOrigen: épica Validación (HU-12 a HU-14), casos de uso CU-04 y CU-05, reglas RN-01 a RN-10."
+    },
+    {
+      "key": "estadisticas",
+      "summary": "Estadísticas",
+      "description": "Avance del colaborador y tablero de indicadores.\nOrigen: épica Estadísticas (HU-15, HU-16) y caso de uso CU-06."
+    },
+    {
+      "key": "calidad",
+      "summary": "Calidad y aceptación",
+      "description": "Requerimientos no funcionales y cierre de pruebas.\nOrigen: requerimientos no funcionales y criterio de salida del plan de pruebas (sección 6.5)."
+    },
+    {
+      "key": "prep",
+      "summary": "Preparación del proyecto QA",
+      "description": "Sprint 1 de la guía del curso: backlog del sistema a evaluar, roles Scrum, documento de arquitectura, atributos y métricas de calidad."
+    },
+    {
+      "key": "diseno",
+      "summary": "Diseño de pruebas",
+      "description": "Sprint 2 de la guía del curso: técnicas tradicionales y modernas (clases de equivalencia, valores límite, tablas de decisión, pairwise, transición de estados), casos de prueba y plan de pruebas."
+    },
+    {
+      "key": "bugs",
+      "summary": "Gestión de bugs",
+      "description": "Sprint 3 de la guía del curso: registro de bugs, clasificación (error, defecto, fallo), priorización por riesgo, ciclo de vida y reporte de depuración y verificación."
+    },
+    {
+      "key": "auto",
+      "summary": "Automatización de pruebas",
+      "description": "Sprint 3 de la guía del curso: Jest (caja blanca), Cypress (caja negra), JMeter (rendimiento), suite automatizada, informe de resultados y evidencias."
+    }
+  ],
+  "stories": [
+    {
+      "epic": "prep",
+      "sprint": 1,
+      "points": 2,
+      "summary": "Definir el Product Backlog del sistema a evaluar",
+      "story": "Como Product Owner, quiero un backlog priorizado del sistema OCR, para que el equipo sepa qué se va a evaluar y en qué orden.",
+      "trace": "Guía del curso · Sprint 1 · Entregables, tabla 1.7",
+      "acceptance": [
+        "Las historias del sistema están en Jira con su «Como… quiero… para…», criterios de aceptación y trazabilidad a HU, RF, RN y CP.",
+        "Cada historia está priorizada (MoSCoW) y estimada en puntos.",
+        "Cada historia cuelga de su épica funcional.",
+        "El Product Owner revisó y aprobó el backlog."
+      ],
+      "tasks": [
+        {
+          "summary": "Prep: priorizar y estimar las historias del sistema",
+          "steps": [
+            "Revisar las 17 historias del sistema y sus criterios de aceptación.",
+            "Asignar prioridad MoSCoW y confirmar o ajustar los puntos."
+          ],
+          "expected": "Backlog ordenado por prioridad, con todas las historias estimadas."
+        },
+        {
+          "summary": "Prep: validar el backlog con el Product Owner",
+          "steps": [
+            "Presentar el backlog al Product Owner.",
+            "Registrar en Jira los cambios acordados."
+          ],
+          "expected": "Backlog aprobado y actualizado en Jira."
+        }
+      ]
+    },
+    {
+      "epic": "prep",
+      "sprint": 1,
+      "points": 1,
+      "summary": "Definir roles Scrum y responsabilidades",
+      "story": "Como equipo, queremos definir quién ocupa cada rol, para que cada entregable tenga un responsable claro.",
+      "trace": "Guía del curso · Sprint 1 (roles Scrum)",
+      "acceptance": [
+        "Cada rol tiene una persona asignada: Scrum Master, Product Owner, QA, SQA, Desarrollador, Líder Técnico y Arquitecto.",
+        "Una matriz RACI indica quién es responsable, quién aprueba, a quién se consulta y a quién se informa en cada entregable de los tres sprints.",
+        "Los integrantes del equipo son miembros del espacio en Jira."
+      ],
+      "tasks": [
+        {
+          "summary": "Prep: matriz de roles y responsabilidades (RACI)",
+          "steps": [
+            "Asignar una persona a cada rol.",
+            "Construir la matriz RACI por entregable.",
+            "Agregar a los integrantes al espacio de Jira."
+          ],
+          "expected": "Documento de roles con la matriz RACI y el equipo completo en Jira."
+        }
+      ]
+    },
+    {
+      "epic": "prep",
+      "sprint": 1,
+      "points": 3,
+      "summary": "Documentar la arquitectura, módulos y dependencias del sistema",
+      "story": "Como QA, quiero un documento inicial del sistema, para entender qué voy a probar y cómo se conectan sus partes.",
+      "trace": "Guía del curso · Sprint 1 · Documento del proyecto, sección 6.3",
+      "acceptance": [
+        "Incluye un diagrama de arquitectura: sitio web en React, API en Node y Express, Firebase Authentication, Cloud Firestore, Cloud Storage y Google Cloud Vision.",
+        "Lista los módulos: acceso, usuarios, productos, campañas, escaneo de facturas, puntuación, tablero de indicadores y revisión de comprobantes.",
+        "Lista las dependencias principales con su versión y los servicios externos.",
+        "Describe los ambientes disponibles (local y publicado) y sus direcciones."
+      ],
+      "tasks": [
+        {
+          "summary": "Prep: diagrama de arquitectura y componentes",
+          "steps": [
+            "Dibujar los componentes y cómo se comunican.",
+            "Indicar dónde se ejecuta cada uno."
+          ],
+          "expected": "Diagrama incluido en el documento del sistema."
+        },
+        {
+          "summary": "Prep: inventario de módulos y dependencias",
+          "steps": [
+            "Listar los módulos y la función de cada uno.",
+            "Listar dependencias y versiones a partir de los package.json del proyecto."
+          ],
+          "expected": "Tabla de módulos y tabla de dependencias en el documento."
+        }
+      ]
+    },
+    {
+      "epic": "prep",
+      "sprint": 1,
+      "points": 2,
+      "summary": "Definir los atributos de calidad aplicables",
+      "story": "Como SQA, quiero seleccionar los atributos de calidad que aplican al sistema, para saber qué características debemos evaluar.",
+      "trace": "Guía del curso · Sprint 1 (semana 9) · ISO/IEC 25010",
+      "acceptance": [
+        "Se seleccionan con justificación los atributos ISO/IEC 25010 aplicables: adecuación funcional, eficiencia de desempeño, usabilidad, seguridad, compatibilidad y fiabilidad.",
+        "Cada atributo se vincula con los requerimientos no funcionales del proyecto.",
+        "Cada atributo indica cómo se verificará: prueba manual, prueba automatizada o revisión."
+      ],
+      "tasks": [
+        {
+          "summary": "Prep: seleccionar y justificar atributos ISO 25010",
+          "steps": [
+            "Revisar las ocho características de ISO/IEC 25010.",
+            "Elegir las aplicables y justificar cada una.",
+            "Vincularlas con los RNF y con su forma de verificación."
+          ],
+          "expected": "Tabla de atributos con justificación, RNF asociado y forma de verificación."
+        }
+      ]
+    },
+    {
+      "epic": "prep",
+      "sprint": 1,
+      "points": 2,
+      "summary": "Seleccionar las métricas de calidad",
+      "story": "Como SQA, quiero métricas con fórmula y meta, para medir objetivamente la calidad del sistema y del proceso.",
+      "trace": "Guía del curso · Sprint 1 (métricas de calidad)",
+      "acceptance": [
+        "Cada métrica tiene fórmula, meta y fuente de datos.",
+        "Incluye al menos: porcentaje de casos aprobados, densidad de defectos, defectos por severidad, tasa de reapertura de bugs, cobertura de requisitos y tiempo de procesamiento por factura (meta: 15 segundos o menos).",
+        "Un panel de Jira muestra los bugs por severidad y por estado."
+      ],
+      "tasks": [
+        {
+          "summary": "Prep: definir métricas con fórmula y meta",
+          "steps": [
+            "Elegir las métricas.",
+            "Escribir la fórmula, la meta y la fuente de cada una."
+          ],
+          "expected": "Tabla de métricas lista para medir en el Sprint 3."
+        },
+        {
+          "summary": "Prep: configurar el panel de métricas en Jira",
+          "steps": [
+            "Crear un panel para el espacio.",
+            "Agregar gráficos de bugs por severidad y por estado, y el burndown del sprint."
+          ],
+          "expected": "Panel visible para todo el equipo."
+        }
+      ]
+    },
+    {
+      "epic": "diseno",
+      "sprint": 2,
+      "points": 3,
+      "summary": "Aplicar clases de equivalencia y valores límite",
+      "story": "Como QA, quiero dividir las entradas del sistema en clases y probar sus límites, para cubrir más casos con menos pruebas.",
+      "trace": "Guía del curso · Sprint 2 · RF-02 (entregables) · RN-02",
+      "acceptance": [
+        "Hay clases válidas e inválidas para: formato del archivo, tamaño del archivo, fecha de la factura respecto a la campaña, unidades por factura y puntos por unidad.",
+        "Se analizan los límites: tamaño de 10 MB, tope de 50 unidades por factura, 10 unidades en una línea (marca de revisión), 20 facturas en 24 horas, y los días de inicio y fin de la campaña.",
+        "Cada clase y cada límite origina al menos un caso de prueba."
+      ],
+      "tasks": [
+        {
+          "summary": "Diseño: tabla de clases de equivalencia",
+          "steps": [
+            "Identificar las entradas del escaneo y de las campañas.",
+            "Definir clases válidas e inválidas para cada entrada."
+          ],
+          "expected": "Tabla de clases con un caso representativo por clase."
+        },
+        {
+          "summary": "Diseño: análisis de valores límite",
+          "steps": [
+            "Para cada límite, tomar el valor justo por debajo, el propio límite y el justo por encima (por ejemplo 49, 50 y 51 unidades)."
+          ],
+          "expected": "Tabla de valores límite con el resultado esperado de cada valor."
+        }
+      ]
+    },
+    {
+      "epic": "diseno",
+      "sprint": 2,
+      "points": 2,
+      "summary": "Construir tablas de decisión",
+      "story": "Como QA, quiero modelar las reglas del sistema en tablas de decisión, para probar cada combinación de condiciones que cambia el resultado.",
+      "trace": "Guía del curso · Sprint 2 · RN-01 · RN-02 · RN-03 · RNF-01 (proyecto)",
+      "acceptance": [
+        "Tabla del resultado de una factura: condiciones (tiene total, fecha dentro de la campaña, producto de la campaña, precio en la línea, ya registrada) y acciones (suma puntos o motivo de rechazo).",
+        "Tabla de acceso: perfil (sin sesión, Usuario, Administrador) por sección, con su resultado (permitido, 401 o 403).",
+        "Las reglas se reducen y cada regla resultante tiene su caso de prueba."
+      ],
+      "tasks": [
+        {
+          "summary": "Diseño: tablas de decisión del escaneo y del acceso",
+          "steps": [
+            "Listar condiciones y acciones de cada regla.",
+            "Completar las tablas y reducir las reglas equivalentes."
+          ],
+          "expected": "Dos tablas de decisión con un caso por regla."
+        }
+      ]
+    },
+    {
+      "epic": "diseno",
+      "sprint": 2,
+      "points": 2,
+      "summary": "Diseñar combinaciones con pairwise",
+      "story": "Como QA, quiero combinar entornos y tipos de factura con pairwise, para cubrir todas las parejas de valores sin probar cada combinación.",
+      "trace": "Guía del curso · Sprint 2 · RNF-07 (proyecto) · RNF-11 (entregables)",
+      "acceptance": [
+        "Factores: navegador (Chrome, Edge, Firefox), dispositivo (computadora, teléfono), formato (JPG, PNG, PDF) y calidad de la foto (nítida, inclinada, con sombra).",
+        "Las combinaciones se generan con una herramienta pairwise (por ejemplo PICT) y cubren todas las parejas de valores.",
+        "Se documenta cuántas combinaciones se ahorran frente a probarlas todas (54)."
+      ],
+      "tasks": [
+        {
+          "summary": "Diseño: matriz pairwise de entornos y facturas",
+          "steps": [
+            "Definir factores y valores.",
+            "Generar la matriz con la herramienta.",
+            "Comparar su tamaño con las 54 combinaciones posibles."
+          ],
+          "expected": "Matriz pairwise lista para ejecutar en el Sprint 3."
+        }
+      ]
+    },
+    {
+      "epic": "diseno",
+      "sprint": 2,
+      "points": 2,
+      "summary": "Modelar diagramas de transición de estados",
+      "story": "Como QA, quiero modelar los estados del sistema, para probar cada transición permitida y confirmar que las prohibidas se bloquean.",
+      "trace": "Guía del curso · Sprint 2 · RF-09 (proyecto) · RN-06",
+      "acceptance": [
+        "Diagrama de la campaña: Borrador, Activa y Archivada, con sus transiciones permitidas y prohibidas.",
+        "Diagrama del comprobante: Con puntos, Sin puntos y Anulado.",
+        "Diagrama del ciclo de vida del bug, el mismo que se configura en Jira.",
+        "Cada transición permitida tiene un caso, y cada diagrama tiene al menos un caso de transición prohibida."
+      ],
+      "tasks": [
+        {
+          "summary": "Diseño: diagramas de estados y sus casos",
+          "steps": [
+            "Dibujar los tres diagramas.",
+            "Derivar un caso por transición permitida y uno por transición prohibida."
+          ],
+          "expected": "Tres diagramas con su tabla de casos."
+        }
+      ]
+    },
+    {
+      "epic": "diseno",
+      "sprint": 2,
+      "points": 3,
+      "summary": "Diseñar los casos de prueba",
+      "story": "Como QA, quiero casos de prueba formales derivados de las técnicas, para ejecutarlos de forma repetible en el Sprint 3.",
+      "trace": "Guía del curso · Sprint 2 (mínimo 12 casos) · Documento del proyecto, tabla 17",
+      "acceptance": [
+        "Hay al menos 12 casos con identificador, técnica de origen, requerimiento, precondición, datos, pasos y resultado esperado.",
+        "Cubren todas las historias de prioridad alta.",
+        "Cada caso está vinculado con su historia en Jira.",
+        "Los casos pasaron una revisión por pares (técnica estática) y se corrigieron las observaciones."
+      ],
+      "tasks": [
+        {
+          "summary": "Diseño: redactar los casos de prueba (mínimo 12)",
+          "steps": [
+            "Convertir las salidas de las técnicas en casos formales.",
+            "Vincular cada caso con su historia."
+          ],
+          "expected": "Al menos 12 casos completos y trazables."
+        },
+        {
+          "summary": "Diseño: revisión por pares de los casos (técnica estática)",
+          "steps": [
+            "Otro integrante revisa cada caso con una lista de verificación.",
+            "Registrar las observaciones y corregirlas."
+          ],
+          "expected": "Casos revisados, con el registro de la revisión como evidencia."
+        }
+      ]
+    },
+    {
+      "epic": "diseno",
+      "sprint": 2,
+      "points": 3,
+      "summary": "Elaborar el plan de pruebas completo",
+      "story": "Como SQA, quiero un plan de pruebas completo, para que todo el equipo sepa qué, cómo, cuándo y con qué criterios se prueba.",
+      "trace": "Guía del curso · Sprint 2 (semana 10) · Documento del proyecto, sección 6.5",
+      "acceptance": [
+        "Incluye alcance, elementos a probar y fuera de alcance, estrategia (manual, automatizada, caja blanca y caja negra), criterios de entrada y de salida, ambientes y datos de prueba, cronograma por sprint, roles, riesgos y contingencias, y entregables.",
+        "Sigue la estructura de la guía de la semana 10.",
+        "Está aprobado por el Product Owner y el SQA antes de iniciar el Sprint 3."
+      ],
+      "tasks": [
+        {
+          "summary": "Diseño: redactar el plan de pruebas",
+          "steps": [
+            "Completar cada sección según la guía de la semana 10."
+          ],
+          "expected": "Plan de pruebas completo en la sección Documentos del espacio o en el repositorio."
+        },
+        {
+          "summary": "Diseño: aprobar el plan de pruebas",
+          "steps": [
+            "Revisar el plan con el Product Owner y el SQA.",
+            "Registrar la aprobación."
+          ],
+          "expected": "Plan aprobado antes de iniciar el Sprint 3."
+        }
+      ]
+    },
+    {
+      "epic": "acceso",
+      "sprint": 3,
+      "points": 2,
+      "summary": "Iniciar sesión con correo y contraseña",
+      "story": "Como usuario del sistema, quiero iniciar sesión con mi correo y contraseña, para acceder a las funciones que corresponden a mi perfil.",
+      "trace": "HU-01 · RF-01 · CU-01 · CP-01",
+      "acceptance": [
+        "Con credenciales válidas entra al Panel y el menú muestra solo las opciones de su perfil.",
+        "Con credenciales inválidas se rechaza el acceso con el mismo mensaje genérico, exista o no el correo.",
+        "Una cuenta deshabilitada no puede iniciar sesión.",
+        "Cerrar sesión desde el menú de usuario vuelve a la pantalla de acceso."
+      ],
+      "tasks": [
+        {
+          "summary": "QA: inicio de sesión válido y cierre de sesión",
+          "steps": [
+            "Iniciar sesión con una cuenta Administrador y revisar el menú lateral.",
+            "Cerrar sesión e iniciar con una cuenta Usuario y revisar el menú lateral.",
+            "Cerrar sesión desde el menú de usuario."
+          ],
+          "expected": "El Administrador ve Campañas, Productos, Comprobantes y Usuarios; el Usuario solo ve Panel. Cerrar sesión vuelve a Iniciar sesión."
+        },
+        {
+          "summary": "QA: credenciales inválidas y cuenta deshabilitada",
+          "steps": [
+            "Intentar entrar con un correo que no existe.",
+            "Intentar entrar con un correo real y una contraseña incorrecta.",
+            "Deshabilitar una cuenta desde Usuarios e intentar entrar con ella."
+          ],
+          "expected": "Los dos primeros casos muestran el mismo mensaje «Esa combinación de correo y contraseña no funcionó.». La cuenta deshabilitada no entra."
+        }
+      ]
+    },
+    {
+      "epic": "acceso",
+      "sprint": 3,
+      "points": 1,
+      "summary": "Recuperar la contraseña",
+      "story": "Como usuario, quiero recuperar mi contraseña, para recobrar el acceso sin depender del administrador.",
+      "trace": "HU-02 · RF-02",
+      "acceptance": [
+        "Desde «¿Olvidaste tu contraseña?» se envía un enlace al correo registrado.",
+        "El aviso en pantalla es el mismo exista o no la cuenta, para no revelar qué correos están registrados.",
+        "El enlace permite definir una contraseña nueva y sirve una sola vez.",
+        "Con la contraseña nueva se inicia sesión y la anterior deja de funcionar."
+      ],
+      "tasks": [
+        {
+          "summary": "QA: recuperación de contraseña de punta a punta",
+          "steps": [
+            "Escribir el correo de una cuenta real y pulsar «¿Olvidaste tu contraseña?».",
+            "Abrir el correo recibido y definir una contraseña nueva.",
+            "Iniciar sesión con la contraseña nueva y luego intentar con la anterior."
+          ],
+          "expected": "Llega el correo con el enlace; la contraseña nueva funciona y la anterior es rechazada."
+        },
+        {
+          "summary": "QA: recuperación con correo no registrado y enlace reutilizado",
+          "steps": [
+            "Solicitar la recuperación para un correo que no existe.",
+            "Abrir por segunda vez un enlace de recuperación ya utilizado."
+          ],
+          "expected": "El aviso es idéntico al de un correo real. El enlace usado ya no permite cambiar la contraseña."
+        }
+      ]
+    },
+    {
+      "epic": "acceso",
+      "sprint": 3,
+      "points": 3,
+      "summary": "Perfiles y protección de accesos",
+      "story": "Como administrador, quiero asignar perfiles a los usuarios, para controlar qué funciones puede ejecutar cada uno.",
+      "trace": "HU-03 · RF-03 · RF-05 · RNF-01 · CP-02 · CP-03",
+      "acceptance": [
+        "Cada usuario tiene exactamente un perfil: Administrador o Usuario.",
+        "El cambio de perfil se aplica al renovar la sesión (cerrar sesión y volver a entrar).",
+        "Un administrador no puede quitarse su propio perfil de administrador.",
+        "La API responde 401 sin sesión y 403 cuando un Usuario llama a una función de administración.",
+        "Un Usuario que abre una dirección de administración ve «No permitido»."
+      ],
+      "tasks": [
+        {
+          "summary": "QA: cambio de perfil de un usuario",
+          "steps": [
+            "Cambiar una cuenta de Usuario a Administrador desde Usuarios.",
+            "Con esa cuenta, cerrar sesión, volver a entrar y revisar el menú.",
+            "Intentar cambiar el perfil de la propia cuenta de administrador."
+          ],
+          "expected": "Tras volver a entrar aparecen las opciones de administración. El selector del perfil propio está bloqueado."
+        },
+        {
+          "summary": "QA: accesos no autorizados (401 y 403)",
+          "steps": [
+            "Abrir <URL de la API>/api/admin/products en el navegador sin sesión.",
+            "Con sesión de Usuario, repetir la llamada con su token (herramientas del navegador, pestaña Red, encabezado Authorization).",
+            "Con sesión de Usuario, escribir /admin/productos en la barra de direcciones del sitio."
+          ],
+          "expected": "401 sin sesión, 403 con perfil Usuario, y la interfaz redirige a «No permitido»."
+        }
+      ]
+    },
+    {
+      "epic": "admin",
+      "sprint": 3,
+      "points": 2,
+      "summary": "Gestionar usuarios e invitaciones",
+      "story": "Como administrador, quiero invitar, habilitar y deshabilitar usuarios, para controlar quién participa en la plataforma.",
+      "trace": "RF-04 · CU-09 (parcial) · RNF-02",
+      "acceptance": [
+        "Invitar crea la cuenta con perfil Usuario y envía un enlace para elegir contraseña; nunca se envía una contraseña.",
+        "Si el correo no está configurado, el enlace se muestra en pantalla para compartirlo.",
+        "No se puede invitar un correo que ya tiene cuenta.",
+        "Reenviar invitación genera un enlace nuevo y válido.",
+        "Deshabilitar bloquea el acceso sin borrar la cuenta; un administrador no puede deshabilitarse a sí mismo."
+      ],
+      "tasks": [
+        {
+          "summary": "QA: invitación y activación de una cuenta nueva",
+          "steps": [
+            "En Usuarios, invitar un correo real con su nombre.",
+            "Abrir el enlace recibido, elegir contraseña e iniciar sesión."
+          ],
+          "expected": "La cuenta aparece con perfil Usuario, el correo trae un enlace (no una contraseña) y el acceso funciona."
+        },
+        {
+          "summary": "QA: correo repetido, reenvío y deshabilitar cuentas",
+          "steps": [
+            "Invitar de nuevo el mismo correo.",
+            "Usar Reenviar invitación en una cuenta que no ha activado su contraseña.",
+            "Deshabilitar una cuenta, intentar entrar con ella y volver a habilitarla.",
+            "Intentar deshabilitar la cuenta propia."
+          ],
+          "expected": "El correo repetido se rechaza; el reenvío genera un enlace válido; la cuenta deshabilitada no entra hasta habilitarla; la acción sobre la cuenta propia está bloqueada."
+        }
+      ]
+    },
+    {
+      "epic": "admin",
+      "sprint": 3,
+      "points": 3,
+      "summary": "Mantener el catálogo de productos",
+      "story": "Como administrador, quiero mantener el catálogo de productos con su SKU y sus puntos, para que el sistema reconozca lo que se vende.",
+      "trace": "HU-18 · RF-06 · RF-10 · CU-08 · CP-04 · CP-05",
+      "acceptance": [
+        "Se crea un producto con nombre, SKU opcional y puntos por unidad; los valores inválidos se rechazan.",
+        "Los puntos se editan en la tabla y se guardan al salir del campo.",
+        "Un producto desactivado deja de sumar puntos, aunque siga en una campaña.",
+        "No se puede eliminar un producto usado por una campaña en borrador o activa (409); el mensaje sugiere desactivarlo."
+      ],
+      "tasks": [
+        {
+          "summary": "QA: alta y edición de productos",
+          "steps": [
+            "Crear un producto con nombre, SKU y puntos.",
+            "Intentar crear uno sin nombre o con puntos negativos.",
+            "Cambiar sus puntos en la tabla y salir del campo; recargar la página."
+          ],
+          "expected": "El producto válido se crea; el inválido se rechaza; el cambio de puntos persiste tras recargar."
+        },
+        {
+          "summary": "QA: eliminación bloqueada y producto desactivado",
+          "precondition": "Existe una campaña activa que incluye el producto, con un usuario participante.",
+          "steps": [
+            "Intentar eliminar el producto.",
+            "Desmarcar Activo en el producto.",
+            "Con el usuario participante, subir una factura válida que contenga ese producto."
+          ],
+          "expected": "La eliminación se rechaza nombrando la campaña. Con el producto desactivado, la factura no suma puntos por él."
+        }
+      ]
+    },
+    {
+      "epic": "admin",
+      "sprint": 3,
+      "points": 3,
+      "summary": "Crear campañas de incentivo",
+      "story": "Como administrador, quiero crear campañas con productos, puntos, metas y premios, para operar los programas de incentivo.",
+      "trace": "HU-19 · RF-07 · RF-08 · CU-07 · CP-06",
+      "acceptance": [
+        "Una campaña define nombre, período, productos con sus puntos por unidad, productos obligatorios con cantidad mínima, hitos con meta y premio, y participantes.",
+        "Los puntos de la campaña parten del valor del producto y se pueden cambiar sin modificar el producto.",
+        "Se rechazan: fin anterior al inicio, producto repetido, hitos que no suben de valor, producto obligatorio con mínimo 0, y productos inexistentes o desactivados.",
+        "La campaña nueva queda en estado Borrador."
+      ],
+      "tasks": [
+        {
+          "summary": "QA: creación de una campaña completa",
+          "steps": [
+            "Crear una campaña vigente durante los tres sprints, con Paracetamol a 2 pts por unidad, dos hitos con premio y dos usuarios participantes.",
+            "Guardar y revisar la fila en la lista de campañas."
+          ],
+          "expected": "La campaña queda en Borrador con sus productos, hitos y participantes. Esta campaña sirve para las pruebas de los sprints 2 y 3."
+        },
+        {
+          "summary": "QA: validaciones del formulario de campaña",
+          "steps": [
+            "Poner la fecha de fin antes de la de inicio.",
+            "Poner un hito con meta menor o igual a la del anterior.",
+            "Marcar un producto como obligatorio con cantidad mínima 0."
+          ],
+          "expected": "Cada caso se rechaza con un mensaje que indica el problema; no se guarda la campaña."
+        }
+      ]
+    },
+    {
+      "epic": "admin",
+      "sprint": 3,
+      "points": 2,
+      "summary": "Ciclo de vida y participantes de la campaña",
+      "story": "Como administrador, quiero iniciar, archivar y asignar participantes a una campaña, para controlar cuándo y quién puede sumar puntos.",
+      "trace": "RF-09 · RF-10 · RF-11 · RN-06 · RN-10 · CP-07 · CP-08",
+      "acceptance": [
+        "Una campaña sin productos o sin hitos no se puede iniciar.",
+        "Una campaña activa no se puede eliminar; una archivada es de solo lectura.",
+        "Una campaña archivada o fuera de su período no acepta facturas (RN-06).",
+        "Cada usuario ve únicamente las campañas en las que participa (RN-10)."
+      ],
+      "tasks": [
+        {
+          "summary": "QA: cambios de estado de la campaña",
+          "steps": [
+            "Intentar iniciar una campaña sin hitos.",
+            "Iniciar la campaña completa e intentar eliminarla.",
+            "Archivar una campaña de prueba, abrirla e intentar subir una factura en ella."
+          ],
+          "expected": "No se inicia sin hitos; la activa no se elimina; la archivada se abre en solo lectura y no aparece para cargar facturas."
+        },
+        {
+          "summary": "QA: visibilidad de campañas por participante",
+          "steps": [
+            "Entrar con un usuario participante y con otro que no lo es.",
+            "Quitar al participante de la campaña y recargar su Panel."
+          ],
+          "expected": "Solo el participante ve la campaña; al quitarlo deja de verla y no puede cargar facturas en ella."
+        }
+      ]
+    },
+    {
+      "epic": "captura",
+      "sprint": 3,
+      "points": 3,
+      "summary": "Cargar la factura desde el teléfono o la computadora",
+      "story": "Como cajero, quiero fotografiar o subir mi factura desde el navegador, para reportar mi venta sin instalar otra aplicación.",
+      "trace": "HU-04 · RF-12 · RF-02 · RF-03 · CU-02",
+      "acceptance": [
+        "Solo un usuario de perfil Usuario, participante de una campaña vigente, puede cargar facturas; elige la campaña antes de subir.",
+        "En el teléfono, la carga permite usar la cámara o la galería.",
+        "Se aceptan JPG, PNG, WebP, TIFF y PDF de hasta 10 MB; otro formato o un archivo más grande se rechaza con un mensaje que explica la causa (CU-02, flujo alternativo A).",
+        "La pantalla indica que la factura se está leyendo y luego muestra el resultado.",
+        "El archivo original queda guardado como evidencia."
+      ],
+      "tasks": [
+        {
+          "summary": "QA: carga desde un teléfono real",
+          "precondition": "Muestras generadas con la fecha de hoy: python samples/generate_samples.py",
+          "steps": [
+            "Abrir el sitio en un teléfono e iniciar sesión como participante.",
+            "Elegir la campaña, pulsar la zona de carga y tomar con la cámara una foto de la muestra impresa o mostrada en otra pantalla.",
+            "Esperar el resultado."
+          ],
+          "samples": ["samples/casos/valido-cantidad-x.png"],
+          "expected": "La cámara se abre desde el navegador; el resultado muestra 2 unidades y 4 puntos."
+        },
+        {
+          "summary": "QA: formatos no admitidos, tamaño y usuario sin campaña",
+          "steps": [
+            "Arrastrar a la zona de carga un archivo .docx.",
+            "Subir una imagen de más de 10 MB.",
+            "Entrar con un usuario que no participa en ninguna campaña vigente."
+          ],
+          "expected": "Formato y tamaño se rechazan con un mensaje comprensible en español. El usuario sin campaña ve «No tienes campañas vigentes» y no puede cargar."
+        }
+      ]
+    },
+    {
+      "epic": "captura",
+      "sprint": 3,
+      "points": 3,
+      "summary": "Evitar facturas duplicadas",
+      "story": "Como cajero, quiero recibir aviso inmediato si la factura ya fue reportada, para no duplicar mi envío.",
+      "trace": "HU-06 · RF-16 · RN-01 · CU-02 (flujo alternativo B)",
+      "acceptance": [
+        "La misma imagen subida dos veces se rechaza con «Este comprobante ya fue registrado».",
+        "Una foto nueva del mismo papel también se rechaza (misma fecha, total y número de ticket).",
+        "La factura vale una sola vez aunque la suba otro usuario (RN-01).",
+        "Una factura rechazada por sus datos sí puede volver a subirse con una foto mejor.",
+        "Un usuario no puede subir más de 20 facturas en 24 horas."
+      ],
+      "tasks": [
+        {
+          "summary": "QA: duplicados con la misma imagen, foto nueva y otra cuenta",
+          "steps": [
+            "Subir valido-cantidad-x.png (si no se subió antes) y luego subirla otra vez.",
+            "Subir duplicado-foto-nueva.png.",
+            "Con otro usuario participante, subir otra vez valido-cantidad-x.png."
+          ],
+          "samples": ["samples/casos/valido-cantidad-x.png", "samples/casos/duplicado-foto-nueva.png"],
+          "expected": "Solo el primer envío suma; los tres siguientes muestran «Este comprobante ya fue registrado»."
+        },
+        {
+          "summary": "QA: reintento tras un rechazo y límite diario",
+          "precondition": "Bajar el límite de forma temporal: scripts/deploy-api.ps1 -SkipSetup -ScanDailyLimit 3",
+          "steps": [
+            "Subir rechazo-sin-total.png y después una factura válida distinta.",
+            "Seguir subiendo facturas con la misma cuenta hasta pasar el límite.",
+            "Restaurar el límite al terminar."
+          ],
+          "samples": ["samples/casos/rechazo-sin-total.png"],
+          "expected": "El rechazo no bloquea la siguiente factura. Al pasar el límite aparece «Alcanzaste el límite de comprobantes por día»."
+        }
+      ]
+    },
+    {
+      "epic": "extraccion",
+      "sprint": 3,
+      "points": 5,
+      "summary": "Reconocer productos y cantidades de la factura",
+      "story": "Como sistema, quiero leer la factura y vincular sus líneas con el catálogo, para determinar las unidades vendidas por producto.",
+      "trace": "HU-08 · HU-09 · HU-10 · HU-11 · RF-13 · RF-14 · CU-03 · CP-09",
+      "acceptance": [
+        "Se extrae y guarda el texto de la factura; el usuario puede verlo en «Ver texto extraído».",
+        "Se reconoce la cantidad escrita como «2 X 45.00», «4 UN», al inicio de la línea o en la línea de abajo.",
+        "Se toleran fotos inclinadas y una letra mal leída en nombres largos; cifras distintas (500 mg frente a 600 mg) no se confunden.",
+        "Un producto abreviado en el ticket se reconoce si su abreviatura está registrada como SKU.",
+        "Solo cuentan los productos de la campaña elegida; si la cantidad no es clara se cuenta 1 unidad."
+      ],
+      "tasks": [
+        {
+          "summary": "QA: formatos de cantidad y factura en PDF",
+          "steps": [
+            "Subir cada muestra y anotar unidades y puntos.",
+            "Abrir «Ver texto extraído» en una de ellas."
+          ],
+          "samples": [
+            "samples/casos/valido-cantidad-abajo.png",
+            "samples/casos/valido-unidades-fecha-corta.png",
+            "samples/casos/valido-factura.pdf"
+          ],
+          "expected": "3, 4 y 6 unidades respectivamente (6, 8 y 12 pts con Paracetamol a 2 pts). El texto extraído corresponde a la imagen."
+        },
+        {
+          "summary": "QA: foto inclinada, error de lectura y nombre abreviado",
+          "steps": [
+            "Subir valido-foto-celular.png y valido-error-de-lectura.png.",
+            "Subir rechazo-nombre-abreviado.png.",
+            "Registrar PARACET como SKU del producto y subir rechazo-nombre-abreviado.png de nuevo.",
+            "Borrar el SKU al terminar."
+          ],
+          "samples": [
+            "samples/casos/valido-foto-celular.png",
+            "samples/casos/valido-error-de-lectura.png",
+            "samples/casos/rechazo-nombre-abreviado.png"
+          ],
+          "expected": "3 y 2 unidades en las dos primeras. La abreviada no se reconoce hasta registrar el SKU; con el SKU se reconocen 3 unidades."
+        }
+      ]
+    },
+    {
+      "epic": "validacion",
+      "sprint": 3,
+      "points": 3,
+      "summary": "Validar que la factura sea legítima",
+      "story": "Como administrador, quiero que el sistema rechace las facturas que no cumplen las reglas, para que nadie sume puntos con documentos inválidos.",
+      "trace": "RN-02 · RN-03 · RN-06 · CU-03 (flujo alternativo B)",
+      "acceptance": [
+        "Sin línea de TOTAL con importe: 0 puntos y aviso «No encontramos el total del comprobante…».",
+        "Sin fecha legible: 0 puntos y aviso de fecha no legible.",
+        "Fecha anterior al inicio de la campaña o posterior a hoy: 0 puntos (RN-02).",
+        "Una línea de producto sin precio no cuenta, lo que descarta notas escritas a mano.",
+        "Sin productos de la campaña: 0 puntos con un aviso que lo explica (RN-03).",
+        "Cada rechazo muestra el motivo al usuario y queda guardado en Comprobantes."
+      ],
+      "tasks": [
+        {
+          "summary": "QA: rechazos por total, fecha y fecha futura",
+          "steps": ["Subir cada muestra y anotar el mensaje mostrado."],
+          "samples": [
+            "samples/casos/rechazo-sin-total.png",
+            "samples/casos/rechazo-sin-fecha.png",
+            "samples/casos/rechazo-fecha-futura.png",
+            "samples/ticket-fuera-de-fecha.png"
+          ],
+          "expected": "Las cuatro dan 0 puntos, cada una con el motivo correspondiente (sin total, sin fecha, fecha fuera de la campaña)."
+        },
+        {
+          "summary": "QA: líneas sin precio y facturas sin productos de la campaña",
+          "steps": [
+            "Subir cada muestra y anotar el mensaje mostrado.",
+            "Como administrador, confirmar en Comprobantes que quedaron registradas con estado Sin puntos."
+          ],
+          "samples": [
+            "samples/casos/rechazo-sin-precio.png",
+            "samples/casos/rechazo-sin-productos.png",
+            "samples/nota-sin-ticket.png"
+          ],
+          "expected": "Las tres dan 0 puntos con su motivo y aparecen en Comprobantes como Sin puntos."
+        }
+      ]
+    },
+    {
+      "epic": "validacion",
+      "sprint": 3,
+      "points": 3,
+      "summary": "Acreditar puntos por las unidades vendidas",
+      "story": "Como cajero, quiero que mis ventas válidas sumen puntos automáticamente, para avanzar en la campaña sin esperar una revisión manual.",
+      "trace": "CU-05 · RF-15 · RF-17 · RF-18 · RN-03",
+      "acceptance": [
+        "Puntos = unidades × puntos por unidad definidos en la campaña.",
+        "Los puntos se acumulan entre facturas en el total del participante.",
+        "Al superar la meta de un hito se muestra «¡Alcanzaste el hito…!» con su premio, una sola vez.",
+        "Cambiar después los puntos del producto no altera lo ya acreditado.",
+        "Una factura no suma más de 50 unidades por campaña; el excedente se descarta y se avisa."
+      ],
+      "tasks": [
+        {
+          "summary": "QA: cálculo y acumulación de puntos",
+          "steps": [
+            "Anotar el total del participante.",
+            "Subir dos facturas válidas distintas y comparar el nuevo total.",
+            "Cambiar los puntos del producto en Productos y revisar el total otra vez."
+          ],
+          "expected": "El total sube exactamente en unidades × puntos de cada factura y no cambia al editar el producto."
+        },
+        {
+          "summary": "QA: hito alcanzado y tope de unidades",
+          "precondition": "Meta del primer hito por debajo de 100 pts.",
+          "steps": [
+            "Subir revisar-tope-de-unidades.png (60 unidades).",
+            "Revisar el resultado y el Panel."
+          ],
+          "samples": ["samples/casos/revisar-tope-de-unidades.png"],
+          "expected": "Se cuentan 50 unidades (100 pts) con aviso del máximo, y aparece «¡Alcanzaste el hito…!» con su premio."
+        }
+      ]
+    },
+    {
+      "epic": "estadisticas",
+      "sprint": 3,
+      "points": 2,
+      "summary": "Consultar mi avance en la campaña",
+      "story": "Como cajero, quiero ver mi avance en la campaña vigente, para saber cuánto me falta para alcanzar la meta.",
+      "trace": "HU-15 · RF-19 · CU-06",
+      "acceptance": [
+        "El Panel muestra puntos acumulados, barra de progreso y cuántos puntos faltan para el siguiente hito.",
+        "Los hitos alcanzados aparecen marcados; los productos obligatorios muestran su avance (por ejemplo 2/3).",
+        "Se listan los productos que suman y sus puntos por unidad.",
+        "El avance se actualiza tras cada factura, sin recargar la página.",
+        "Cada usuario solo ve su propio avance (RN-10)."
+      ],
+      "tasks": [
+        {
+          "summary": "QA: vista de avance tras varias facturas",
+          "steps": [
+            "Entrar como participante y anotar puntos y barra de progreso.",
+            "Subir una factura válida sin recargar la página."
+          ],
+          "expected": "Puntos, barra y «Te faltan N pts…» se actualizan solos y coinciden con la suma de las facturas."
+        },
+        {
+          "summary": "QA: productos obligatorios y privacidad del avance",
+          "precondition": "Un producto marcado como obligatorio con cantidad mínima 3.",
+          "steps": [
+            "Subir una factura con menos unidades de las exigidas.",
+            "Entrar con otro participante y revisar su Panel."
+          ],
+          "expected": "El primero ve el producto como pendiente con su avance (por ejemplo 2/3). El segundo solo ve sus propios puntos."
+        }
+      ]
+    },
+    {
+      "epic": "estadisticas",
+      "sprint": 3,
+      "points": 3,
+      "summary": "Consultar el tablero de indicadores",
+      "story": "Como administrador, quiero ver las ventas por día, semana y mes, para dar seguimiento a las campañas mientras están vigentes.",
+      "trace": "HU-16 (parcial) · RF-11 · RF-12 (parcial) · CU-06",
+      "acceptance": [
+        "Muestra productos registrados y unidades vendidas hoy, esta semana y este mes.",
+        "El gráfico cambia entre por día (30 días), por semana (12) y por mes (12) sin recargar la página.",
+        "Muestra los productos más vendidos con su participación.",
+        "Mientras carga se ve una vista previa; el botón Actualizar refresca los datos.",
+        "Las cifras coinciden con las facturas acreditadas del período."
+      ],
+      "tasks": [
+        {
+          "summary": "QA: el tablero refleja las ventas acreditadas",
+          "steps": [
+            "Anotar «Vendidos hoy» en el Panel del administrador.",
+            "Con un participante, subir una factura válida.",
+            "Pulsar Actualizar en el tablero."
+          ],
+          "expected": "«Vendidos hoy» sube exactamente en las unidades de la factura, con su comprobante y sus puntos."
+        },
+        {
+          "summary": "QA: agrupaciones, tabla de datos y carga del tablero",
+          "steps": [
+            "Cambiar entre Por día, Por semana y Por mes.",
+            "Abrir «Ver datos en tabla» y pasar el cursor sobre una barra.",
+            "Recargar la página y observar la carga."
+          ],
+          "expected": "Gráfico y más vendidos cambian de período; la tabla y el detalle traen los mismos números; mientras carga se ve la vista previa gris."
+        }
+      ]
+    },
+    {
+      "epic": "validacion",
+      "sprint": 3,
+      "points": 3,
+      "summary": "Revisar facturas y anular acreditaciones",
+      "story": "Como administrador, quiero revisar la evidencia de cada factura y anular las acreditaciones indebidas, para resolver reclamos con evidencia.",
+      "trace": "HU-12 (parcial) · HU-13 (parcial) · HU-14 (parcial) · RF-20 · RN-08",
+      "acceptance": [
+        "Comprobantes lista cada factura con usuario, campaña, fecha, puntos y estado.",
+        "«Para revisar» filtra las marcadas: muchas unidades en una línea, tope de unidades, muchas facturas en 24 horas o archivo no guardado.",
+        "El detalle muestra la imagen original, las líneas contadas y el texto extraído.",
+        "Anular exige un motivo, resta puntos y unidades del participante y del tablero, y registra quién y cuándo.",
+        "Una factura anulada no se puede volver a subir."
+      ],
+      "tasks": [
+        {
+          "summary": "QA: lista, filtro Para revisar y evidencia",
+          "steps": [
+            "Con un participante, subir revisar-cantidad-grande.png (12 unidades).",
+            "Como administrador, abrir Comprobantes y filtrar «Para revisar».",
+            "Abrir el detalle y pulsar «Abrir el original»."
+          ],
+          "samples": ["samples/casos/revisar-cantidad-grande.png"],
+          "expected": "La factura aparece en «Para revisar» con el motivo «Muchas unidades en una sola línea» y se ve su imagen original."
+        },
+        {
+          "summary": "QA: anulación y su efecto en puntos y tablero",
+          "steps": [
+            "Anotar los puntos del participante y «Vendidos hoy».",
+            "Anular esa factura con un motivo.",
+            "Revisar el Panel del participante, el tablero, y volver a subir la misma imagen."
+          ],
+          "expected": "La factura pasa a Anulado con el motivo registrado; puntos y ventas bajan en lo que sumó; volver a subirla da «ya fue registrado»."
+        }
+      ]
+    },
+    {
+      "epic": "calidad",
+      "sprint": 3,
+      "points": 2,
+      "summary": "Verificar requerimientos no funcionales",
+      "story": "Como equipo, queremos comprobar el desempeño, la compatibilidad y la seguridad, para asegurar que el sistema es utilizable en operación real.",
+      "trace": "Entregables RNF-01 · RNF-05 · RNF-11 · Proyecto RNF-02 · RNF-03",
+      "acceptance": [
+        "Una factura se procesa en menos de 15 segundos desde la carga hasta el resultado.",
+        "La interfaz funciona sin pérdida de funciones desde 320 px de ancho.",
+        "Funciona en las versiones actuales de Chrome, Edge y Firefox, en computadora y en teléfono.",
+        "El sitio se sirve por HTTPS y las credenciales del servidor no aparecen en el código que descarga el navegador."
+      ],
+      "tasks": [
+        {
+          "summary": "QA: tiempo de procesamiento de facturas",
+          "steps": [
+            "Subir 10 muestras válidas y cronometrar desde pulsar hasta ver el resultado.",
+            "Calcular el promedio y el tiempo máximo."
+          ],
+          "expected": "Promedio y máximo por debajo de 15 segundos."
+        },
+        {
+          "summary": "QA: compatibilidad en teléfono y navegadores",
+          "steps": [
+            "Recorrer inicio de sesión, carga de factura y Panel en Chrome, Edge y Firefox.",
+            "Repetir en un teléfono y con la ventana a 320 px de ancho.",
+            "Buscar en las herramientas del navegador (Fuentes) «private_key» y «serviceAccount»."
+          ],
+          "expected": "Todo funciona en los tres navegadores y en el teléfono sin desbordes; no aparece ninguna credencial del servidor."
+        }
+      ]
+    },
+    {
+      "epic": "calidad",
+      "sprint": 3,
+      "points": 2,
+      "summary": "Regresión final y acta de aceptación",
+      "story": "Como equipo, queremos repetir las pruebas críticas sobre la versión final, para cerrar el proyecto con cero defectos críticos abiertos.",
+      "trace": "Plan de pruebas 6.5 · Tabla 18 (evidencias y criterios de aceptación)",
+      "acceptance": [
+        "Los casos de prioridad alta se repiten sobre la versión desplegada y todos pasan.",
+        "No quedan defectos críticos ni altos abiertos.",
+        "La evidencia se adjunta: capturas, respuestas de la API y registro de compilación.",
+        "El acta de aceptación queda revisada por los responsables del proyecto."
+      ],
+      "tasks": [
+        {
+          "summary": "QA: regresión de los casos críticos",
+          "precondition": "Muestras regeneradas con la fecha del día: python samples/generate_samples.py",
+          "steps": [
+            "Repetir: inicio de sesión, factura válida, factura duplicada, factura rechazada, avance del usuario y anulación.",
+            "Registrar cada resultado con captura."
+          ],
+          "expected": "Todos los casos pasan sobre la versión desplegada."
+        },
+        {
+          "summary": "QA: evidencia y acta de aceptación",
+          "steps": [
+            "Reunir capturas, respuestas de la API (401, 403, 409) y el registro de compilación.",
+            "Listar defectos abiertos con su severidad.",
+            "Preparar el acta con los requerimientos aprobados y las observaciones."
+          ],
+          "expected": "El acta refleja cero defectos críticos o altos abiertos y todos los requerimientos de prioridad alta aprobados."
+        }
+      ]
+    },
+    {
+      "epic": "bugs",
+      "sprint": 3,
+      "points": 3,
+      "summary": "Registrar y gestionar los bugs encontrados",
+      "story": "Como QA, quiero registrar cada bug de forma profesional, para que el equipo lo corrija según su riesgo y se pueda verificar.",
+      "trace": "Guía del curso · Sprint 3 (mínimo 10 bugs; semanas 8 y 9)",
+      "acceptance": [
+        "Hay al menos 10 bugs de tipo Error, cada uno surgido de una prueba ejecutada.",
+        "Cada bug tiene pasos para reproducir, resultado esperado y obtenido, evidencia, ambiente, severidad, prioridad y clasificación (error, defecto o fallo).",
+        "La prioridad se decide por riesgo: impacto por probabilidad.",
+        "Cada bug recorre su ciclo de vida en Jira hasta Cerrado o Rechazado, y los reabiertos quedan registrados."
+      ],
+      "tasks": [
+        {
+          "summary": "Bugs: registrar los bugs con evidencia",
+          "steps": [
+            "Por cada prueba fallida, crear un Error enlazado a su historia.",
+            "Adjuntar captura o video y completar todos los campos."
+          ],
+          "expected": "Al menos 10 bugs completos y enlazados."
+        },
+        {
+          "summary": "Bugs: priorizar por riesgo y seguir el ciclo de vida",
+          "steps": [
+            "Calificar el impacto y la probabilidad de cada bug.",
+            "Mover cada bug por su flujo en las reuniones diarias."
+          ],
+          "expected": "Todos los bugs con prioridad justificada y en un estado final al cierre del sprint."
+        }
+      ]
+    },
+    {
+      "epic": "bugs",
+      "sprint": 3,
+      "points": 2,
+      "summary": "Elaborar el reporte de depuración y verificación",
+      "story": "Como SQA, quiero documentar cómo se corrigió y verificó cada bug, para demostrar que las correcciones funcionan.",
+      "trace": "Guía del curso · Sprint 3 (reporte de depuración y verificación)",
+      "acceptance": [
+        "Por cada bug corregido: causa raíz, corrección aplicada, versión en que se corrigió y resultado de la verificación con evidencia.",
+        "Los bugs reabiertos explican por qué falló la primera corrección.",
+        "Incluye las métricas de bugs: totales por severidad y por clasificación, y la tasa de reapertura."
+      ],
+      "tasks": [
+        {
+          "summary": "Bugs: redactar el reporte de depuración y verificación",
+          "steps": [
+            "Recopilar los datos de cada bug cerrado.",
+            "Calcular las métricas de bugs."
+          ],
+          "expected": "Reporte completo con la evidencia de cada verificación."
+        }
+      ]
+    },
+    {
+      "epic": "auto",
+      "sprint": 3,
+      "points": 3,
+      "summary": "Automatizar pruebas de caja blanca con Jest",
+      "story": "Como QA, quiero pruebas unitarias automatizadas de la lógica interna, para verificar sus ramas y detectar regresiones al instante.",
+      "trace": "Guía del curso · Sprint 3 (caja blanca) · Entregables RNF-10",
+      "acceptance": [
+        "Jest queda instalado en el servidor y las pruebas corren con un solo comando.",
+        "Se prueban el reconocimiento de productos y cantidades y las reglas de la factura (total, fecha y precio por línea).",
+        "Los casos se diseñan mirando el código: cada rama importante tiene al menos una prueba.",
+        "El informe de cobertura muestra al menos 70 % en esos módulos."
+      ],
+      "tasks": [
+        {
+          "summary": "Auto: configurar Jest y escribir las pruebas unitarias",
+          "steps": [
+            "Instalar y configurar Jest en el paquete del servidor.",
+            "Escribir pruebas para receiptMatching y receiptChecks."
+          ],
+          "expected": "Pruebas en verde con un solo comando."
+        },
+        {
+          "summary": "Auto: generar el informe de cobertura",
+          "steps": [
+            "Ejecutar las pruebas con cobertura.",
+            "Guardar el informe como evidencia."
+          ],
+          "expected": "Cobertura de 70 % o más en los módulos probados."
+        }
+      ]
+    },
+    {
+      "epic": "auto",
+      "sprint": 3,
+      "points": 3,
+      "summary": "Automatizar pruebas de caja negra con Cypress",
+      "story": "Como QA, quiero automatizar los flujos principales desde el navegador, para repetirlos sin esfuerzo en cada versión.",
+      "trace": "Guía del curso · Sprint 3 (caja negra) · CP-01 · CP-02 · CP-09",
+      "acceptance": [
+        "Cypress automatiza: inicio de sesión válido e inválido, carga de una factura válida, factura duplicada y acceso denegado a una sección de administración.",
+        "Las pruebas usan cuentas de prueba y las muestras de samples/casos.",
+        "Cada ejecución guarda video y capturas como evidencia."
+      ],
+      "tasks": [
+        {
+          "summary": "Auto: configurar Cypress y automatizar los flujos",
+          "steps": [
+            "Instalar Cypress y preparar las cuentas de prueba.",
+            "Automatizar los cinco flujos.",
+            "Ejecutarlos y guardar video y capturas."
+          ],
+          "expected": "Cinco pruebas de extremo a extremo en verde, con su evidencia."
+        }
+      ]
+    },
+    {
+      "epic": "auto",
+      "sprint": 3,
+      "points": 2,
+      "summary": "Medir el rendimiento de la API con JMeter",
+      "story": "Como QA, quiero medir la API con usuarios concurrentes, para comprobar que responde dentro de los tiempos exigidos.",
+      "trace": "Guía del curso · Sprint 3 · Entregables RNF-01 y RNF-02",
+      "acceptance": [
+        "Un plan de JMeter ejecuta consultas de campañas y escaneos de facturas con usuarios concurrentes.",
+        "El escaneo completo tarda 15 segundos o menos, en promedio y en el percentil 95.",
+        "La carga es moderada: respeta el límite diario de escaneos y el costo de Cloud Vision, y usa facturas distintas para no chocar con el control de duplicados.",
+        "Los resultados se exportan como evidencia."
+      ],
+      "tasks": [
+        {
+          "summary": "Auto: plan de carga en JMeter y su informe",
+          "steps": [
+            "Crear el plan con 5 a 10 usuarios concurrentes.",
+            "Ejecutarlo contra la API publicada.",
+            "Exportar el informe de tiempos."
+          ],
+          "expected": "Informe con promedio y percentil 95 por debajo de 15 segundos."
+        }
+      ]
+    },
+    {
+      "epic": "auto",
+      "sprint": 3,
+      "points": 2,
+      "summary": "Integrar la suite automatizada y el informe de resultados",
+      "story": "Como SQA, quiero una suite que ejecute juntas todas las pruebas automatizadas, para obtener un único informe de resultados.",
+      "trace": "Guía del curso · Sprint 3 (test suite, informe de resultados, evidencias)",
+      "acceptance": [
+        "Un solo comando ejecuta Jest y Cypress.",
+        "El informe consolida pruebas aprobadas y fallidas, cobertura y tiempos, junto con los resultados de JMeter.",
+        "Las evidencias (capturas, logs y videos) quedan organizadas y enlazadas desde el informe."
+      ],
+      "tasks": [
+        {
+          "summary": "Auto: suite única e informe de resultados",
+          "steps": [
+            "Crear el comando que ejecuta toda la suite.",
+            "Redactar el informe con los resultados y las evidencias."
+          ],
+          "expected": "Informe de resultados listo para la entrega."
+        }
+      ]
+    },
+    {
+      "epic": "calidad",
+      "sprint": 3,
+      "points": 2,
+      "summary": "Preparar la presentación ejecutiva",
+      "story": "Como equipo, queremos una presentación ejecutiva, para comunicar el resultado del aseguramiento de calidad a los evaluadores.",
+      "trace": "Guía del curso · Objetivo general (presentación ejecutiva)",
+      "acceptance": [
+        "Resume alcance, roles, técnicas aplicadas, métricas obtenidas, bugs relevantes y resultados de la automatización.",
+        "Incluye conclusiones y recomendaciones.",
+        "Cada integrante conoce la parte que presenta."
+      ],
+      "tasks": [
+        {
+          "summary": "Cierre: armar y ensayar la presentación ejecutiva",
+          "steps": [
+            "Preparar las diapositivas con las métricas finales.",
+            "Ensayar con el tiempo medido."
+          ],
+          "expected": "Presentación lista y ensayada."
+        }
+      ]
+    }
+  ]
+}

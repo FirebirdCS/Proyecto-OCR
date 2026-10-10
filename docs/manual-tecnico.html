@@ -1,0 +1,903 @@
+<title>Manual técnico OCR</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --primary: #0d4f8b;
+    --primary-soft: #e5eff8;
+    --accent: #00a8cc;
+    --ink: #18212f;
+    --ink-2: #4f5b6e;
+    --ink-3: #7c8799;
+    --ground: #f6f8fb;
+    --surface: #ffffff;
+    --surface-2: #f1f5fa;
+    --line: #e2e8f0;
+    --line-strong: #cfd8e3;
+    --ok: #0f7a45;
+    --ok-bg: #e6f6ec;
+    --warn: #8a520a;
+    --warn-bg: #fdf1de;
+    --bad: #b42626;
+    --bad-bg: #fbeaea;
+    --paper: #fffdf7;
+    --paper-ink: #2a2a2a;
+    --sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --mono: 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --primary: #6fb0e8;
+      --primary-soft: #16283b;
+      --accent: #33c2e0;
+      --ink: #eef2f7;
+      --ink-2: #aab6c6;
+      --ink-3: #7d8a9c;
+      --ground: #0d1117;
+      --surface: #151b23;
+      --surface-2: #1a222d;
+      --line: #273242;
+      --line-strong: #37455a;
+      --ok: #4ade80;
+      --ok-bg: #10301f;
+      --warn: #f0b458;
+      --warn-bg: #302209;
+      --bad: #f28b84;
+      --bad-bg: #351512;
+      --paper: #e9e5da;
+      --paper-ink: #1d1d1d;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --primary: #6fb0e8;
+    --primary-soft: #16283b;
+    --accent: #33c2e0;
+    --ink: #eef2f7;
+    --ink-2: #aab6c6;
+    --ink-3: #7d8a9c;
+    --ground: #0d1117;
+    --surface: #151b23;
+    --surface-2: #1a222d;
+    --line: #273242;
+    --line-strong: #37455a;
+    --ok: #4ade80;
+    --ok-bg: #10301f;
+    --warn: #f0b458;
+    --warn-bg: #302209;
+    --bad: #f28b84;
+    --bad-bg: #351512;
+    --paper: #e9e5da;
+    --paper-ink: #1d1d1d;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font: 400 16px/1.65 var(--sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: var(--primary); text-underline-offset: 3px; }
+  a:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+
+  /* ---------- masthead ---------- */
+  .masthead {
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+    padding-inline: 16px;
+  }
+  .masthead-inner {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding-block: 40px 32px;
+    display: grid;
+    gap: 14px;
+  }
+  .eyebrow {
+    font: 600 12px/1 var(--mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--primary);
+  }
+  .masthead h1 {
+    margin: 0;
+    font-size: clamp(30px, 5vw, 44px);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+    text-wrap: balance;
+  }
+  .masthead p { margin: 0; max-width: 62ch; color: var(--ink-2); font-size: 17px; }
+  .audience { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+  .audience a {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 7px 14px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--ink);
+    font-size: 14px; font-weight: 500;
+    text-decoration: none;
+  }
+  .audience a:hover { border-color: var(--primary); color: var(--primary); }
+  .audience b { font: 600 11px/1 var(--mono); color: var(--ink-3); letter-spacing: 0.04em; }
+
+  /* ---------- layout ---------- */
+  .layout {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 32px 16px 80px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  @media (min-width: 980px) {
+    .layout { grid-template-columns: 250px minmax(0, 1fr); gap: 56px; }
+    .toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; max-height: calc(100vh - 48px); overflow-y: auto; }
+    .toc details > summary { display: none; }
+  }
+
+  .toc details { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+  @media (min-width: 980px) { .toc details { background: none; border: 0; } }
+  .toc summary {
+    list-style: none; cursor: pointer;
+    padding: 12px 16px;
+    font-weight: 600; font-size: 15px;
+  }
+  .toc summary::-webkit-details-marker { display: none; }
+  .toc summary::after { content: '▾'; float: right; color: var(--ink-3); }
+  .toc ol { margin: 0; padding: 4px 16px 16px; list-style: none; counter-reset: ch; display: grid; gap: 2px; }
+  @media (min-width: 980px) { .toc ol { padding: 0; } }
+  .toc li { counter-increment: ch; }
+  .toc a {
+    display: grid; grid-template-columns: 26px 1fr; gap: 6px;
+    padding: 6px 8px; border-radius: 6px;
+    color: var(--ink-2); text-decoration: none; font-size: 14px; line-height: 1.4;
+  }
+  .toc a::before { content: counter(ch, decimal-leading-zero); font: 500 12px/1.7 var(--mono); color: var(--ink-3); }
+  .toc a:hover { background: var(--primary-soft); color: var(--primary); }
+  .toc .toc-label { font: 600 11px/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); padding: 0 8px 10px; display: none; }
+  @media (min-width: 980px) { .toc .toc-label { display: block; } }
+
+  /* ---------- content ---------- */
+  main { min-width: 0; }
+  .chapter { padding-block: 8px 40px; border-bottom: 1px solid var(--line); margin-bottom: 40px; }
+  .chapter:last-child { border-bottom: 0; margin-bottom: 0; }
+  .chapter-head { display: grid; gap: 6px; margin-bottom: 20px; }
+  .chapter-num { font: 600 12px/1 var(--mono); color: var(--accent); letter-spacing: 0.06em; }
+  h2 { margin: 0; font-size: clamp(24px, 3.4vw, 30px); line-height: 1.2; letter-spacing: -0.015em; text-wrap: balance; }
+  h3 { margin: 32px 0 10px; font-size: 19px; line-height: 1.3; letter-spacing: -0.01em; text-wrap: balance; }
+  h4 { margin: 22px 0 8px; font-size: 15px; font-weight: 600; }
+  p, li { max-width: 68ch; }
+  p { margin: 0 0 14px; }
+  ul, ol { margin: 0 0 16px; padding-left: 22px; }
+  li { margin-bottom: 6px; }
+  .lead { font-size: 17px; color: var(--ink-2); }
+  strong { font-weight: 600; }
+
+  /* inline UI labels: how the reader will see them on screen */
+  .ui {
+    display: inline-block;
+    padding: 0 7px;
+    border: 1px solid var(--line-strong);
+    border-radius: 5px;
+    background: var(--surface);
+    font: 500 0.86em/1.7 var(--sans);
+    color: var(--ink);
+    white-space: nowrap;
+  }
+  .ui.btn { background: var(--primary); border-color: var(--primary); color: #fff; }
+  :root[data-theme="dark"] .ui.btn { color: #0d1117; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .ui.btn { color: #0d1117; } }
+  code, .mono { font-family: var(--mono); font-size: 0.88em; }
+  code { background: var(--surface-2); border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px; }
+  pre {
+    margin: 0 0 16px; padding: 14px 16px;
+    background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px;
+    overflow-x: auto; font: 13.5px/1.6 var(--mono);
+  }
+  pre code { background: none; border: 0; padding: 0; font-size: inherit; }
+
+  /* status pills that mirror the app */
+  .pill { display: inline-block; padding: 1px 9px; border-radius: 999px; font: 600 11px/1.8 var(--sans); letter-spacing: 0.03em; text-transform: uppercase; white-space: nowrap; }
+  .pill.ok { color: var(--ok); background: var(--ok-bg); }
+  .pill.warn { color: var(--warn); background: var(--warn-bg); }
+  .pill.bad { color: var(--bad); background: var(--bad-bg); }
+  .pill.neutral { color: var(--ink-2); background: var(--surface-2); }
+  .pill.info { color: var(--primary); background: var(--primary-soft); }
+
+  /* callouts */
+  .note {
+    margin: 18px 0; padding: 14px 16px;
+    border: 1px solid var(--line); border-left: 3px solid var(--primary);
+    border-radius: 6px; background: var(--surface);
+  }
+  .note.warn { border-left-color: var(--warn); background: var(--warn-bg); border-color: transparent; border-left-color: var(--warn); }
+  .note p:last-child, .note ul:last-child { margin-bottom: 0; }
+  .note-title { display: block; font-weight: 600; margin-bottom: 4px; }
+
+  /* steps: a real sequence */
+  .steps { list-style: none; padding: 0; counter-reset: step; display: grid; gap: 12px; margin: 0 0 18px; }
+  .steps > li {
+    counter-increment: step;
+    display: grid; grid-template-columns: 30px 1fr; gap: 12px;
+    max-width: 72ch; margin: 0;
+  }
+  .steps > li::before {
+    content: counter(step);
+    width: 28px; height: 28px; border-radius: 50%;
+    display: grid; place-items: center;
+    background: var(--primary-soft); color: var(--primary);
+    font: 600 13px/1 var(--mono);
+  }
+
+  /* tables */
+  .table-wrap { overflow-x: auto; margin: 0 0 18px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+  table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+  th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+  tr:last-child td { border-bottom: 0; }
+  th { font: 600 11px/1.4 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); background: var(--surface-2); white-space: nowrap; }
+  td:first-child { font-weight: 500; }
+  .table-wrap table { min-width: 560px; }
+  .num { font-variant-numeric: tabular-nums; }
+
+  /* the receipt anatomy figure — the subject's own document */
+  .anatomy { display: grid; gap: 20px; margin: 20px 0 24px; align-items: start; }
+  @media (min-width: 760px) { .anatomy { grid-template-columns: minmax(0, 300px) minmax(0, 1fr); } }
+  .receipt {
+    background: var(--paper); color: var(--paper-ink);
+    font: 12.5px/1.55 var(--mono);
+    padding: 18px 16px 22px;
+    border-radius: 2px;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.08), 0 8px 24px rgba(16, 24, 40, 0.08);
+    position: relative;
+    max-width: 100%;
+    -webkit-mask: radial-gradient(circle 5px at 50% 100%, transparent 98%, #000) 0 0 / 12px 100% repeat-x;
+            mask: radial-gradient(circle 5px at 50% 100%, transparent 98%, #000) 0 0 / 12px 100% repeat-x;
+  }
+  .receipt .c { text-align: center; }
+  .receipt .t { font-weight: 600; font-size: 14px; }
+  .receipt .r { display: flex; justify-content: space-between; gap: 10px; }
+  .receipt .rule { border-top: 1px dashed #777; margin: 7px 0; }
+  .receipt mark { background: none; color: inherit; border-radius: 2px; padding: 0 2px; margin: 0 -2px; }
+  .receipt mark[data-k="1"] { box-shadow: inset 0 -2px 0 #00a8cc; background: rgba(0, 168, 204, 0.14); }
+  .receipt mark[data-k="2"] { box-shadow: inset 0 -2px 0 #0d4f8b; background: rgba(13, 79, 139, 0.12); }
+  .receipt mark[data-k="3"] { box-shadow: inset 0 -2px 0 #0f7a45; background: rgba(15, 122, 69, 0.13); }
+  .receipt mark[data-k="4"] { box-shadow: inset 0 -2px 0 #b76a00; background: rgba(183, 106, 0, 0.14); }
+  .keys { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+  .keys li { display: grid; grid-template-columns: 24px 1fr; gap: 10px; margin: 0; }
+  .keys .k {
+    width: 22px; height: 22px; border-radius: 50%;
+    display: grid; place-items: center;
+    font: 600 11px/1 var(--mono); color: #fff;
+  }
+  .k1 { background: #00a8cc; } .k2 { background: #0d4f8b; } .k3 { background: #0f7a45; } .k4 { background: #b76a00; }
+  .keys strong { display: block; }
+
+  /* role cards at the start */
+  .roles { display: grid; gap: 14px; margin: 18px 0; }
+  @media (min-width: 700px) { .roles { grid-template-columns: 1fr 1fr; } }
+  .role { border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; background: var(--surface); }
+  .role h4 { margin: 0 0 6px; display: flex; align-items: center; gap: 8px; }
+  .role ul { margin: 0; }
+  .role li { font-size: 15px; }
+
+  /* flow strip */
+  .flow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0 20px; padding: 0; list-style: none; }
+  .flow li { margin: 0; padding: 7px 12px; border-radius: 8px; background: var(--surface); border: 1px solid var(--line); font-size: 14px; }
+  .flow li + li::before { content: '→'; margin-right: 10px; color: var(--ink-3); }
+  .flow li { display: inline-flex; align-items: center; }
+
+  dl.gloss { display: grid; grid-template-columns: 1fr; gap: 4px 20px; margin: 0; }
+  @media (min-width: 700px) { dl.gloss { grid-template-columns: 200px 1fr; } }
+  dl.gloss dt { font-weight: 600; padding-top: 10px; }
+  dl.gloss dd { margin: 0; padding-top: 10px; color: var(--ink-2); max-width: 64ch; }
+  @media (min-width: 700px) { dl.gloss dt, dl.gloss dd { border-top: 1px solid var(--line); } }
+
+  .footer-note { font-size: 13px; color: var(--ink-3); margin-top: 8px; }
+
+  /* ---------- print / PDF: always light, A4, one chapter per page ---------- */
+  @media print {
+    /* the id in :not() outranks both dark-theme selectors above */
+    html:not(#print) {
+      --primary: #0d4f8b; --primary-soft: #e5eff8; --accent: #00a8cc;
+      --ink: #18212f; --ink-2: #4f5b6e; --ink-3: #7c8799;
+      --ground: #ffffff; --surface: #ffffff; --surface-2: #f1f5fa;
+      --line: #e2e8f0; --line-strong: #cfd8e3;
+      --ok: #0f7a45; --ok-bg: #e6f6ec; --warn: #8a520a; --warn-bg: #fdf1de;
+      --bad: #b42626; --bad-bg: #fbeaea; --paper: #fffdf7; --paper-ink: #2a2a2a;
+      color-scheme: light;
+    }
+    @page { size: A4; margin: 16mm 15mm 18mm; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { font-size: 10.5pt; line-height: 1.55; }
+    html:not(#print) .ui.btn { color: #ffffff; }
+    .masthead { border: 0; padding: 0; }
+    .masthead-inner { padding-block: 40mm 12mm; max-width: none; }
+    .masthead h1 { font-size: 30pt; }
+    .audience { display: none; }
+    .layout { display: block; padding: 0; max-width: none; }
+    .toc { position: static; max-height: none; overflow: visible; break-after: page; margin-top: 10mm; }
+    .toc details { border: 0; background: none; }
+    .toc summary { display: none; }
+    .toc .toc-label { display: block; font-size: 10pt; padding: 0 0 8px; }
+    .toc ol { padding: 0; }
+    .toc a { font-size: 11pt; padding: 4px 0; color: var(--ink); }
+    .chapter { break-before: page; border: 0; margin: 0; padding: 0; }
+    .chapter:first-child { break-before: auto; }
+    h2, h3, h4, .chapter-head { break-after: avoid; }
+    table, tr, pre, .note, .receipt, .role, .steps > li, .keys li, dl.gloss dt, dl.gloss dd { break-inside: avoid; }
+    .table-wrap { overflow: visible; }
+    .table-wrap table { min-width: 0; }
+    a { color: inherit; text-decoration: none; }
+    p, li { max-width: none; }
+  }
+
+  /* screenshots */
+  .shot { margin: 18px 0 26px; }
+  .shot img { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 1px 2px rgba(16,24,40,.06), 0 8px 24px rgba(16,24,40,.06); background: #fff; }
+  .shot.narrow img { max-width: 300px; }
+  .shot figcaption { margin-top: 8px; font-size: 13px; color: var(--ink-3); }
+  .shot figcaption b { color: var(--ink-2); font-weight: 600; }
+  @media print { .masthead-inner { padding-block: 26mm 8mm !important; } .toc a { padding: 2px 0 !important; } .shot { break-inside: avoid; } .shot img { box-shadow: none; max-height: 235mm; width: auto; max-width: 100%; } .shot.narrow img { max-width: 70mm; } }
+
+  /* diagrams */
+  .diagram { margin: 18px 0 26px; padding: 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+  .diagram svg { display: block; width: 100%; height: auto; }
+  .diagram figcaption { margin-top: 10px; font-size: 13px; color: var(--ink-3); }
+  .diagram figcaption b { color: var(--ink-2); font-weight: 600; }
+  .d-box { fill: var(--surface-2); stroke: var(--line-strong); stroke-width: 1.2; }
+  .d-accent { fill: var(--primary-soft); stroke: var(--primary); }
+  .d-title { font: 600 16px var(--sans); fill: var(--ink); }
+  .d-title2 { font: 600 14px var(--sans); fill: var(--ink); }
+  .d-sub { font: 400 12.5px var(--sans); fill: var(--ink-2); }
+  .d-label { font: 500 11.5px var(--mono); fill: var(--ink-3); }
+  .d-edge { fill: none; stroke: var(--ink-3); stroke-width: 1.4; }
+  .d-arrowhead { fill: var(--ink-3); }
+  pre code { white-space: pre; }
+  @media print { .diagram { break-inside: avoid; } pre { font-size: 8.6pt; } table { break-inside: auto !important; } thead { display: table-header-group; } }
+</style>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <span class="eyebrow">Plataforma OCR · CORVELSA · Manual técnico</span>
+    <h1>Manual técnico de la Plataforma OCR</h1>
+    <p>Cómo está construida la plataforma y cómo se instala, configura, despliega y opera: arquitectura, API, modelo de datos, procesamiento de comprobantes, seguridad y mantenimiento.</p>
+    <p class="footer-note">Para el uso diario de la plataforma, consulta el Manual de la Plataforma OCR (manual de usuario). Versión de octubre de 2026.</p>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="toc">
+    <details open>
+      <summary>Contenido</summary>
+      <span class="toc-label">Contenido</span>
+      <ol>
+        <li><a href="#alcance">Propósito y alcance</a></li>
+        <li><a href="#arquitectura">Arquitectura</a></li>
+        <li><a href="#tecnologias">Tecnologías</a></li>
+        <li><a href="#repositorio">Estructura del repositorio</a></li>
+        <li><a href="#local">Instalación local</a></li>
+        <li><a href="#configuracion">Configuración</a></li>
+        <li><a href="#roles">Autenticación y roles</a></li>
+        <li><a href="#api">API REST</a></li>
+        <li><a href="#datos">Modelo de datos</a></li>
+        <li><a href="#escaneo">Procesamiento de comprobantes</a></li>
+        <li><a href="#indicadores">Panel de indicadores</a></li>
+        <li><a href="#seguridad">Seguridad</a></li>
+        <li><a href="#despliegue">Despliegue</a></li>
+        <li><a href="#operacion">Operación y mantenimiento</a></li>
+        <li><a href="#calidad">Calidad y defectos conocidos</a></li>
+        <li><a href="#pendiente">Limitaciones y trabajo pendiente</a></li>
+      </ol>
+    </details>
+  </aside>
+
+  <main>
+    <!-- 01 -->
+    <section class="chapter" id="alcance">
+      <div class="chapter-head"><span class="chapter-num">01</span><h2>Propósito y alcance</h2></div>
+      <p class="lead">La Plataforma OCR es un sistema de incentivos de venta. Los participantes suben fotos o PDF de sus comprobantes de compra, el sistema extrae el texto con OCR, reconoce los productos de una campaña y acredita puntos que llevan a hitos con recompensas.</p>
+      <p>Este manual está dirigido a quien desarrolla, despliega u opera la plataforma. Describe el estado del código en la rama <code>master</code> del repositorio <code>FirebirdCS/Proyecto-OCR</code> a octubre de 2026.</p>
+      <h3>Convenciones</h3>
+      <ul>
+        <li>Los comandos se ejecutan desde la raíz del repositorio, salvo que se indique otra carpeta.</li>
+        <li>Los comandos de PowerShell aparecen con rutas de Windows (<code>.\scripts\…</code>); los de pnpm funcionan igual en cualquier sistema.</li>
+        <li>Los nombres de archivos, variables y rutas de la API se escriben en <code>monoespaciado</code>.</li>
+      </ul>
+      <h3>Entornos</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Entorno</th><th>Sitio web</th><th>API</th></tr></thead>
+        <tbody>
+          <tr><td>Local</td><td><code>http://localhost:5173</code></td><td><code>http://localhost:4000</code> (Vite reenvía <code>/api</code>)</td></tr>
+          <tr><td>Publicado</td><td><code>https://firebirdcs.github.io/Proyecto-OCR/</code></td><td><code>https://ocr-api-3bi5lk4hta-uc.a.run.app</code></td></tr>
+        </tbody>
+      </table></div>
+      <p>Ambos entornos usan el mismo proyecto de Firebase y Google Cloud: <code>proyecto-ocr-d3ecd</code>. No hay un proyecto de pruebas separado.</p>
+    </section>
+
+    <!-- 02 -->
+    <section class="chapter" id="arquitectura">
+      <div class="chapter-head"><span class="chapter-num">02</span><h2>Arquitectura</h2></div>
+      <p class="lead">Cliente-servidor con servicios administrados de Google. El sitio web es estático; toda escritura de datos pasa por la API, que es la única con privilegios sobre Firebase.</p>
+
+      <figure class="diagram" id="fig-arquitectura">
+        <svg viewBox="0 0 760 372" role="img" aria-labelledby="arq-t arq-d">
+          <title id="arq-t">Arquitectura de la plataforma</title>
+          <desc id="arq-d">El navegador inicia sesión con Firebase Authentication y llama a la API en Cloud Run con el token. La API usa Firebase Authentication, Firestore, Cloud Storage, Cloud Vision y Resend o SMTP.</desc>
+          <defs>
+            <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-arrowhead"/></marker>
+          </defs>
+          <!-- browser -->
+          <rect x="16" y="150" width="190" height="92" rx="10" class="d-box d-accent"/>
+          <text x="111" y="182" class="d-title" text-anchor="middle">Navegador</text>
+          <text x="111" y="204" class="d-sub" text-anchor="middle">React 19 · Vite 6</text>
+          <text x="111" y="224" class="d-sub" text-anchor="middle">GitHub Pages</text>
+          <!-- api -->
+          <rect x="300" y="150" width="190" height="92" rx="10" class="d-box d-accent"/>
+          <text x="395" y="182" class="d-title" text-anchor="middle">API REST</text>
+          <text x="395" y="204" class="d-sub" text-anchor="middle">Express 5 · Node 22</text>
+          <text x="395" y="224" class="d-sub" text-anchor="middle">Cloud Run</text>
+          <!-- services -->
+          <g>
+            <rect x="574" y="16" width="170" height="54" rx="8" class="d-box"/>
+            <text x="659" y="39" class="d-title2" text-anchor="middle">Firebase Auth</text>
+            <text x="659" y="58" class="d-sub" text-anchor="middle">cuentas y roles</text>
+            <rect x="574" y="86" width="170" height="54" rx="8" class="d-box"/>
+            <text x="659" y="109" class="d-title2" text-anchor="middle">Cloud Firestore</text>
+            <text x="659" y="128" class="d-sub" text-anchor="middle">datos</text>
+            <rect x="574" y="156" width="170" height="54" rx="8" class="d-box"/>
+            <text x="659" y="179" class="d-title2" text-anchor="middle">Cloud Storage</text>
+            <text x="659" y="198" class="d-sub" text-anchor="middle">evidencia</text>
+            <rect x="574" y="226" width="170" height="54" rx="8" class="d-box"/>
+            <text x="659" y="249" class="d-title2" text-anchor="middle">Cloud Vision</text>
+            <text x="659" y="268" class="d-sub" text-anchor="middle">lectura de texto</text>
+            <rect x="574" y="296" width="170" height="54" rx="8" class="d-box"/>
+            <text x="659" y="319" class="d-title2" text-anchor="middle">Resend · SMTP</text>
+            <text x="659" y="338" class="d-sub" text-anchor="middle">correos</text>
+          </g>
+          <!-- edges -->
+          <path d="M111 150 V31 H570" class="d-edge" marker-end="url(#arr)"/>
+          <text x="300" y="23" class="d-label" text-anchor="middle">inicio de sesión · token de ID</text>
+          <path d="M206 196 H296" class="d-edge" marker-end="url(#arr)"/>
+          <text x="251" y="186" class="d-label" text-anchor="middle">HTTPS /api</text>
+          <text x="251" y="214" class="d-label" text-anchor="middle">Bearer token</text>
+          <path d="M490 172 C530 172 530 58 570 58" class="d-edge" marker-end="url(#arr)"/>
+          <path d="M490 184 C534 184 534 113 570 113" class="d-edge" marker-end="url(#arr)"/>
+          <path d="M490 196 H570" class="d-edge" marker-end="url(#arr)"/>
+          <path d="M490 208 C534 208 534 253 570 253" class="d-edge" marker-end="url(#arr)"/>
+          <path d="M490 220 C530 220 530 323 570 323" class="d-edge" marker-end="url(#arr)"/>
+          <text x="395" y="276" class="d-label" text-anchor="middle">Admin SDK · cuenta de servicio</text>
+        </svg>
+        <figcaption><b>Figura 1.</b> Componentes y comunicación. El navegador solo habla con Firebase Authentication y con la API.</figcaption>
+      </figure>
+
+      <h3>Capas del servidor</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Capa</th><th>Carpeta</th><th>Responsabilidad</th></tr></thead>
+        <tbody>
+          <tr><td>Rutas</td><td><code>server/src/routes</code></td><td>Autenticar, validar la entrada con Zod, llamar a un servicio y responder. No acceden a Firestore.</td></tr>
+          <tr><td>Middleware</td><td><code>server/src/middleware</code></td><td><code>requireAuth</code>, <code>requireAdmin</code>, <code>requireRole</code> y el manejador central de errores.</td></tr>
+          <tr><td>Servicios</td><td><code>server/src/services</code></td><td>Reglas de negocio y todo el acceso a Firebase, Vision y correo.</td></tr>
+          <tr><td>Tipos y esquemas</td><td><code>server/src/types</code></td><td>Tipos del dominio junto a sus esquemas Zod. El cliente tiene un espejo en <code>client/src/types</code>.</td></tr>
+          <tr><td>Utilidades</td><td><code>server/src/utils</code></td><td>Funciones puras: comparación de productos, revisión de comprobantes, calendario, <code>HttpError</code>.</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>Flujo de una petición</h3>
+      <ol class="steps">
+        <li><span>El cliente obtiene el token de ID de Firebase (<code>auth.currentUser.getIdToken()</code>) y lo envía en <code>Authorization: Bearer …</code>.</span></li>
+        <li><span><code>requireAuth</code> verifica el token con el Admin SDK y deja en <code>req.user</code> el uid y el rol del claim.</span></li>
+        <li><span>La ruta valida el cuerpo con Zod; un error de validación se convierte en 400.</span></li>
+        <li><span>El servicio aplica las reglas y escribe en Firestore, casi siempre dentro de una transacción.</span></li>
+        <li><span>Cualquier <code>HttpError</code> llega a <code>errorHandler</code>, el único lugar que da forma a las respuestas de error.</span></li>
+      </ol>
+    </section>
+
+    <!-- 03 -->
+    <section class="chapter" id="tecnologias">
+      <div class="chapter-head"><span class="chapter-num">03</span><h2>Tecnologías</h2></div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Componente</th><th>Tecnología</th><th>Uso</th></tr></thead>
+        <tbody>
+          <tr><td>Lenguaje</td><td>TypeScript 5.8 (ESM)</td><td>Cliente y servidor.</td></tr>
+          <tr><td>Gestor de paquetes</td><td>pnpm 11.15.1, espacios de trabajo</td><td>Paquetes <code>@ocr/client</code> y <code>@ocr/server</code>.</td></tr>
+          <tr><td>Entorno de ejecución</td><td>Node.js ≥ 22.13</td><td>pnpm 11 usa <code>node:sqlite</code>, que no existe en Node 20.</td></tr>
+          <tr><td>Interfaz</td><td>React 19, Vite 6, React Router 7</td><td>Aplicación de una sola página.</td></tr>
+          <tr><td>API</td><td>Express 5, Zod 3, Helmet, Multer</td><td>REST, validación, cabeceras de seguridad y carga de archivos.</td></tr>
+          <tr><td>Identidad</td><td>Firebase Authentication</td><td>Correo y contraseña; roles en custom claims.</td></tr>
+          <tr><td>Datos</td><td>Cloud Firestore</td><td>Usuarios, productos, campañas, comprobantes, estadísticas.</td></tr>
+          <tr><td>Archivos</td><td>Cloud Storage</td><td>Evidencia de cada comprobante escaneado.</td></tr>
+          <tr><td>OCR</td><td>Google Cloud Vision 5</td><td><code>documentTextDetection</code> para imágenes y <code>batchAnnotateFiles</code> para PDF.</td></tr>
+          <tr><td>Correo</td><td>Resend y Nodemailer (SMTP)</td><td>Invitaciones y envío de credenciales.</td></tr>
+          <tr><td>Alojamiento</td><td>Cloud Run y GitHub Pages</td><td>API en contenedor; sitio estático publicado con GitHub Actions.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- 04 -->
+    <section class="chapter" id="repositorio">
+      <div class="chapter-head"><span class="chapter-num">04</span><h2>Estructura del repositorio</h2></div>
+<pre><code>Proyecto-OCR/
+├─ client/                    Aplicación web (React)
+│  └─ src/
+│     ├─ components/          admin/, dashboard/, layout/, ui/
+│     ├─ context/             AuthContext (sesión y rol), ThemeContext
+│     ├─ lib/                 firebase.ts, etiquetas, formato, navegación
+│     ├─ pages/               Login, Dashboard, Forbidden
+│     ├─ services/api.ts      Cliente de la API (añade el token)
+│     ├─ styles/              tokens, base, componentes, layout
+│     └─ types/               Espejo de los tipos del servidor
+├─ server/                    API (Express)
+│  └─ src/
+│     ├─ config/              env.ts (variables), firebase.ts (Admin SDK)
+│     ├─ middleware/          auth.ts, errorHandler.ts
+│     ├─ routes/              ocr, campaigns, mail, credenciales, admin/*
+│     ├─ services/            scoring, ocr, campaigns, products, users, stats…
+│     ├─ scripts/             create-user.ts, grant-role.ts
+│     ├─ types/               campaigns, roles, scoring (+ esquemas Zod)
+│     └─ utils/               receiptMatching, receiptChecks, calendar
+├─ samples/                   Comprobantes de prueba y su generador
+├─ scripts/                   deploy-api.ps1, set-resend-key.ps1, Jira
+├─ docs/                      Manuales, capturas, plan de pruebas
+├─ firestore.rules · firestore.indexes.json · storage.rules · firebase.json
+├─ Dockerfile · .dockerignore            Imagen de la API para Cloud Run
+├─ .github/workflows/pages.yml           Publicación del sitio
+└─ package.json · pnpm-workspace.yaml · .nvmrc</code></pre>
+    </section>
+
+    <!-- 05 -->
+    <section class="chapter" id="local">
+      <div class="chapter-head"><span class="chapter-num">05</span><h2>Instalación local</h2></div>
+      <h3>Requisitos</h3>
+      <ul>
+        <li>Node.js 22.13 o superior (<code>.nvmrc</code> fija la versión 22) y pnpm 11.15.1.</li>
+        <li>Acceso al proyecto de Firebase <code>proyecto-ocr-d3ecd</code>, con la API de Cloud Vision habilitada.</li>
+        <li>Una llave de cuenta de servicio del Admin SDK guardada como <code>server/serviceAccount.json</code> (Firebase Console → Configuración del proyecto → Cuentas de servicio → Generar nueva clave privada).</li>
+        <li>Python 3 y Microsoft Edge, solo para generar los comprobantes de prueba.</li>
+      </ul>
+      <h3>Pasos</h3>
+      <ol class="steps">
+        <li><span>Instala dependencias: <code>pnpm install</code>.</span></li>
+        <li><span>Copia <code>server/.env.example</code> a <code>server/.env</code> y <code>client/.env.example</code> a <code>client/.env</code>. Completa los valores (capítulo 6).</span></li>
+        <li><span>Inicia ambos paquetes: <code>pnpm dev</code>. El sitio queda en <code>http://localhost:5173</code> y la API en <code>http://localhost:4000</code>.</span></li>
+        <li><span>Crea el primer administrador: <code>pnpm user:create correo@empresa.com admin "Nombre"</code>. El comando imprime el enlace para elegir contraseña.</span></li>
+        <li><span>Genera comprobantes de prueba: <code>python samples\generate_samples.py</code> (agrega <code>--limites</code> para los de valores límite).</span></li>
+      </ol>
+      <div class="note">
+        <span class="note-title">Errores de proxy al arrancar</span>
+        <p>Vite suele estar listo antes que la API. Las primeras peticiones pueden registrar <code>http proxy error … ECONNREFUSED</code>; desaparecen al recargar la página una vez que aparece <code>API listening on http://localhost:4000</code>.</p>
+      </div>
+      <h3>Comandos</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Comando</th><th>Hace</th></tr></thead>
+        <tbody>
+          <tr><td><code>pnpm dev</code></td><td>API y sitio juntos, con recarga en caliente.</td></tr>
+          <tr><td><code>pnpm build</code></td><td>Compila la API (<code>server/dist</code>) y el sitio (<code>client/dist</code>).</td></tr>
+          <tr><td><code>pnpm typecheck</code></td><td>Revisión de tipos de ambos paquetes.</td></tr>
+          <tr><td><code>pnpm start</code></td><td>Ejecuta la API compilada.</td></tr>
+          <tr><td><code>pnpm user:create &lt;correo&gt; &lt;admin|user&gt; ["Nombre"]</code></td><td>Crea una cuenta e imprime su enlace de invitación.</td></tr>
+          <tr><td><code>pnpm role:grant &lt;correo&gt; &lt;admin|user&gt;</code></td><td>Cambia el rol de una cuenta por correo.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- 06 -->
+    <section class="chapter" id="configuracion">
+      <div class="chapter-head"><span class="chapter-num">06</span><h2>Configuración</h2></div>
+      <p class="lead">El servidor valida sus variables con Zod al arrancar (<code>server/src/config/env.ts</code>) y se detiene si alguna es inválida. Una variable vacía (<code>FOO=</code>) se trata como no definida.</p>
+      <h3>Servidor (<code>server/.env</code>)</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Variable</th><th>Para qué</th><th>Por defecto</th></tr></thead>
+        <tbody>
+          <tr><td><code>NODE_ENV</code></td><td><code>development</code>, <code>test</code> o <code>production</code>.</td><td><code>development</code></td></tr>
+          <tr><td><code>PORT</code></td><td>Puerto de la API. Cloud Run lo define.</td><td class="num">4000</td></tr>
+          <tr><td><code>CLIENT_ORIGIN</code></td><td>Orígenes permitidos por CORS, separados por comas.</td><td><code>http://localhost:5173</code></td></tr>
+          <tr><td><code>CLIENT_APP_URL</code></td><td>Dirección pública del sitio, con su subruta; se usa en los enlaces de invitación.</td><td>El primer origen</td></tr>
+          <tr><td><code>APP_NAME</code></td><td>Nombre en los correos.</td><td><code>OCR Platform</code></td></tr>
+          <tr><td><code>GOOGLE_APPLICATION_CREDENTIALS</code></td><td>Ruta a la llave de servicio (solo local).</td><td>—</td></tr>
+          <tr><td><code>FIREBASE_PROJECT_ID</code>, <code>FIREBASE_CLIENT_EMAIL</code>, <code>FIREBASE_PRIVATE_KEY</code></td><td>Alternativa a la llave en archivo.</td><td>—</td></tr>
+          <tr><td><code>BOOTSTRAP_ADMIN_EMAILS</code></td><td>Correos que recuperan el rol de administrador al iniciar sesión.</td><td>Vacío</td></tr>
+          <tr><td><code>VISION_KEY_FILE</code></td><td>Llave separada para Vision, si no se usa la misma cuenta.</td><td>—</td></tr>
+          <tr><td><code>OCR_MAX_UPLOAD_MB</code></td><td>Tamaño máximo del archivo.</td><td class="num">10</td></tr>
+          <tr><td><code>STATS_TIME_ZONE</code></td><td>Zona IANA en que se cortan los días del panel.</td><td>La del servidor</td></tr>
+          <tr><td><code>FIREBASE_STORAGE_BUCKET</code></td><td>Bucket de la evidencia. Vacío: no se guarda.</td><td>—</td></tr>
+          <tr><td><code>SCAN_DAILY_LIMIT</code></td><td>Escaneos por usuario en 24 horas móviles.</td><td class="num">20</td></tr>
+          <tr><td><code>RECEIPT_MAX_UNITS</code></td><td>Unidades máximas por comprobante y campaña.</td><td class="num">50</td></tr>
+          <tr><td><code>SMTP_HOST</code>, <code>SMTP_PORT</code>, <code>SMTP_SECURE</code>, <code>SMTP_USER</code>, <code>SMTP_PASSWORD</code>, <code>MAIL_FROM</code></td><td>Correo por SMTP. Sin <code>SMTP_HOST</code>, el enlace de invitación se muestra en pantalla.</td><td>Puerto 587</td></tr>
+          <tr><td><code>RESEND_API_KEY</code>, <code>RESEND_FROM</code></td><td>Correo de credenciales por Resend.</td><td><code>CORVELSA &lt;info@corvelsa.com&gt;</code></td></tr>
+        </tbody>
+      </table></div>
+      <h3>Cliente (<code>client/.env</code>)</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Variable</th><th>Para qué</th></tr></thead>
+        <tbody>
+          <tr><td><code>VITE_FIREBASE_API_KEY</code>, <code>…_AUTH_DOMAIN</code>, <code>…_PROJECT_ID</code>, <code>…_STORAGE_BUCKET</code>, <code>…_MESSAGING_SENDER_ID</code>, <code>…_APP_ID</code></td><td>Configuración web de Firebase. Es pública: viaja en el JavaScript del sitio.</td></tr>
+          <tr><td><code>VITE_FIREBASE_MEASUREMENT_ID</code>, <code>VITE_FIREBASE_DATABASE_URL</code></td><td>Opcionales.</td></tr>
+          <tr><td><code>VITE_API_BASE_URL</code></td><td>Dirección de la API publicada. Vacía en local (se usa el proxy de Vite).</td></tr>
+          <tr><td><code>VITE_BASE</code></td><td>Subruta del sitio; GitHub Actions la fija en <code>/Proyecto-OCR/</code>.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- 07 -->
+    <section class="chapter" id="roles">
+      <div class="chapter-head"><span class="chapter-num">07</span><h2>Autenticación y roles</h2></div>
+      <p class="lead">Hay dos roles, <code>admin</code> y <code>user</code>. La fuente de verdad es el <strong>custom claim</strong> <code>role</code> del token de Firebase.</p>
+      <p>El rol también se copia en <code>users/{uid}</code>, pero solo para listar y buscar cuentas. Ninguna decisión de autorización lee esa copia. El mismo claim se aplica en tres lugares sin consultas adicionales:</p>
+      <ol>
+        <li>La API, con <code>requireAuth</code>, que decodifica el token.</li>
+        <li>Las reglas de Firestore, con <code>request.auth.token.role</code>.</li>
+        <li>El cliente, con el token decodificado en <code>AuthContext</code>, que decide el menú y las rutas.</li>
+      </ol>
+      <h3>Reglas</h3>
+      <ul>
+        <li><strong>Sin registro público.</strong> Las cuentas las crea un administrador (<code>POST /api/admin/users</code>) o la terminal (<code>pnpm user:create</code>). Se asigna una contraseña aleatoria que nadie ve y se envía un enlace de restablecimiento; nunca se envía una contraseña.</li>
+        <li><strong>Mensaje de acceso genérico.</strong> El inicio de sesión responde igual a un correo inexistente que a una contraseña incorrecta, para no revelar qué cuentas existen.</li>
+        <li><strong>Propagación.</strong> Un cambio de rol tarda hasta una hora en llegar al token. El cliente fuerza la renovación con <code>refreshRole()</code> cuando <code>/api/me</code> devuelve un rol distinto.</li>
+        <li><strong>Protección contra bloqueo.</strong> Un administrador no puede quitarse su rol ni deshabilitarse. <code>BOOTSTRAP_ADMIN_EMAILS</code> devuelve el rol de administrador a esos correos al iniciar sesión.</li>
+        <li><strong>Solo el rol <code>user</code> escanea.</strong> <code>POST /api/ocr</code> usa <code>requireRole('user')</code>; un administrador no puede acreditarse puntos.</li>
+      </ul>
+    </section>
+
+    <!-- 08 -->
+    <section class="chapter" id="api">
+      <div class="chapter-head"><span class="chapter-num">08</span><h2>API REST</h2></div>
+      <p class="lead">Todo vive bajo <code>/api</code>. El árbol <code>/api/admin</code> se protege en un solo lugar (<code>adminRouter.use(requireAuth, requireAdmin)</code>), así que no se debe montar ahí nada que deba ser público.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Método y ruta</th><th>Acceso</th><th>Hace</th></tr></thead>
+        <tbody>
+          <tr><td><code>GET /health</code></td><td>Público</td><td>Estado y tiempo en línea.</td></tr>
+          <tr><td><code>GET /me</code></td><td>Con sesión</td><td>Crea el perfil en el primer acceso y devuelve el rol efectivo.</td></tr>
+          <tr><td><code>POST /ocr</code></td><td>Rol <code>user</code></td><td>Multipart con <code>file</code> y <code>campaignId</code>. Lee y califica el comprobante.</td></tr>
+          <tr><td><code>GET /ocr/documents</code></td><td>Con sesión</td><td>Comprobantes del usuario.</td></tr>
+          <tr><td><code>GET /campaigns</code></td><td>Con sesión</td><td>Campañas activas del usuario, su avance y los nombres de producto.</td></tr>
+          <tr><td><code>POST /mail/send</code></td><td>Con sesión</td><td>Envía un correo por SMTP (ver capítulo 12).</td></tr>
+          <tr><td><code>POST /enviar-credenciales</code></td><td>Admin</td><td>Envía por Resend el usuario y un enlace para fijar contraseña a una cuenta existente.</td></tr>
+          <tr><td><code>GET · POST /admin/users</code></td><td>Admin</td><td>Lista (paginada por <code>pageToken</code>) y crea cuentas.</td></tr>
+          <tr><td><code>POST /admin/users/:uid/invite</code></td><td>Admin</td><td>Reenvía la invitación con un enlace nuevo.</td></tr>
+          <tr><td><code>PATCH /admin/users/:uid/role</code> · <code>/disabled</code></td><td>Admin</td><td>Cambia el rol o habilita y deshabilita.</td></tr>
+          <tr><td><code>GET · POST · PATCH · DELETE /admin/products</code></td><td>Admin</td><td>Catálogo. Eliminar responde 409 si una campaña en borrador o activa usa el producto.</td></tr>
+          <tr><td><code>GET · POST /admin/campaigns</code>, <code>GET · PUT · DELETE /admin/campaigns/:id</code></td><td>Admin</td><td>Campañas. <code>PUT</code> reemplaza la campaña completa.</td></tr>
+          <tr><td><code>PATCH /admin/campaigns/:id/status</code></td><td>Admin</td><td>Cambia el estado; activar exige un producto y un hito.</td></tr>
+          <tr><td><code>GET /admin/dashboard</code></td><td>Admin</td><td>Indicadores del panel.</td></tr>
+          <tr><td><code>GET /admin/scans</code></td><td>Admin</td><td>Comprobantes recientes; <code>?flagged=true</code> y cursor <code>?before=</code>.</td></tr>
+          <tr><td><code>GET /admin/scans/:id/file</code></td><td>Admin</td><td>URL firmada de 10 minutos al archivo original.</td></tr>
+          <tr><td><code>POST /admin/scans/:id/void</code></td><td>Admin</td><td>Anula un comprobante con puntos. Cuerpo: <code>{"reason": "…"}</code> (3 a 300 caracteres).</td></tr>
+        </tbody>
+      </table></div>
+      <h3>Errores</h3>
+      <p>Las respuestas de error tienen la forma <code>{"error": "mensaje", "details": {…}}</code>. Cuando el cliente necesita un texto propio, <code>details.code</code> trae un código estable:</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Estado</th><th>Código</th><th>Cuándo</th></tr></thead>
+        <tbody>
+          <tr><td class="num">400</td><td>—</td><td>Entrada inválida (Zod) o archivo de tipo no admitido.</td></tr>
+          <tr><td class="num">401</td><td>—</td><td>Sin token o token inválido.</td></tr>
+          <tr><td class="num">403</td><td><code>not_participant</code></td><td>El usuario no participa en la campaña. También 403 sin código cuando el rol no alcanza.</td></tr>
+          <tr><td class="num">404</td><td>—</td><td>Recurso inexistente o ruta desconocida.</td></tr>
+          <tr><td class="num">409</td><td><code>campaign_not_running</code></td><td>Campaña no activa o fuera de su período.</td></tr>
+          <tr><td class="num">409</td><td><code>duplicate_receipt</code></td><td>El comprobante ya acreditó puntos.</td></tr>
+          <tr><td class="num">409</td><td><code>already_voided</code>, <code>not_scored</code></td><td>Anulación repetida o de un comprobante sin puntos.</td></tr>
+          <tr><td class="num">409</td><td>—</td><td>Campaña archivada (solo lectura), activa al eliminar, producto en uso.</td></tr>
+          <tr><td class="num">429</td><td><code>daily_limit</code></td><td>Se alcanzó <code>SCAN_DAILY_LIMIT</code>.</td></tr>
+          <tr><td class="num">502</td><td>—</td><td>Error de Cloud Vision.</td></tr>
+          <tr><td class="num">503</td><td>—</td><td>Falta un índice de Firestore (<code>FAILED_PRECONDITION</code>).</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- 09 -->
+    <section class="chapter" id="datos">
+      <div class="chapter-head"><span class="chapter-num">09</span><h2>Modelo de datos</h2></div>
+      <h3>Colecciones de Firestore</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Colección</th><th>Contenido</th><th>Lectura desde el navegador</th></tr></thead>
+        <tbody>
+          <tr><td><code>users/{uid}</code></td><td>Perfil: correo, nombre, rol (copia), fechas.</td><td>El propio usuario y los administradores.</td></tr>
+          <tr><td><code>products/{id}</code></td><td>Nombre, SKU opcional, puntos por unidad, activo.</td><td>Cualquier sesión.</td></tr>
+          <tr><td><code>campaigns/{id}</code></td><td>Nombre, descripción, estado, fechas, productos con sus puntos y mínimos, hitos, participantes y <code>productIds</code> (copia plana para consultas).</td><td>Participantes y administradores.</td></tr>
+          <tr><td><code>campaigns/{id}/participants/{uid}</code></td><td>Puntos, unidades por producto, hito, <code>requirementsMet</code>, comprobantes.</td><td>El propio usuario y los administradores.</td></tr>
+          <tr><td><code>documents/{id}</code></td><td>Cada escaneo: dueño, archivo, hash, texto, resultado, problemas, marcas, <code>flagged</code>, anulación.</td><td>El dueño y los administradores.</td></tr>
+          <tr><td><code>salesDaily/{AAAA-MM-DD}</code></td><td>Unidades, puntos y comprobantes del día, por producto.</td><td>Solo administradores.</td></tr>
+          <tr><td><code>receiptGuards/{tipo-hash}</code></td><td>Huellas para detectar duplicados.</td><td>Nadie (solo el servidor).</td></tr>
+        </tbody>
+      </table></div>
+      <p><strong>Ninguna escritura del navegador está permitida</strong> (<code>allow write: if false</code> en todas las colecciones). Toda modificación pasa por la API con el Admin SDK, que no está sujeto a las reglas.</p>
+      <h3>Índices compuestos</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Colección</th><th>Campos</th><th>Lo usa</th></tr></thead>
+        <tbody>
+          <tr><td><code>documents</code></td><td><code>ownerUid</code> ↑, <code>createdAt</code> ↓</td><td>Comprobantes de un usuario y límite diario.</td></tr>
+          <tr><td><code>documents</code></td><td><code>flagged</code> ↑, <code>createdAt</code> ↓</td><td>Filtro «Para revisar».</td></tr>
+          <tr><td><code>products</code></td><td><code>active</code> ↑, <code>name</code> ↑</td><td>Productos activos ordenados.</td></tr>
+          <tr><td><code>campaigns</code></td><td><code>status</code> ↑, <code>createdAt</code> ↓</td><td>Lista por estado.</td></tr>
+          <tr><td><code>campaigns</code></td><td><code>status</code> ↑, <code>participantUids</code> (contiene)</td><td>Campañas de un usuario.</td></tr>
+          <tr><td><code>campaigns</code></td><td><code>status</code> ↑, <code>productIds</code> (contiene)</td><td>Bloqueo de eliminación de productos.</td></tr>
+        </tbody>
+      </table></div>
+      <h3>Cloud Storage</h3>
+      <p>Cada archivo escaneado, con o sin puntos, se guarda en <code>receipts/{uid}/{documentId}.{ext}</code> del bucket <code>proyecto-ocr-d3ecd.firebasestorage.app</code>. <code>storage.rules</code> niega todo acceso desde el navegador; los administradores ven los archivos con URL firmadas de 10 minutos.</p>
+    </section>
+
+    <!-- 10 -->
+    <section class="chapter" id="escaneo">
+      <div class="chapter-head"><span class="chapter-num">10</span><h2>Procesamiento de comprobantes</h2></div>
+      <p class="lead"><code>POST /api/ocr</code> recorre estos pasos. Los primeros se ejecutan antes de llamar a Vision, así que un escaneo rechazado ahí no tiene costo.</p>
+      <ol class="steps">
+        <li><span><strong>Rol y archivo.</strong> Solo el rol <code>user</code>; Multer acepta PNG, JPEG, WebP, TIFF y PDF hasta <code>OCR_MAX_UPLOAD_MB</code>.</span></li>
+        <li><span><strong>Campaña.</strong> <code>assertCanScan</code>: el usuario debe participar (403) y la campaña debe estar activa y con <code>startsAt ≤ ahora &lt; endsAt</code> (409).</span></li>
+        <li><span><strong>Límite diario.</strong> Cuenta todos los escaneos de 24 horas móviles; al llegar a <code>SCAN_DAILY_LIMIT</code> responde 429. Si falta el índice, el límite se omite y se registra un error.</span></li>
+        <li><span><strong>Archivo repetido.</strong> Si el hash SHA-256 del archivo ya tiene guarda, 409 sin llamar a Vision.</span></li>
+        <li><span><strong>OCR.</strong> Vision devuelve palabras con su geometría. <code>rebuildLines</code> endereza la página según el ángulo medio de las palabras y reconstruye los renglones, porque Vision separa las columnas del ticket y alejaría cada precio de su producto. De un PDF se leen las primeras 5 páginas.</span></li>
+        <li><span><strong>Revisión del comprobante</strong> (<code>receiptChecks.ts</code>): debe tener una línea TOTAL con importe (en la línea o en las dos siguientes) y una fecha dentro de [inicio de la campaña, min(fin, hoy)], en <code>STATS_TIME_ZONE</code>. Si falla, 0 puntos.</span></li>
+        <li><span><strong>Productos</strong> (<code>receiptMatching.ts</code>): solo los de la campaña elegida y activos. Ignora espacios, puntuación y acentos; tolera un error en nombres de 5+ letras (dos en 12+); las cifras deben coincidir exactamente; el SKU se compara exacto; si varios coinciden, gana el más largo. Una línea sin importe no cuenta.</span></li>
+        <li><span><strong>Cantidades.</strong> Reconoce «2 x 15.00», «x2», «3 un», «cant: 2» o un número al inicio. Ante la duda cuenta 1 unidad: dar de menos es el fallo elegido. El total se recorta a <code>RECEIPT_MAX_UNITS</code>.</span></li>
+        <li><span><strong>Transacción.</strong> En una sola transacción se escriben el documento, el avance del participante (puntos = unidades × puntos de la campaña, hito, requisitos), las guardas y los totales de <code>salesDaily</code>. El archivo se sube antes y se borra si la transacción falla.</span></li>
+      </ol>
+      <h3>Guardas contra duplicados</h3>
+      <p>Solo se escriben para comprobantes que acreditaron puntos, así que uno rechazado puede volver a enviarse con una foto mejor.</p>
+      <ul>
+        <li><code>file-&lt;sha&gt;</code>: el mismo archivo.</li>
+        <li><code>text-&lt;sha&gt;</code>: el mismo texto normalizado.</li>
+        <li><code>receipt-&lt;sha&gt;</code>: fecha, total y número de ticket (o la hora, o los productos y cantidades). Detecta una foto nueva del mismo papel, desde cualquier cuenta. Si el OCR lee mal un dígito, la guarda falla y queda la revisión manual.</li>
+      </ul>
+      <h3>Marcas de revisión</h3>
+      <p>No cambian los puntos; envían el comprobante al filtro «Para revisar»: <code>units_capped</code>, <code>large_line_quantity</code> (10 o más unidades en una línea), <code>frequent_scanner</code> (cinco escaneos previos en 24 horas) y <code>file_not_stored</code>.</p>
+      <h3>Anulación</h3>
+      <p><code>POST /admin/scans/:id/void</code> resta los puntos, unidades, hito y requisitos del participante y los totales de <code>salesDaily</code> del día del escaneo, y registra quién anuló, cuándo y por qué. Las guardas se conservan: un comprobante anulado no puede volver a subirse.</p>
+    </section>
+
+    <!-- 11 -->
+    <section class="chapter" id="indicadores">
+      <div class="chapter-head"><span class="chapter-num">11</span><h2>Panel de indicadores</h2></div>
+      <p>Cada comprobante acreditado incrementa el documento <code>salesDaily/{día}</code>, con el día cortado en <code>STATS_TIME_ZONE</code>. <code>GET /api/admin/dashboard</code> lee como máximo unos 365 de esos documentos y arma tres series: 30 días, 12 semanas (desde el lunes) y 12 meses, más los productos más vendidos de cada periodo. Nunca recorre <code>documents</code>.</p>
+      <div class="note">
+        <span class="note-title">Límite de escritura</span>
+        <p>Todos los escaneos de un día escriben el mismo documento, lo que limita el ritmo sostenido a cerca de un comprobante acreditado por segundo. Si el volumen crece, hay que repartir el contador en varios documentos.</p>
+      </div>
+    </section>
+
+    <!-- 12 -->
+    <section class="chapter" id="seguridad">
+      <div class="chapter-head"><span class="chapter-num">12</span><h2>Seguridad</h2></div>
+      <h3>Controles</h3>
+      <ul>
+        <li><strong>Secretos fuera del repositorio.</strong> <code>server/serviceAccount.json</code> y <code>server/.env</code> están en <code>.gitignore</code>. La configuración web de Firebase (<code>client/.env</code>) es pública por diseño.</li>
+        <li><strong>Sin llave en producción.</strong> En Cloud Run la API corre como la cuenta de servicio del Admin SDK y obtiene credenciales del entorno. <code>GOOGLE_APPLICATION_CREDENTIALS</code> y <code>VISION_KEY_FILE</code> deben quedar sin definir allí.</li>
+        <li><strong>Escrituras solo por la API.</strong> Reglas de Firestore y Storage niegan toda escritura desde el navegador.</li>
+        <li><strong>Cabeceras y CORS.</strong> Helmet en todas las respuestas; CORS limitado a <code>CLIENT_ORIGIN</code>.</li>
+        <li><strong>Validación en el servidor.</strong> Las reglas de campaña (fechas, productos repetidos, hitos ascendentes, mínimos, productos activos) viven en <code>campaignInputSchema</code>; el formulario solo las refleja.</li>
+        <li><strong>Evidencia privada.</strong> Archivos solo accesibles con URL firmadas de 10 minutos.</li>
+        <li><strong>Clave de Resend</strong> en Secret Manager (<code>resend-api-key</code>), cargada con <code>scripts\set-resend-key.ps1</code>, que la pide sin mostrarla.</li>
+      </ul>
+      <h3>Observaciones abiertas</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Hallazgo</th><th>Riesgo</th><th>Recomendación</th></tr></thead>
+        <tbody>
+          <tr><td><code>POST /api/mail/send</code> acepta cualquier sesión, con destinatario y contenido libres.</td><td>Si SMTP está configurado, cualquier participante podría enviar correos a nombre de la plataforma.</td><td>Restringirlo a administradores o retirarlo si no se usa.</td></tr>
+          <tr><td>No consta que <code>firestore.rules</code> esté desplegado.</td><td>Si el proyecto tiene reglas abiertas, un usuario podría leer o escribir directamente en Firestore.</td><td><code>npx firebase-tools deploy --only firestore:rules</code> y verificarlo con el caso CP-40.</td></tr>
+          <tr><td>La API acepta cualquier cambio de estado de campaña (p. ej. Borrador → Archivada), aunque la interfaz solo ofrece Borrador → Activa → Archivada → Borrador.</td><td>Estados inconsistentes con el ciclo de vida documentado.</td><td>Validar las transiciones permitidas en <code>setCampaignStatus</code>.</td></tr>
+          <tr><td>La llave local de la cuenta de servicio no tiene rotación programada.</td><td>Una copia expuesta da acceso total al proyecto.</td><td>Rotarla periódicamente y al cambiar el equipo.</td></tr>
+        </tbody>
+      </table></div>
+      <p>El análisis de riesgos del OCR (precisión, fraude, dependencia de Vision) está en el capítulo 15 del manual de usuario.</p>
+    </section>
+
+    <!-- 13 -->
+    <section class="chapter" id="despliegue">
+      <div class="chapter-head"><span class="chapter-num">13</span><h2>Despliegue</h2></div>
+      <h3>API en Cloud Run</h3>
+      <p>Servicio <code>ocr-api</code>, región <code>us-central1</code>, cuenta <code>firebase-adminsdk-fbsvc@proyecto-ocr-d3ecd.iam.gserviceaccount.com</code>. Con la CLI de Google Cloud instalada y <code>gcloud auth login</code> hecho:</p>
+<pre><code>.\scripts\deploy-api.ps1 -SkipSetup `
+  -ClientOrigins http://localhost:5173,https://firebirdcs.github.io `
+  -ClientAppUrl https://firebirdcs.github.io/Proyecto-OCR</code></pre>
+      <ul>
+        <li>Construye la imagen desde el <code>Dockerfile</code> (<code>node:22-slim</code>, pnpm 11.15.1, solo dependencias de producción) y despliega con 1 GiB de memoria, 120 s de tiempo máximo y hasta 3 instancias.</li>
+        <li>Sin <code>-SkipSetup</code> (primera vez) habilita Cloud Run, Cloud Build y Artifact Registry, y concede a la cuenta <code>roles/iam.serviceAccountTokenCreator</code> sobre sí misma. Sin ese permiso las URL firmadas de la evidencia fallan con 500.</li>
+        <li>Parámetros: <code>-TimeZone</code>, <code>-ScanDailyLimit</code>, <code>-ReceiptMaxUnits</code>, <code>-BootstrapAdminEmails</code>, <code>-AppName</code>, <code>-ResendFrom</code>. La URL resultante queda en <code>scripts\.last-deploy-url.txt</code>.</li>
+      </ul>
+      <h3>Sitio en GitHub Pages</h3>
+      <p><code>.github/workflows/pages.yml</code> publica el sitio en cada envío a <code>master</code>. Requiere:</p>
+      <ul>
+        <li><strong>Settings → Pages → Source:</strong> GitHub Actions.</li>
+        <li><strong>Settings → Secrets and variables → Actions → Variables:</strong> las <code>VITE_FIREBASE_*</code> y <code>VITE_API_BASE_URL</code>.</li>
+        <li>En Firebase, <code>firebirdcs.github.io</code> en <strong>Authentication → Settings → Authorized domains</strong> (y <code>localhost</code> para desarrollo).</li>
+      </ul>
+      <p>El flujo copia <code>index.html</code> como <code>404.html</code> para que los enlaces profundos funcionen en Pages.</p>
+      <h3>Reglas, índices y Storage</h3>
+<pre><code>npx firebase-tools deploy --only firestore:indexes,firestore:rules,storage</code></pre>
+      <p><code>.firebaserc</code> fija el proyecto. Un índice nuevo tarda unos minutos en construirse; mientras tanto, las consultas que lo necesitan responden 503.</p>
+      <div class="note warn">
+        <span class="note-title">Versiones de Node alineadas</span>
+        <p><code>.nvmrc</code>, la imagen del <code>Dockerfile</code> y el flujo de Pages deben usar Node 22 o superior. Con Node 20, <code>pnpm install</code> falla con <code>ERR_UNKNOWN_BUILTIN_MODULE: node:sqlite</code>.</p>
+      </div>
+    </section>
+
+    <!-- 14 -->
+    <section class="chapter" id="operacion">
+      <div class="chapter-head"><span class="chapter-num">14</span><h2>Operación y mantenimiento</h2></div>
+      <h3>Tareas frecuentes</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Tarea</th><th>Cómo</th></tr></thead>
+        <tbody>
+          <tr><td>Ver registros de la API</td><td><code>gcloud run services logs read ocr-api --region us-central1 --limit 100</code></td></tr>
+          <tr><td>Volver a una versión anterior</td><td><code>gcloud run services update-traffic ocr-api --region us-central1 --to-revisions REVISION=100</code></td></tr>
+          <tr><td>Cambiar un límite</td><td>Redesplegar con <code>-ScanDailyLimit</code> o <code>-ReceiptMaxUnits</code>.</td></tr>
+          <tr><td>Rotar la clave de Resend</td><td><code>.\scripts\set-resend-key.ps1</code></td></tr>
+          <tr><td>Rotar la llave local</td><td>Generar una nueva en Firebase Console, reemplazar <code>server/serviceAccount.json</code> y borrar la anterior en Google Cloud → IAM → Cuentas de servicio.</td></tr>
+          <tr><td>Crear o promover un administrador</td><td><code>pnpm user:create</code> o <code>pnpm role:grant</code>.</td></tr>
+          <tr><td>Regenerar comprobantes de prueba</td><td><code>python samples\generate_samples.py --date AAAA-MM-DD [--limites]</code></td></tr>
+        </tbody>
+      </table></div>
+      <h3>Diagnóstico</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Síntoma</th><th>Causa probable</th><th>Solución</th></tr></thead>
+        <tbody>
+          <tr><td>Toda petición responde 401 «Invalid or expired token»</td><td>La API no encuentra credenciales (falta <code>serviceAccount.json</code> en local).</td><td>Restaurar la llave; en desarrollo <code>requireAuth</code> registra la causa real.</td></tr>
+          <tr><td>503 que menciona un índice</td><td>Índice no desplegado o en construcción.</td><td>Desplegar <code>firestore.indexes.json</code> y esperar.</td></tr>
+          <tr><td>502 «Vision API error … PERMISSION_DENIED»</td><td>API de Cloud Vision deshabilitada o sin facturación.</td><td>Habilitarla en el proyecto.</td></tr>
+          <tr><td>La evidencia no abre (500)</td><td>Falta <code>serviceAccountTokenCreator</code> o <code>FIREBASE_STORAGE_BUCKET</code>.</td><td>Ejecutar el despliegue sin <code>-SkipSetup</code>; revisar la variable.</td></tr>
+          <tr><td>El sitio publicado inicia sesión pero falla cada <code>/api</code></td><td><code>VITE_API_BASE_URL</code> vacía o el origen no está en <code>CLIENT_ORIGIN</code>.</td><td>Definir la variable del repositorio y redesplegar la API.</td></tr>
+          <tr><td>El enlace de invitación es rechazado</td><td>Dominio no autorizado en Firebase Authentication.</td><td>Agregar el dominio en Authorized domains.</td></tr>
+          <tr><td>Un cambio de rol «no funcionó»</td><td>Token en caché.</td><td>Cerrar sesión y volver a entrar.</td></tr>
+          <tr><td>El límite diario no se aplica</td><td>Falta el índice <code>documents (ownerUid, createdAt)</code>; se registra «daily limit NOT enforced».</td><td>Desplegar los índices.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- 15 -->
+    <section class="chapter" id="calidad">
+      <div class="chapter-head"><span class="chapter-num">15</span><h2>Calidad y defectos conocidos</h2></div>
+      <h3>Material de prueba</h3>
+      <ul>
+        <li><strong>Plan de QA en Jira</strong> (espacio <code>SCRUM</code>): 11 épicas, 35 historias y 60 subtareas en tres sprints: preparación, diseño y ejecución con automatización. Fuente: <code>scripts/test-plan.json</code>.</li>
+        <li><strong>Casos de prueba:</strong> <code>docs/pruebas/Casos-de-Prueba-Sprint-2.xlsx</code>, con 41 casos, clases de equivalencia, valores límite, tablas de decisión, pairwise, transición de estados y trazabilidad.</li>
+        <li><strong>Comprobantes de prueba:</strong> <code>samples/</code>, con el resultado esperado de cada uno en <code>samples/README.md</code>.</li>
+        <li><strong>Sin pruebas automatizadas todavía.</strong> El primer objetivo recomendado es <code>receiptMatching.ts</code> (función pura, sin Firestore).</li>
+      </ul>
+      <h3>Defectos abiertos</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Defecto</th><th>Caso</th></tr></thead>
+        <tbody>
+          <tr><td>Un formato no admitido responde 400 en inglés («Expected a file upload…»).</td><td>CP-17</td></tr>
+          <tr><td>Un archivo de más de 10 MB responde 500: el error de Multer no se traduce en <code>errorHandler</code>.</td><td>CP-18</td></tr>
+          <tr><td>Un archivo de exactamente 10 MB se rechaza; el criterio dice «hasta 10 MB».</td><td>CP-18</td></tr>
+          <tr><td>La API acepta transiciones de estado de campaña que la interfaz no ofrece.</td><td>CP-14</td></tr>
+          <tr><td><code>POST /api/mail/send</code> abierto a cualquier sesión.</td><td>—</td></tr>
+        </tbody>
+      </table></div>
+      <h3>Corregidos el 5 de octubre de 2026</h3>
+      <p>Encontrados al preparar las capturas del manual de usuario:</p>
+      <ul>
+        <li>El botón «Quitar» de los hitos era invisible (texto rojo sobre fondo rojo): <code>button.danger</code> pintaba el fondo de la variante <code>ghost</code>.</li>
+        <li>Los botones de ícono «Deshabilitar» y «Eliminar» aparecían como bloques rojos sólidos por la misma regla.</li>
+        <li>En Edge, el campo de contraseña mostraba dos íconos para revelar la contraseña.</li>
+        <li>La pantalla «No permitido» mostraba el nombre interno del rol en inglés (<code>user</code>).</li>
+      </ul>
+    </section>
+
+    <!-- 16 -->
+    <section class="chapter" id="pendiente">
+      <div class="chapter-head"><span class="chapter-num">16</span><h2>Limitaciones y trabajo pendiente</h2></div>
+      <ul>
+        <li><strong>Sin corrección manual de un escaneo.</strong> Un administrador puede anular, pero no corregir una cantidad mal leída.</li>
+        <li><strong>Los productos obligatorios no bloquean hitos.</strong> Se muestran como pendientes, pero los hitos se alcanzan solo por puntos.</li>
+        <li><strong>Paginación parcial.</strong> <code>listUsers</code> y <code>listDocuments</code> tienen tope fijo; necesitarán cursores con más volumen.</li>
+        <li><strong>Sin vista del avance de un participante</strong> para el administrador.</li>
+        <li><strong>Sin OCR alterno</strong> ni reintentos si Vision falla.</li>
+        <li><strong>Sin entorno de pruebas separado:</strong> local y publicado comparten el proyecto de Firebase.</li>
+        <li>Requerimientos del documento del proyecto sin implementación: bloqueo tras 5 intentos, expiración de sesión a 30 minutos, carga por lotes, puntos de venta, exportación a PDF/Excel, bitácora de auditoría y extracción de NIT y serie.</li>
+      </ul>
+      <p class="footer-note">Manual técnico correspondiente a la versión de la plataforma de octubre de 2026.</p>
+    </section>
+  </main>
+</div>
