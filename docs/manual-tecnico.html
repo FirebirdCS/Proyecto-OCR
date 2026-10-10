@@ -419,7 +419,7 @@
         <thead><tr><th>Entorno</th><th>Sitio web</th><th>API</th></tr></thead>
         <tbody>
           <tr><td>Local</td><td><code>http://localhost:5173</code></td><td><code>http://localhost:4000</code> (Vite reenvía <code>/api</code>)</td></tr>
-          <tr><td>Publicado</td><td><code>https://firebirdcs.github.io/Proyecto-OCR/</code></td><td><code>https://ocr-api-3bi5lk4hta-uc.a.run.app</code></td></tr>
+          <tr><td>Publicado</td><td><code>https://ganevel.corvelsa.com/</code></td><td><code>https://ocr-api-3bi5lk4hta-uc.a.run.app</code></td></tr>
         </tbody>
       </table></div>
       <p>Ambos entornos usan el mismo proyecto de Firebase y Google Cloud: <code>proyecto-ocr-d3ecd</code>. No hay un proyecto de pruebas separado.</p>
@@ -624,7 +624,7 @@
           <tr><td><code>VITE_FIREBASE_API_KEY</code>, <code>…_AUTH_DOMAIN</code>, <code>…_PROJECT_ID</code>, <code>…_STORAGE_BUCKET</code>, <code>…_MESSAGING_SENDER_ID</code>, <code>…_APP_ID</code></td><td>Configuración web de Firebase. Es pública: viaja en el JavaScript del sitio.</td></tr>
           <tr><td><code>VITE_FIREBASE_MEASUREMENT_ID</code>, <code>VITE_FIREBASE_DATABASE_URL</code></td><td>Opcionales.</td></tr>
           <tr><td><code>VITE_API_BASE_URL</code></td><td>Dirección de la API publicada. Vacía en local (se usa el proxy de Vite).</td></tr>
-          <tr><td><code>VITE_BASE</code></td><td>Subruta del sitio; GitHub Actions la fija en <code>/Proyecto-OCR/</code>.</td></tr>
+          <tr><td><code>VITE_BASE</code></td><td>Subruta del sitio; con dominio propio es <code>/</code>, y sólo vale <code>/Proyecto-OCR/</code> si se publica en <code>github.io</code>.</td></tr>
         </tbody>
       </table></div>
     </section>
@@ -798,8 +798,8 @@
       <h3>API en Cloud Run</h3>
       <p>Servicio <code>ocr-api</code>, región <code>us-central1</code>, cuenta <code>firebase-adminsdk-fbsvc@proyecto-ocr-d3ecd.iam.gserviceaccount.com</code>. Con la CLI de Google Cloud instalada y <code>gcloud auth login</code> hecho:</p>
 <pre><code>.\scripts\deploy-api.ps1 -SkipSetup `
-  -ClientOrigins http://localhost:5173,https://firebirdcs.github.io `
-  -ClientAppUrl https://firebirdcs.github.io/Proyecto-OCR</code></pre>
+  -ClientOrigins http://localhost:5173,https://ganevel.corvelsa.com `
+  -ClientAppUrl https://ganevel.corvelsa.com</code></pre>
       <ul>
         <li>Construye la imagen desde el <code>Dockerfile</code> (<code>node:22-slim</code>, pnpm 11.15.1, solo dependencias de producción) y despliega con 1 GiB de memoria, 120 s de tiempo máximo y hasta 3 instancias.</li>
         <li>Sin <code>-SkipSetup</code> (primera vez) habilita Cloud Run, Cloud Build y Artifact Registry, y concede a la cuenta <code>roles/iam.serviceAccountTokenCreator</code> sobre sí misma. Sin ese permiso las URL firmadas de la evidencia fallan con 500.</li>
@@ -810,7 +810,7 @@
       <ul>
         <li><strong>Settings → Pages → Source:</strong> GitHub Actions.</li>
         <li><strong>Settings → Secrets and variables → Actions → Variables:</strong> las <code>VITE_FIREBASE_*</code> y <code>VITE_API_BASE_URL</code>.</li>
-        <li>En Firebase, <code>firebirdcs.github.io</code> en <strong>Authentication → Settings → Authorized domains</strong> (y <code>localhost</code> para desarrollo).</li>
+        <li>En Firebase, <code>ganevel.corvelsa.com</code> en <strong>Authentication → Settings → Authorized domains</strong> (y <code>localhost</code> para desarrollo).</li>
       </ul>
       <p>El flujo copia <code>index.html</code> como <code>404.html</code> para que los enlaces profundos funcionen en Pages.</p>
       <h3>Reglas, índices y Storage</h3>

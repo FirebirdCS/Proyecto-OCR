@@ -2,8 +2,8 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig({
-  // GitHub Pages serves a project site from /<repo>/, so its build sets
-  // VITE_BASE. Everywhere else the app lives at the root.
+  // The deployed site lives at the root of its custom domain, like dev does.
+  // VITE_BASE only has to be set for a github.io project site, at /<repo>/.
   base: process.env.VITE_BASE ?? '/',
   plugins: [react()],
   server: {

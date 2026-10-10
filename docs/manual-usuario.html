@@ -807,7 +807,7 @@
 <table>
 <thead><tr><th>Parte</th><th>Tecnología</th><th>Dónde vive</th></tr></thead>
 <tbody>
-<tr><td>Sitio web</td><td>React 19 + Vite</td><td>GitHub Pages — <code>https://firebirdcs.github.io/Proyecto-OCR/</code></td></tr>
+<tr><td>Sitio web</td><td>React 19 + Vite</td><td>GitHub Pages — <code>https://ganevel.corvelsa.com/</code></td></tr>
 <tr><td>API</td><td>Node + Express 5</td><td>Cloud Run (servicio <code>ocr-api</code>, región <code>us-central1</code>)</td></tr>
 <tr><td>Cuentas y roles</td><td>Firebase Authentication</td><td>Proyecto <code>proyecto-ocr-d3ecd</code></td></tr>
 <tr><td>Datos</td><td>Cloud Firestore</td><td>Mismo proyecto</td></tr>
@@ -840,13 +840,13 @@
 </div>
 <h3>Desplegar la API</h3>
 <p>Desde la raíz del proyecto, en PowerShell, con la CLI de Google Cloud instalada y <code>gcloud auth login</code> hecho:</p>
-<pre><code>.\scripts\deploy-api.ps1 -SkipSetup -ClientOrigins http://localhost:5173,https://firebirdcs.github.io -ClientAppUrl https://firebirdcs.github.io/Proyecto-OCR</code></pre>
+<pre><code>.\scripts\deploy-api.ps1 -SkipSetup -ClientOrigins http://localhost:5173,https://ganevel.corvelsa.com -ClientAppUrl https://ganevel.corvelsa.com</code></pre>
 <p>Sin <code>-SkipSetup</code> también habilita las APIs y permisos (solo la primera vez). Acepta <code>-TimeZone</code>, <code>-ScanDailyLimit</code> y <code>-ReceiptMaxUnits</code>. La dirección de la API queda en <code>scripts\.last-deploy-url.txt</code>.</p>
 <p>Para la clave de Resend, en una ventana de PowerShell normal:</p>
 <pre><code>.\scripts\set-resend-key.ps1</code></pre>
 <p>La clave se escribe en un aviso oculto, nunca como parámetro. Repítelo al rotar la clave.</p>
 <h3>Publicar el sitio</h3>
-<p>Cada envío a la rama <code>master</code> publica el sitio automáticamente (GitHub Actions). Requiere, en el repositorio: <strong>Settings → Pages → Source: GitHub Actions</strong>, y en <strong>Settings → Secrets and variables → Actions → Variables</strong> los valores <code>VITE_FIREBASE_*</code> y <code>VITE_API_BASE_URL</code>. En Firebase, el dominio <code>firebirdcs.github.io</code> debe estar en <strong>Authentication → Settings → Authorized domains</strong>.</p>
+<p>Cada envío a la rama <code>master</code> publica el sitio automáticamente (GitHub Actions). Requiere, en el repositorio: <strong>Settings → Pages → Source: GitHub Actions</strong>, y en <strong>Settings → Secrets and variables → Actions → Variables</strong> los valores <code>VITE_FIREBASE_*</code> y <code>VITE_API_BASE_URL</code>. En Firebase, el dominio <code>ganevel.corvelsa.com</code> debe estar en <strong>Authentication → Settings → Authorized domains</strong>.</p>
 <h3>Firestore y Storage</h3>
 <pre><code>npx firebase-tools deploy --only firestore:indexes,firestore:rules,storage</code></pre>
 <p>Si el panel muestra que falta un índice, este comando lo resuelve; el índice tarda unos minutos en construirse.</p>

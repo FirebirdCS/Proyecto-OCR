@@ -47,8 +47,10 @@ jobs:
 
       - name: Build the client
         env:
-          # A project site lives at /<repo>/, so assets need that prefix.
-          VITE_BASE: /${{ github.event.repository.name }}/
+          # The custom domain in client/public/CNAME serves the app from the
+          # domain root, so no /<repo>/ prefix. Set the VITE_BASE variable to
+          # /<repo>/ again if the site ever goes back to github.io.
+          VITE_BASE: ${{ vars.VITE_BASE || '/' }}
           VITE_FIREBASE_API_KEY: ${{ vars.VITE_FIREBASE_API_KEY }}
           VITE_FIREBASE_AUTH_DOMAIN: ${{ vars.VITE_FIREBASE_AUTH_DOMAIN }}
           VITE_FIREBASE_PROJECT_ID: ${{ vars.VITE_FIREBASE_PROJECT_ID }}
@@ -60,8 +62,8 @@ jobs:
           VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
         run: pnpm --filter @ocr/client build
 
-      # Pages has no SPA rewrite: a deep link like /Proyecto-OCR/admin/productos
-      # is a 404 until the same page answers for it, and the router takes over.
+      # Pages has no SPA rewrite: a deep link like /admin/productos is a 404
+      # until the same page answers for it, and the router takes over.
       - name: Serve the app for unknown paths
         run: cp client/dist/index.html client/dist/404.html
 

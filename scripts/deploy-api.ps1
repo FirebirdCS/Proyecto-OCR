@@ -15,8 +15,8 @@
   .\scripts\deploy-api.ps1
 
 .EXAMPLE
-  .\scripts\deploy-api.ps1 -ClientOrigins http://localhost:5173,https://firebirdcs.github.io `
-    -ClientAppUrl https://firebirdcs.github.io/Proyecto-OCR -SkipSetup
+  .\scripts\deploy-api.ps1 -ClientOrigins http://localhost:5173,https://ganevel.corvelsa.com `
+    -ClientAppUrl https://ganevel.corvelsa.com -SkipSetup
 #>
 param(
   [string]$Project = 'proyecto-ocr-d3ecd',

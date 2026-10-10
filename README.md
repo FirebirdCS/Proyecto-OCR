@@ -344,9 +344,20 @@ it** — host the server elsewhere and point the build at it.
    alongside `http://localhost:5173`) and the full address, sub-path included,
    in `CLIENT_APP_URL`.
 
-The build sets Vite's `base` to `/<repo>/`, and the router picks that up through
-`import.meta.env.BASE_URL`. Deep links work because `404.html` is a copy of
-`index.html`.
+The build sets Vite's `base` from `VITE_BASE`, and the router picks that up
+through `import.meta.env.BASE_URL`. Deep links work because `404.html` is a copy
+of `index.html`.
+
+### With a custom domain
+
+`client/public/CNAME` holds the domain, which also keeps the Pages setting from
+being cleared by a deploy. A custom domain serves the site from the domain
+**root**, so `VITE_BASE` must be `/` — the default. Leaving a `/<repo>/` prefix
+in place 404s every asset and renders a blank page with nothing in the console
+worth reading. Going back to `<user>.github.io` means deleting the CNAME and
+setting a `VITE_BASE` repository variable to `/<repo>/`. The new domain also has
+to be added to Firebase's authorized domains and to the server's
+`CLIENT_ORIGIN`/`CLIENT_APP_URL`.
 
 ## Test plan in Jira
 

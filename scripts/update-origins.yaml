@@ -1,0 +1,13 @@
+# Changes only the two origin variables on the deployed API, keeping the image
+# and the RESEND_API_KEY secret reference. A full deploy-api.ps1 run would
+# replace the whole env block and drop them.
+#
+#   gcloud run services update ocr-api --project proyecto-ocr-d3ecd `
+#     --region us-central1 --flags-file scripts/update-origins.yaml
+#
+# The values live in YAML because CLIENT_ORIGIN contains a comma, and on Windows
+# the gcloud.cmd wrapper eats it (and its backslash escape) before gcloud parses
+# the flag, failing with "Bad syntax for dict arg".
+- --update-env-vars:
+    CLIENT_ORIGIN: http://localhost:5173,https://ganevel.corvelsa.com
+    CLIENT_APP_URL: https://ganevel.corvelsa.com
