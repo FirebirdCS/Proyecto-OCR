@@ -15,7 +15,7 @@ const sendSchema = z
     html: z.string().optional(),
   })
   .refine((value) => value.text || value.html, {
-    message: 'Provide either text or html',
+    message: 'Indica el texto o el HTML del correo.',
   });
 
 /** POST /api/mail/send */

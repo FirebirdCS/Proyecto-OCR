@@ -229,11 +229,11 @@ def render(edge: Path, profile: Path, page: str, out: Path, *, size: tuple[int, 
 
 # -------------------------------------------------------------------- cases
 
-def cases(today: dt.date, product: str) -> list[Ticket]:
+def cases(today: dt.date, product: str, lote: int = 0) -> list[Ticket]:
     p = f'{product} 500MG'
     ibu, vit, gel = Item(1, 'IBUPROFENO 400MG', 58), Item(1, 'VITAMINA C 1G EFERV', 89.5), Item(1, 'GEL ANTIBACTERIAL', 42)
     yesterday = today - dt.timedelta(days=1)
-    return [
+    tickets = [
         Ticket('valido-cantidad-x.png', '000501', dmy(today), [Item(2, p, 45), ibu], style='x'),
         Ticket('valido-cantidad-abajo.png', '000502', dmy(yesterday), [Item(3, p, 45), ibu, vit], style='below'),
         Ticket('valido-unidades-fecha-corta.png', '000503', yesterday.strftime('%d-%m-%y'), [Item(4, p, 45), gel],
@@ -252,12 +252,17 @@ def cases(today: dt.date, product: str) -> list[Ticket]:
         # The same paper as valido-cantidad-x, photographed again: must be refused.
         Ticket('duplicado-foto-nueva.png', '000501', dmy(today), [Item(2, p, 45), ibu], style='x', photo=True),
     ]
+    # Another lote is another set of paper receipts: same dates, new ticket numbers,
+    # so it can be scanned again after an earlier lote has already scored.
+    for ticket in tickets:
+        ticket.number = f'{int(ticket.number) + lote * 1000:06d}'
+    return tickets
 
 
 MAX_UPLOAD = 10 * 1024 * 1024
 
 
-def limit_cases(today: dt.date, product: str) -> list[Ticket]:
+def limit_cases(today: dt.date, product: str, lote: int = 0) -> list[Ticket]:
     p = f'{product} 500MG'
     ibu = Item(1, 'IBUPROFENO 400MG', 58)
     lines = [Ticket(f'limite-linea-{qty:02d}.png', f'00052{i}', dmy(today), [Item(qty, p, 45), ibu])
@@ -266,6 +271,8 @@ def limit_cases(today: dt.date, product: str) -> list[Ticket]:
     caps = [Ticket(f'limite-tope-{units}.png', f'00053{i}', dmy(today),
                    [Item(9, p, 45)] * 5 + [Item(units - 45, p, 45), ibu])
             for i, units in enumerate((49, 50, 51), 1)]
+    for ticket in lines + caps:
+        ticket.number = f'{int(ticket.number) + lote * 1000:06d}'
     return lines + caps
 
 
@@ -289,6 +296,9 @@ def main() -> None:
                         help='Fecha "de hoy" para las muestras (AAAA-MM-DD). Por defecto, hoy.')
     parser.add_argument('--product', default='PARACETAMOL',
                         help='Nombre del producto de la campaña, tal como está registrado.')
+    parser.add_argument('--lote', type=int, default=0,
+                        help='Número de lote (1, 2, …): cambia los números de ticket y el folio para obtener '
+                             'comprobantes nuevos con las mismas fechas. Por defecto, 0.')
     parser.add_argument('--limites', action='store_true',
                         help='Genera también samples/casos/limites/ con los valores límite del diseño de pruebas.')
     parser.add_argument('--out', type=Path, default=Path(__file__).resolve().parent / 'casos',
@@ -301,7 +311,7 @@ def main() -> None:
 
     with tempfile.TemporaryDirectory() as profile_dir:
         profile = Path(profile_dir)
-        for ticket in cases(args.date, product):
+        for ticket in cases(args.date, product, args.lote):
             lines = len(ticket_lines(ticket))
             height = int(lines * 19 + 90)
             size = (760, height + 300) if ticket.photo else (340, height)
@@ -311,7 +321,7 @@ def main() -> None:
 
         invoice = args.out / 'valido-factura.pdf'
         render(edge, profile,
-               invoice_page('F-2045', args.date - dt.timedelta(days=2),
+               invoice_page(f'F-{2045 + args.lote}', args.date - dt.timedelta(days=2),
                             [Item(6, f'{product} 500MG CAJA C/10 TABLETAS', 45),
                              Item(2, 'IBUPROFENO 400MG CAJA C/10', 58),
                              Item(1, 'ALCOHOL ETILICO 250ML', 32)]),
@@ -321,7 +331,7 @@ def main() -> None:
         if args.limites:
             limits = args.out / 'limites'
             limits.mkdir(exist_ok=True)
-            for ticket in limit_cases(args.date, product):
+            for ticket in limit_cases(args.date, product, args.lote):
                 height = int(len(ticket_lines(ticket)) * 19 + 90)
                 render(edge, profile, ticket_page(ticket), limits / ticket.file, size=(340, height))
                 print(f'  limites/{ticket.file}')

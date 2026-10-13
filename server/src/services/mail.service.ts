@@ -8,7 +8,7 @@ function getTransporter(): Transporter {
   if (transporter) return transporter;
 
   if (!env.SMTP_HOST) {
-    throw new HttpError(503, 'SMTP is not configured (set SMTP_HOST and friends in .env)');
+    throw new HttpError(503, 'El envío de correo no está configurado (falta SMTP_HOST en .env)');
   }
 
   transporter = nodemailer.createTransport({

@@ -8,7 +8,7 @@ function getClient(): Resend {
   if (client) return client;
 
   if (!env.RESEND_API_KEY) {
-    throw new HttpError(503, 'Resend is not configured (set RESEND_API_KEY in .env)');
+    throw new HttpError(503, 'El envío de correo no está configurado (falta RESEND_API_KEY en .env)');
   }
 
   client = new Resend(env.RESEND_API_KEY);
@@ -29,7 +29,7 @@ export async function sendResendMail(message: ResendMessage): Promise<string> {
   });
 
   if (error) {
-    throw new HttpError(502, `Resend error: ${error.message}`);
+    throw new HttpError(502, `No se pudo enviar el correo: ${error.message}`);
   }
 
   return data!.id;

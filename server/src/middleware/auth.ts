@@ -32,7 +32,7 @@ export async function requireAuth(
     const [scheme, token] = header.split(' ');
 
     if (scheme?.toLowerCase() !== 'bearer' || !token) {
-      throw new HttpError(401, 'Missing bearer token');
+      throw new HttpError(401, 'Falta el token de sesión');
     }
 
     const decoded = await auth.verifyIdToken(token);
@@ -57,7 +57,7 @@ export async function requireAuth(
     if (!isProduction) {
       console.warn('[requireAuth] verifyIdToken failed:', (error as Error).message);
     }
-    next(new HttpError(401, 'Invalid or expired token'));
+    next(new HttpError(401, 'La sesión no es válida o expiró'));
   }
 }
 
@@ -65,11 +65,11 @@ export async function requireAuth(
 export function requireRole(...roles: Role[]) {
   return (req: Request, _res: Response, next: NextFunction): void => {
     if (!req.user) {
-      next(new HttpError(401, 'Not authenticated'));
+      next(new HttpError(401, 'No has iniciado sesión'));
       return;
     }
     if (!roles.includes(req.user.role)) {
-      next(new HttpError(403, `Requires one of: ${roles.join(', ')}`));
+      next(new HttpError(403, 'No tienes permiso para esta acción'));
       return;
     }
     next();
@@ -82,13 +82,13 @@ export const requireAdmin = requireRole('admin');
 export function requireSelfOrAdmin(param = 'uid') {
   return (req: Request, _res: Response, next: NextFunction): void => {
     if (!req.user) {
-      next(new HttpError(401, 'Not authenticated'));
+      next(new HttpError(401, 'No has iniciado sesión'));
       return;
     }
     if (req.user.role === 'admin' || req.user.uid === req.params[param]) {
       next();
       return;
     }
-    next(new HttpError(403, 'Not allowed'));
+    next(new HttpError(403, 'No tienes permiso para esta acción'));
   };
 }

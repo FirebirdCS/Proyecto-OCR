@@ -1,10 +1,11 @@
 import type { NextFunction, Request, Response } from 'express';
 import { ZodError } from 'zod';
 import { HttpError } from '../utils/httpError.js';
+import { validationMessage } from '../utils/validationMessage.js';
 import { isProduction } from '../config/env.js';
 
 export function notFound(_req: Request, res: Response): void {
-  res.status(404).json({ error: 'Not found' });
+  res.status(404).json({ error: 'No encontrado' });
 }
 
 export function errorHandler(
@@ -15,7 +16,7 @@ export function errorHandler(
   _next: NextFunction,
 ): void {
   if (error instanceof ZodError) {
-    res.status(400).json({ error: 'Validation failed', details: error.flatten() });
+    res.status(400).json({ error: validationMessage(error), details: error.flatten() });
     return;
   }
 
@@ -29,14 +30,14 @@ export function errorHandler(
   if ((error as { code?: unknown }).code === 9) {
     console.error('[firestore] missing index:', (error as Error).message);
     res.status(503).json({
-      error: 'A Firestore index is missing. Deploy firestore.indexes.json (firebase deploy --only firestore:indexes).',
+      error: 'Falta un índice de Firestore. Despliega firestore.indexes.json (firebase deploy --only firestore:indexes).',
     });
     return;
   }
 
   console.error(error);
   res.status(500).json({
-    error: 'Internal server error',
+    error: 'Error interno del servidor',
     ...(isProduction ? {} : { details: error instanceof Error ? error.message : String(error) }),
   });
 }

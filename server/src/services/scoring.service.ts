@@ -54,7 +54,7 @@ export const fingerprint = (value: Buffer | string) =>
 
 // `details.code` lets the client word each refusal in Spanish.
 const duplicateReceipt = () =>
-  new HttpError(409, 'This receipt has already been scanned', { code: 'duplicate_receipt' });
+  new HttpError(409, 'Este comprobante ya fue registrado', { code: 'duplicate_receipt' });
 
 /** Cheap early exit, run before paying for a Vision call. The scan re-checks atomically. */
 export async function assertReceiptIsNew(fileHash: string): Promise<void> {
@@ -79,7 +79,7 @@ export async function assertUnderDailyLimit(uid: string): Promise<number> {
   }
 
   if (recent >= env.SCAN_DAILY_LIMIT) {
-    throw new HttpError(429, 'Daily scan limit reached', {
+    throw new HttpError(429, 'Alcanzaste el límite de comprobantes por día', {
       code: 'daily_limit',
       limit: env.SCAN_DAILY_LIMIT,
     });
@@ -100,10 +100,10 @@ export async function assertCanScan(uid: string, campaignId: string, now = new D
   const campaign = await getCampaign(campaignId);
 
   if (!campaign.participantUids.includes(uid)) {
-    throw new HttpError(403, 'You are not a participant in this campaign', { code: 'not_participant' });
+    throw new HttpError(403, 'No participas en esta campaña', { code: 'not_participant' });
   }
   if (campaign.status !== 'active' || !isRunning(campaign, now.getTime())) {
-    throw new HttpError(409, 'This campaign is not running', { code: 'campaign_not_running' });
+    throw new HttpError(409, 'Esta campaña no está vigente', { code: 'campaign_not_running' });
   }
 
   return campaign;
@@ -383,7 +383,7 @@ export async function scanReceipt(input: {
 export async function voidScan(documentId: string, actorUid: string, reason: string): Promise<void> {
   const ref = documentRef(documentId);
   const initial = await ref.get();
-  if (!initial.exists) throw new HttpError(404, 'Scan not found');
+  if (!initial.exists) throw new HttpError(404, 'No se encontró el comprobante');
 
   const initialScore = scoreOf(initial.data()!);
   // Read outside the transaction: only the milestone ladder and required
@@ -395,10 +395,10 @@ export async function voidScan(documentId: string, actorUid: string, reason: str
     const score = scoreOf(data);
 
     if (data.status === 'voided') {
-      throw new HttpError(409, 'This scan is already voided', { code: 'already_voided' });
+      throw new HttpError(409, 'Este comprobante ya está anulado', { code: 'already_voided' });
     }
     if (!score || data.status === 'unscored') {
-      throw new HttpError(409, 'Only scans that earned points can be voided', { code: 'not_scored' });
+      throw new HttpError(409, 'Solo se pueden anular comprobantes que sumaron puntos', { code: 'not_scored' });
     }
 
     const progressRef = participantRef(score.campaignId, data.ownerUid);

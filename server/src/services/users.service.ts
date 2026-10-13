@@ -118,7 +118,7 @@ export async function listUsers(limit = 100, pageToken?: string) {
  */
 export async function setUserRole(uid: string, role: Role, actorUid: string): Promise<UserProfile> {
   if (uid === actorUid && role !== 'admin') {
-    throw new HttpError(400, 'You cannot remove your own admin role');
+    throw new HttpError(400, 'No puedes quitarte tu propio rol de administrador');
   }
 
   const record = await auth.getUser(uid);
@@ -181,7 +181,7 @@ export async function createUserAccount(
 
   const existing = await auth.getUserByEmail(email).catch(() => null);
   if (existing) {
-    throw new HttpError(409, `${email} already has an account`);
+    throw new HttpError(409, `${email} ya tiene una cuenta`);
   }
 
   const record = await auth.createUser({
@@ -236,7 +236,7 @@ async function deliverInvite(
 /** Re-issues the invite for someone who never activated their account. */
 export async function resendInvite(uid: string): Promise<CreateUserResult> {
   const record = await auth.getUser(uid);
-  if (!record.email) throw new HttpError(400, 'That account has no email address');
+  if (!record.email) throw new HttpError(400, 'Esa cuenta no tiene correo electrónico');
 
   const inviteLink = await buildInviteLink(record.email);
   const invited = await deliverInvite(record.email, record.displayName ?? undefined, inviteLink);
@@ -251,7 +251,7 @@ export async function setUserDisabled(
   actorUid: string,
 ): Promise<UserProfile> {
   if (uid === actorUid && disabled) {
-    throw new HttpError(400, 'You cannot disable your own account');
+    throw new HttpError(400, 'No puedes deshabilitar tu propia cuenta');
   }
 
   await auth.updateUser(uid, { disabled });

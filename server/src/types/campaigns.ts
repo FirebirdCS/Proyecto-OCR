@@ -62,7 +62,7 @@ export const campaignInputSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['endsAt'],
-        message: 'The campaign must end after it starts',
+        message: 'La fecha de fin debe ser posterior a la de inicio.',
       });
     }
 
@@ -71,7 +71,7 @@ export const campaignInputSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['products'],
-        message: 'A product can only appear once in a campaign',
+        message: 'Un producto solo puede aparecer una vez en la campaña.',
       });
     }
 
@@ -80,7 +80,7 @@ export const campaignInputSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['milestones'],
-        message: 'Milestone ids must be unique',
+        message: 'Hay hitos repetidos.',
       });
     }
 
@@ -92,7 +92,7 @@ export const campaignInputSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['milestones'],
-        message: 'Milestone targets must increase from one milestone to the next',
+        message: 'La meta de cada hito debe ser mayor que la del anterior.',
       });
     }
 
@@ -101,7 +101,7 @@ export const campaignInputSchema = z
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['products', index, 'minQuantity'],
-          message: 'A required product needs a minimum quantity of at least 1',
+          message: 'Un producto obligatorio necesita una cantidad mínima de al menos 1.',
         });
       }
     }
@@ -126,8 +126,8 @@ export interface Campaign extends Omit<CampaignInput, 'description'> {
  */
 export function assertActivatable(campaign: Pick<Campaign, 'products' | 'milestones'>): string[] {
   const problems: string[] = [];
-  if (campaign.products.length === 0) problems.push('Add at least one product');
-  if (campaign.milestones.length === 0) problems.push('Add at least one milestone');
+  if (campaign.products.length === 0) problems.push('agrega al menos un producto');
+  if (campaign.milestones.length === 0) problems.push('agrega al menos un hito');
   return problems;
 }
 

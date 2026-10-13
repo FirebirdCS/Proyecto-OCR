@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reporte de depuración</title>
+<style>
+  :root { --ink:#1d2433; --muted:#5b6475; --line:#d9dee7; --accent:#1f5fbf; --bad:#a3261b; --badbg:#fdf0ee; --ok:#17663a; --okbg:#eef8f1; --panel:#f5f7fa; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:#fff; color:var(--ink); font:14px/1.55 "Segoe UI", system-ui, sans-serif; }
+  main { max-width:1000px; margin:0 auto; padding:32px 24px 48px; }
+  h1 { font-size:26px; margin:0 0 4px; }
+  h2 { font-size:19px; margin:34px 0 10px; padding-bottom:6px; border-bottom:2px solid var(--accent); }
+  h3 { font-size:15px; margin:22px 0 8px; }
+  .sub { color:var(--muted); margin:0 0 18px; }
+  table { width:100%; border-collapse:collapse; margin:8px 0 14px; }
+  th, td { border:1px solid var(--line); padding:6px 8px; text-align:left; vertical-align:top; }
+  th { background:var(--panel); font-weight:600; }
+  .kv th { width:28%; }
+  .num { text-align:center; white-space:nowrap; }
+  .bad { background:var(--badbg); color:var(--bad); }
+  .ok { background:var(--okbg); color:var(--ok); }
+  .res { font-weight:600; text-align:center; }
+  .pending { color:#8a5a00; font-weight:600; }
+  code { font-family:Consolas, monospace; font-size:12.5px; background:var(--panel); padding:1px 4px; border-radius:3px; }
+  pre { background:var(--panel); border:1px solid var(--line); padding:10px; overflow-x:auto; font-size:12.5px; }
+  .note { border-left:4px solid var(--accent); background:var(--panel); padding:8px 12px; margin:12px 0; }
+  ol, ul { padding-left:22px; }
+  .evidence td { font-size:12.5px; }
+  @media print { main { padding:0; } h2 { break-after:avoid; } tr { break-inside:avoid; } }
+</style>
+</head>
+<body>
+<main>
+<h1>Reporte de depuración y verificación</h1>
+<p class="sub">Plataforma OCR de incentivos · Sprint 3 · Épica SCRUM-65 «Gestión de bugs» · Historia SCRUM-98 · Actualizado el 12/10/2026</p>
+
+<h2>1. Resumen</h2>
+<table class="kv">
+<tr><th>Bugs registrados en este reporte</th><td>1 (SCRUM-112)</td></tr>
+<tr><th>Corregidos</th><td>1</td></tr>
+<tr><th>Verificados en el ambiente de pruebas</th><td class="pending">0. Falta desplegar la API y repetir la prueba (sección 2.7).</td></tr>
+<tr><th>Reabiertos</th><td>0</td></tr>
+<tr><th>Verificación sin conexión</th><td>20 de 20 escenarios pasan (sección 2.6)</td></tr>
+</table>
+
+<h2>2. SCRUM-112 · Mensajes de error en inglés en el panel de administración</h2>
+
+<h3>2.1 Ficha</h3>
+<table class="kv">
+<tr><th>Clave</th><td>SCRUM-112</td></tr>
+<tr><th>Componente</th><td>API (servidor Express), con efecto en el panel de administración</td></tr>
+<tr><th>Clasificación</th><td><b>Defecto</b>. El <i>error</i> humano fue redactar los mensajes del servidor para programadores y en inglés; el <i>defecto</i> está en el código (15 archivos del servidor); el <i>fallo</i> es lo que ve el administrador: textos en inglés y un «Validation failed» que no dice qué corregir.</td></tr>
+<tr><th>Severidad</th><td>Media: no bloquea ninguna función ni altera datos, pero el administrador no entiende por qué se rechaza lo que hizo.</td></tr>
+<tr><th>Prioridad (riesgo)</th><td>Alta: impacto 2 (medio) × probabilidad 3 (alta) = 6 de 9. Cualquier dato inválido o acción no permitida lo muestra.</td></tr>
+<tr><th>Atributo ISO/IEC 25010</th><td>Usabilidad: capacidad de reconocimiento y protección frente a errores de usuario</td></tr>
+<tr><th>Ambiente donde se encontró</th><td>Sitio publicado con la API en Cloud Run (revisión <code>ocr-api-00005-hs8</code>), rol Administrador</td></tr>
+<tr><th>Relacionado</th><td>CP-39 (anulación): con un motivo fuera de 3–300 caracteres, la API responde «Validation failed»</td></tr>
+</table>
+
+<h3>2.2 Pasos para reproducir</h3>
+<ol>
+<li>Iniciar sesión como administrador.</li>
+<li><b>Campañas</b>: crear una campaña en borrador sin productos ni hitos y elegir <b>Activar</b>.</li>
+<li><b>Productos</b>: eliminar un producto que use una campaña en borrador o activa (por ejemplo, Paracetamol).</li>
+<li><b>Usuarios</b>: crear una cuenta con un correo que ya está registrado.</li>
+</ol>
+<table>
+<tr><th>Paso</th><th>Resultado esperado</th><th>Resultado obtenido</th></tr>
+<tr><td>2</td><td>Mensaje en español que diga qué falta</td><td class="bad">This campaign is not ready to run: Add at least one product; Add at least one milestone</td></tr>
+<tr><td>3</td><td>Mensaje en español que diga qué campaña lo usa y qué hacer</td><td class="bad">"Farmacia" still uses this product. Archive that campaign, or deactivate the product instead.</td></tr>
+<tr><td>4</td><td>Mensaje en español</td><td class="bad">ana@ejemplo.com already has an account</td></tr>
+<tr><td>Por API</td><td>Mensaje que indique el campo y la regla</td><td class="bad">Validation failed (para cualquier dato inválido)</td></tr>
+</table>
+
+<h3>2.3 Análisis de causa raíz</h3>
+<ul>
+<li>El cliente muestra el texto del servidor tal cual. <code>client/src/services/api.ts</code> crea el error con <code>payload.error</code>, y cada panel de administración hace <code>setError(cause.message)</code>. Los textos en español de esos paneles solo aparecen cuando la respuesta no trae mensaje.</li>
+<li>El servidor redactaba todos sus mensajes en inglés: los <code>HttpError</code> de 15 archivos y los mensajes de las reglas de campaña en <code>types/campaigns.ts</code>.</li>
+<li>Los errores de validación (Zod) se respondían siempre como <code>«Validation failed»</code>. El detalle iba en <code>details</code>, que la pantalla no muestra, así que el administrador no sabía qué campo corregir.</li>
+<li>Por qué no se detectó antes: la pantalla del escáner (rol Usuario) no tiene el problema, porque traduce por código (<code>duplicate_receipt</code>, <code>daily_limit</code>…) con la tabla <code>REFUSALS</code> de <code>UserDashboard.tsx</code>. El panel de administración nunca recibió ese tratamiento. Además, los formularios bloquean la mayoría de los datos inválidos antes de enviarlos, así que el mensaje de validación casi nunca se veía.</li>
+</ul>
+
+<h3>2.4 Corrección aplicada</h3>
+<p>Se tradujeron los mensajes en el servidor, que es donde se originan. La otra opción era traducir en cada pantalla por código, pero la API solo tiene este cliente, que es en español: corregir en el servidor arregla todas las pantallas a la vez, incluidas las futuras. Los códigos de error para el escáner no cambian, así que su pantalla sigue funcionando igual.</p>
+<table>
+<tr><th>Archivo</th><th>Cambio</th></tr>
+<tr><td><code>server/src/utils/validationMessage.ts</code></td><td>Nuevo. Redacta en español el primer problema de una validación fallida, a partir del código del problema (campo vacío, mínimo, máximo, correo, fecha, entero…) y una tabla de nombres de campo.</td></tr>
+<tr><td><code>server/src/middleware/errorHandler.ts</code></td><td>Un error de validación ya no responde «Validation failed»: responde «Datos no válidos: …» con la frase de arriba. También se tradujeron «Not found», «Internal server error» y el aviso de índice faltante.</td></tr>
+<tr><td><code>server/src/types/campaigns.ts</code></td><td>Las 5 reglas de campaña (fechas, producto repetido, hitos repetidos, hitos ascendentes, mínimo del obligatorio) y los motivos para no activar una campaña.</td></tr>
+<tr><td><code>server/src/services/campaigns.service.ts</code></td><td>Campaña no encontrada, archivada de solo lectura, no se puede activar, archivar antes de eliminar, productos desconocidos o desactivados.</td></tr>
+<tr><td><code>server/src/services/products.service.ts</code></td><td>Producto no encontrado y «La campaña «X» todavía usa este producto…».</td></tr>
+<tr><td><code>server/src/services/users.service.ts</code></td><td>Correo que ya tiene cuenta, quitarse el propio rol, deshabilitar la propia cuenta, cuenta sin correo.</td></tr>
+<tr><td><code>server/src/services/scoring.service.ts</code></td><td>Comprobante no encontrado, ya anulado, sin puntos, duplicado, límite diario, no participante, campaña no vigente (los códigos para la pantalla del escáner no cambian).</td></tr>
+<tr><td><code>server/src/middleware/auth.ts</code></td><td>Sesión faltante o expirada, sin permiso. El 403 ya no enumera los roles internos (admin, user).</td></tr>
+<tr><td><code>Otros 7 archivos</code></td><td>documents, credentials, mail, resend, receiptFiles, mail.routes y las rutas de comprobantes y OCR: un mensaje cada uno.</td></tr>
+</table>
+<p>En total, 15 archivos modificados y 1 nuevo: 48 líneas añadidas y 47 eliminadas, más el archivo nuevo. No cambia ningún código de estado HTTP ni ninguna regla de negocio; solo el texto.</p>
+<div class="note"><b>Fuera de alcance, a propósito.</b> Tres mensajes siguen en inglés porque corresponden a otros bugs de la lista, cada uno con su propia causa:
+<ul>
+<li>«Expected a file upload…» al subir un tipo de archivo no admitido (bug 2).</li>
+<li>El error 500 con un archivo de más de 10 MB (bug 3).</li>
+<li>«Vision API error: …» cuando falla Cloud Vision (bug 6).</li>
+</ul>
+Se corrigen por separado para que cada uno tenga su verificación.</div>
+
+<h3>2.5 Versión en que se corrigió</h3>
+<table class="kv">
+<tr><th>Código</th><td>Rama <code>master</code>, sobre el commit <code>803a660</code>. <span class="pending">Commit de la corrección: pendiente.</span></td></tr>
+<tr><th>API en Cloud Run</th><td><span class="pending">Revisión: pendiente de despliegue.</span> La versión con el bug es <code>ocr-api-00005-hs8</code>; la corregida será la siguiente que se despliegue (completar el número).</td></tr>
+<tr><th>Cliente web</th><td>Sin cambios. No hace falta publicarlo de nuevo.</td></tr>
+</table>
+
+<h3>2.6 Verificación sin conexión (antes / después)</h3>
+<p>Un script hace pasar por el manejador de errores real del servidor las validaciones reales (esquemas de Zod) y los mensajes tal como están escritos en cada servicio. Se ejecutó sobre el código anterior (<code>git stash</code>) y sobre el corregido. Se considera que pasa cuando el código HTTP es el mismo y el texto cambió al español. Las salidas completas están en <code>docs/pruebas/evidencia/SCRUM-112/antes.txt</code> y <code>despues.txt</code>.</p>
+<table class="evidence">
+<tr><th>#</th><th>Escenario</th><th>HTTP</th><th>Antes</th><th>Después</th><th>Resultado</th></tr>
+<tr><td>1</td><td>Anular con motivo de 2 caracteres</td><td class='num'>400</td><td class='bad'>Validation failed</td><td class='ok'>Datos no válidos: Escribe al menos 3 caracteres en el motivo.</td><td class='res'>Pasa</td></tr>
+<tr><td>2</td><td>Anular con motivo de 301 caracteres</td><td class='num'>400</td><td class='bad'>Validation failed</td><td class='ok'>Datos no válidos: Escribe como máximo 300 caracteres en el motivo.</td><td class='res'>Pasa</td></tr>
+<tr><td>3</td><td>Crear usuario con correo inválido</td><td class='num'>400</td><td class='bad'>Validation failed</td><td class='ok'>Datos no válidos: El correo no es válido.</td><td class='res'>Pasa</td></tr>
+<tr><td>4</td><td>Producto sin nombre</td><td class='num'>400</td><td class='bad'>Validation failed</td><td class='ok'>Datos no válidos: Completa el nombre.</td><td class='res'>Pasa</td></tr>
+<tr><td>5</td><td>Producto con puntos negativos</td><td class='num'>400</td><td class='bad'>Validation failed</td><td class='ok'>Datos no válidos: El mínimo para los puntos es 0.</td><td class='res'>Pasa</td></tr>
+<tr><td>6</td><td>Producto con puntos decimales</td><td class='num'>400</td><td class='bad'>Validation failed</td><td class='ok'>Datos no válidos: Revisa los puntos: debe ser un número entero.</td><td class='res'>Pasa</td></tr>
+<tr><td>7</td><td>Campaña sin fecha de inicio</td><td class='num'>400</td><td class='bad'>Validation failed</td><td class='ok'>Datos no válidos: Falta la fecha de inicio.</td><td class='res'>Pasa</td></tr>
+<tr><td>8</td><td>Campaña que termina antes de empezar</td><td class='num'>400</td><td class='bad'>Validation failed</td><td class='ok'>Datos no válidos: La fecha de fin debe ser posterior a la de inicio.</td><td class='res'>Pasa</td></tr>
+<tr><td>9</td><td>Hitos que no ascienden</td><td class='num'>400</td><td class='bad'>Validation failed</td><td class='ok'>Datos no válidos: La meta de cada hito debe ser mayor que la del anterior.</td><td class='res'>Pasa</td></tr>
+<tr><td>10</td><td>Producto obligatorio sin mínimo</td><td class='num'>400</td><td class='bad'>Validation failed</td><td class='ok'>Datos no válidos: Un producto obligatorio necesita una cantidad mínima de al menos 1.</td><td class='res'>Pasa</td></tr>
+<tr><td>11</td><td>Activar campaña sin productos ni hitos</td><td class='num'>409</td><td class='bad'>This campaign is not ready to run: Add at least one product; Add at least one milestone</td><td class='ok'>La campaña todavía no se puede activar: agrega al menos un producto; agrega al menos un hito</td><td class='res'>Pasa</td></tr>
+<tr><td>12</td><td>Eliminar campaña activa</td><td class='num'>409</td><td class='bad'>Archive the campaign before deleting it</td><td class='ok'>Archiva la campaña antes de eliminarla</td><td class='res'>Pasa</td></tr>
+<tr><td>13</td><td>Editar campaña archivada</td><td class='num'>409</td><td class='bad'>Archived campaigns are read-only</td><td class='ok'>Las campañas archivadas son de solo lectura</td><td class='res'>Pasa</td></tr>
+<tr><td>14</td><td>Invitar un correo que ya existe</td><td class='num'>409</td><td class='bad'>ana@ejemplo.com already has an account</td><td class='ok'>ana@ejemplo.com ya tiene una cuenta</td><td class='res'>Pasa</td></tr>
+<tr><td>15</td><td>Quitarse el propio rol de admin</td><td class='num'>400</td><td class='bad'>You cannot remove your own admin role</td><td class='ok'>No puedes quitarte tu propio rol de administrador</td><td class='res'>Pasa</td></tr>
+<tr><td>16</td><td>Deshabilitar la propia cuenta</td><td class='num'>400</td><td class='bad'>You cannot disable your own account</td><td class='ok'>No puedes deshabilitar tu propia cuenta</td><td class='res'>Pasa</td></tr>
+<tr><td>17</td><td>Anular un comprobante ya anulado</td><td class='num'>409</td><td class='bad'>This scan is already voided</td><td class='ok'>Este comprobante ya está anulado</td><td class='res'>Pasa</td></tr>
+<tr><td>18</td><td>Anular un comprobante sin puntos</td><td class='num'>409</td><td class='bad'>Only scans that earned points can be voided</td><td class='ok'>Solo se pueden anular comprobantes que sumaron puntos</td><td class='res'>Pasa</td></tr>
+<tr><td>19</td><td>Eliminar producto usado en una campaña</td><td class='num'>409</td><td class='bad'>&quot;Farmacia&quot; still uses this product. Archive that campaign, or deactivate the product instead.</td><td class='ok'>La campaña «Farmacia» todavía usa este producto. Archiva esa campaña o desactiva el producto.</td><td class='res'>Pasa</td></tr>
+<tr><td>20</td><td>Ruta inexistente</td><td class='num'>404</td><td class='bad'>Not found</td><td class='ok'>No encontrado</td><td class='res'>Pasa</td></tr>
+</table>
+<p>Además: <code>pnpm typecheck</code> (servidor y cliente) y <code>pnpm --filter @ocr/server build</code> terminan sin errores.</p>
+
+<h3>2.7 Re-prueba en el ambiente de pruebas <span class="pending">(pendiente)</span></h3>
+<p>Una vez desplegada la API, repetir los pasos de la sección 2.2 y adjuntar una captura de cada uno:</p>
+<table>
+<tr><th>Paso</th><th>Resultado esperado tras la corrección</th><th>Obtenido</th><th>Evidencia</th></tr>
+<tr><td>Activar una campaña sin productos ni hitos</td><td>La campaña todavía no se puede activar: agrega al menos un producto; agrega al menos un hito</td><td></td><td></td></tr>
+<tr><td>Eliminar un producto en uso</td><td>La campaña «Farmacia» todavía usa este producto. Archiva esa campaña o desactiva el producto.</td><td></td><td></td></tr>
+<tr><td>Crear una cuenta con un correo existente</td><td>&lt;correo&gt; ya tiene una cuenta</td><td></td><td></td></tr>
+<tr><td>Regresión: escanear un comprobante ya registrado (rol Usuario)</td><td>Sin cambios: «Este comprobante ya fue registrado. Cada comprobante suma puntos una sola vez.»</td><td></td><td></td></tr>
+</table>
+<p>Si los cuatro pasan, el bug pasa a <b>Cerrado</b> en Jira. Si alguno falla, se <b>reabre</b> y se explica aquí por qué falló la primera corrección.</p>
+
+<h2>3. Métricas de bugs</h2>
+<p>Se actualizan conforme se agreguen bugs a este reporte.</p>
+<table>
+<tr><th>Severidad</th><th class="num">Total</th><th class="num">Corregidos</th><th class="num">Verificados</th></tr>
+<tr><td>Crítica</td><td class="num">0</td><td class="num">0</td><td class="num">0</td></tr>
+<tr><td>Alta</td><td class="num">0</td><td class="num">0</td><td class="num">0</td></tr>
+<tr><td>Media</td><td class="num">1</td><td class="num">1</td><td class="num">0</td></tr>
+<tr><td>Baja</td><td class="num">0</td><td class="num">0</td><td class="num">0</td></tr>
+<tr><th>Total</th><th class="num">1</th><th class="num">1</th><th class="num">0</th></tr>
+</table>
+<table>
+<tr><th>Clasificación</th><th class="num">Total</th></tr>
+<tr><td>Error</td><td class="num">0</td></tr>
+<tr><td>Defecto</td><td class="num">1</td></tr>
+<tr><td>Fallo</td><td class="num">0</td></tr>
+</table>
+<table class="kv">
+<tr><th>Tasa de reapertura</th><td>0 % (0 reabiertos de 1 corregido)</td></tr>
+</table>
+</main>
+</body>
+</html>

@@ -26,7 +26,7 @@ adminScansRouter.get('/', async (req, res, next) => {
 adminScansRouter.get('/:id/file', async (req, res, next) => {
   try {
     const path = await getScanFilePath(req.params.id!);
-    if (!path) throw new HttpError(404, 'No file was kept for this scan');
+    if (!path) throw new HttpError(404, 'No se guardó el archivo de este comprobante');
     res.json({ url: await signedReceiptUrl(path) });
   } catch (error) {
     next(error);

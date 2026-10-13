@@ -37,13 +37,13 @@ async function assertProductsExist(input: CampaignInput): Promise<void> {
 
   const missing = input.products.filter((entry) => !byId.has(entry.productId));
   if (missing.length > 0) {
-    throw new HttpError(400, `Unknown product: ${missing.map((e) => e.productId).join(', ')}`);
+    throw new HttpError(400, `Producto desconocido: ${missing.map((e) => e.productId).join(', ')}`);
   }
 
   const inactive = input.products.filter((entry) => byId.get(entry.productId)!.active === false);
   if (inactive.length > 0) {
     const names = inactive.map((entry) => byId.get(entry.productId)!.name);
-    throw new HttpError(400, `These products are deactivated: ${names.join(', ')}`);
+    throw new HttpError(400, `Estos productos están desactivados: ${names.join(', ')}`);
   }
 }
 
@@ -115,7 +115,7 @@ export async function getProgressForUser(
 
 export async function getCampaign(id: string): Promise<Campaign> {
   const doc = await firestore.collection(COLLECTION).doc(id).get();
-  if (!doc.exists) throw new HttpError(404, 'Campaign not found');
+  if (!doc.exists) throw new HttpError(404, 'No se encontró la campaña');
   return toCampaign(doc.id, doc.data()!);
 }
 
@@ -136,7 +136,7 @@ export async function updateCampaign(id: string, input: CampaignInput): Promise<
   const existing = await getCampaign(id);
 
   if (existing.status === 'archived') {
-    throw new HttpError(409, 'Archived campaigns are read-only');
+    throw new HttpError(409, 'Las campañas archivadas son de solo lectura');
   }
 
   await assertProductsExist(input);
@@ -151,7 +151,7 @@ export async function setCampaignStatus(id: string, status: CampaignStatus): Pro
   if (status === 'active') {
     const problems = assertActivatable(campaign);
     if (problems.length > 0) {
-      throw new HttpError(409, `This campaign is not ready to run: ${problems.join('; ')}`);
+      throw new HttpError(409, `La campaña todavía no se puede activar: ${problems.join('; ')}`);
     }
   }
 
@@ -167,7 +167,7 @@ export async function deleteCampaign(id: string): Promise<void> {
   const campaign = await getCampaign(id);
 
   if (campaign.status === 'active') {
-    throw new HttpError(409, 'Archive the campaign before deleting it');
+    throw new HttpError(409, 'Archiva la campaña antes de eliminarla');
   }
 
   await firestore.collection(COLLECTION).doc(id).delete();

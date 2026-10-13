@@ -47,7 +47,7 @@ export async function deleteReceiptFile(path: string): Promise<void> {
 
 /** A short-lived link, so the admin panel can show the file while the bucket stays private. */
 export async function signedReceiptUrl(path: string): Promise<string> {
-  if (!bucket) throw new HttpError(404, 'File storage is not configured');
+  if (!bucket) throw new HttpError(404, 'El almacenamiento de archivos no está configurado');
 
   const [url] = await bucket.file(path).getSignedUrl({
     action: 'read',

@@ -20,6 +20,10 @@ python samples\generate_samples.py --date 2026-09-18 --product PARACETAMOL
 
 Solo necesita Python y Microsoft Edge; no hay que instalar nada más.
 
+Cada comprobante válido suma una sola vez. Para tener comprobantes nuevos con las
+mismas fechas, usa `--lote 1`, `--lote 2`, …: cambia los números de ticket y el
+folio de la factura (`samples\casos\cp33\` es el lote 1 del 12/10/2026).
+
 Con `--limites` también crea `samples\casos\limites\` con los valores límite
 del diseño de pruebas (ver «Valores límite» al final).
 

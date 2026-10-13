@@ -29,7 +29,7 @@ export async function listProducts(includeInactive = true): Promise<Product[]> {
 
 export async function getProduct(id: string): Promise<Product> {
   const doc = await firestore.collection(COLLECTION).doc(id).get();
-  if (!doc.exists) throw new HttpError(404, 'Product not found');
+  if (!doc.exists) throw new HttpError(404, 'No se encontró el producto');
   return toProduct(doc.id, doc.data()!);
 }
 
@@ -70,7 +70,7 @@ export async function createProduct(input: ProductInput): Promise<Product> {
 
 export async function updateProduct(id: string, input: Partial<ProductInput>): Promise<Product> {
   const ref = firestore.collection(COLLECTION).doc(id);
-  if (!(await ref.get()).exists) throw new HttpError(404, 'Product not found');
+  if (!(await ref.get()).exists) throw new HttpError(404, 'No se encontró el producto');
 
   await ref.update({
     ...input,
@@ -97,7 +97,7 @@ export async function deleteProduct(id: string): Promise<void> {
     const campaign = inUse.docs[0]!.data();
     throw new HttpError(
       409,
-      `"${campaign.name}" still uses this product. Archive that campaign, or deactivate the product instead.`,
+      `La campaña «${campaign.name}» todavía usa este producto. Archiva esa campaña o desactiva el producto.`,
     );
   }
 

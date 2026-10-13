@@ -185,7 +185,7 @@ export async function listScans(options: {
 
 export async function getScan(id: string): Promise<ScanRecord> {
   const doc = await documentRef(id).get();
-  if (!doc.exists) throw new HttpError(404, 'Scan not found');
+  if (!doc.exists) throw new HttpError(404, 'No se encontró el comprobante');
 
   const owners = await getProfileSummaries([doc.data()!.ownerUid]);
   return toScanRecord(doc.id, doc.data()!, owners.get(doc.data()!.ownerUid));
@@ -194,6 +194,6 @@ export async function getScan(id: string): Promise<ScanRecord> {
 /** Where a scan's file lives in Storage, or null if it was never kept. */
 export async function getScanFilePath(id: string): Promise<string | null> {
   const doc = await documentRef(id).get();
-  if (!doc.exists) throw new HttpError(404, 'Scan not found');
+  if (!doc.exists) throw new HttpError(404, 'No se encontró el comprobante');
   return doc.data()!.filePath ?? null;
 }

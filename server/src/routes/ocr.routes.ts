@@ -78,7 +78,7 @@ ocrRouter.get('/documents', async (req, res, next) => {
     const requested = typeof req.query.ownerUid === 'string' ? req.query.ownerUid : null;
 
     if (requested && requested !== req.user!.uid && req.user!.role !== 'admin') {
-      throw new HttpError(403, "Only admins can read another user's documents");
+      throw new HttpError(403, 'Solo un administrador puede ver los comprobantes de otro usuario');
     }
 
     res.json({ documents: await listDocuments(requested ?? req.user!.uid) });

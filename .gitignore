@@ -98,3 +98,7 @@ Desktop.ini
 
 # Boundary samples (three ~10 MB files); regenerate with generate_samples.py --limites
 samples/casos/limites/
+
+# Salidas de la verificación de SCRUM-112 (su contenido está en el reporte de depuración)
+docs/pruebas/evidencia/SCRUM-112/antes.txt
+docs/pruebas/evidencia/SCRUM-112/despues.txt

@@ -21,7 +21,7 @@ export async function sendCredentialsEmail(input: SendCredentialsInput): Promise
 
   const record = await auth.getUserByEmail(email).catch(() => null);
   if (!record) {
-    throw new HttpError(404, `No account exists for ${email}`);
+    throw new HttpError(404, `No existe una cuenta para ${email}`);
   }
 
   const actionLink = await auth.generatePasswordResetLink(email, {
