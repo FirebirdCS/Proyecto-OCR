@@ -33,15 +33,15 @@
 <body>
 <main>
 <h1>Reporte de depuración y verificación</h1>
-<p class="sub">Plataforma OCR de incentivos · Sprint 3 · Épica SCRUM-65 «Gestión de bugs» · Historia SCRUM-98 · Actualizado el 12/10/2026</p>
+<p class="sub">Plataforma OCR de incentivos · Sprint 3 · Épica SCRUM-65 «Gestión de bugs» · Historia SCRUM-98 · Actualizado el 13/10/2026</p>
 
 <h2>1. Resumen</h2>
 <table class="kv">
-<tr><th>Bugs registrados en este reporte</th><td>1 (SCRUM-112)</td></tr>
-<tr><th>Corregidos</th><td>1</td></tr>
-<tr><th>Verificados en el ambiente de pruebas</th><td class="pending">0. Falta desplegar la API y repetir la prueba (sección 2.7).</td></tr>
+<tr><th>Bugs registrados en este reporte</th><td>2 (SCRUM-112 y SCRUM-116)</td></tr>
+<tr><th>Corregidos</th><td>2</td></tr>
+<tr><th>Verificados en el ambiente de pruebas</th><td>1 (SCRUM-116, sección 3.6). <span class="pending">SCRUM-112: la API publicada ya responde en español; falta repetir los pasos en pantalla (sección 2.7).</span></td></tr>
 <tr><th>Reabiertos</th><td>0</td></tr>
-<tr><th>Verificación sin conexión</th><td>20 de 20 escenarios pasan (sección 2.6)</td></tr>
+<tr><th>Verificación sin conexión (SCRUM-112)</th><td>20 de 20 escenarios pasan (sección 2.6)</td></tr>
 </table>
 
 <h2>2. SCRUM-112 · Mensajes de error en inglés en el panel de administración</h2>
@@ -106,8 +106,8 @@ Se corrigen por separado para que cada uno tenga su verificación.</div>
 
 <h3>2.5 Versión en que se corrigió</h3>
 <table class="kv">
-<tr><th>Código</th><td>Rama <code>master</code>, sobre el commit <code>803a660</code>. <span class="pending">Commit de la corrección: pendiente.</span></td></tr>
-<tr><th>API en Cloud Run</th><td><span class="pending">Revisión: pendiente de despliegue.</span> La versión con el bug es <code>ocr-api-00005-hs8</code>; la corregida será la siguiente que se despliegue (completar el número).</td></tr>
+<tr><th>Código</th><td>Commit <code>895bd14</code> en <code>master</code> (12/10/2026)</td></tr>
+<tr><th>API en Cloud Run</th><td>Revisión <code>ocr-api-00006-l2l</code>, desplegada el 13/10/2026. La versión con el bug era <code>ocr-api-00005-hs8</code>.</td></tr>
 <tr><th>Cliente web</th><td>Sin cambios. No hace falta publicarlo de nuevo.</td></tr>
 </table>
 
@@ -138,8 +138,11 @@ Se corrigen por separado para que cada uno tenga su verificación.</div>
 </table>
 <p>Además: <code>pnpm typecheck</code> (servidor y cliente) y <code>pnpm --filter @ocr/server build</code> terminan sin errores.</p>
 
-<h3>2.7 Re-prueba en el ambiente de pruebas <span class="pending">(pendiente)</span></h3>
-<p>Una vez desplegada la API, repetir los pasos de la sección 2.2 y adjuntar una captura de cada uno:</p>
+<h3>2.7 Re-prueba en el ambiente de pruebas <span class="pending">(en curso)</span></h3>
+<p>Comprobación en la API publicada (<code>ocr-api-00006-l2l</code>), el 13/10/2026, con dos llamadas que no requieren sesión:</p>
+<pre>GET /api/no-existe   →  {"error":"No encontrado"}          (antes: "Not found")
+GET /api/me          →  {"error":"Falta el token de sesión"}  (antes: "Missing bearer token")</pre>
+<p>La corrección ya está en producción. Falta repetir en pantalla los pasos de la sección 2.2 y adjuntar una captura de cada uno:</p>
 <table>
 <tr><th>Paso</th><th>Resultado esperado tras la corrección</th><th>Obtenido</th><th>Evidencia</th></tr>
 <tr><td>Activar una campaña sin productos ni hitos</td><td>La campaña todavía no se puede activar: agrega al menos un producto; agrega al menos un hito</td><td></td><td></td></tr>
@@ -149,24 +152,87 @@ Se corrigen por separado para que cada uno tenga su verificación.</div>
 </table>
 <p>Si los cuatro pasan, el bug pasa a <b>Cerrado</b> en Jira. Si alguno falla, se <b>reabre</b> y se explica aquí por qué falló la primera corrección.</p>
 
-<h2>3. Métricas de bugs</h2>
+<h2>3. SCRUM-116 · El sitio no fuerza el protocolo HTTPS</h2>
+
+<h3>3.1 Ficha</h3>
+<table class="kv">
+<tr><th>Clave</th><td>SCRUM-116</td></tr>
+<tr><th>Componente</th><td>Publicación del cliente web (GitHub Pages con el dominio propio <code>ganevel.corvelsa.com</code>)</td></tr>
+<tr><th>Clasificación</th><td><b>Defecto</b> de configuración. El <i>error</i> humano fue no activar «Enforce HTTPS» al configurar el dominio propio; el <i>defecto</i> está en la configuración de GitHub Pages, no en el código; el <i>fallo</i> es que el sitio se sirve sin cifrar a quien entra por <code>http://</code>.</td></tr>
+<tr><th>Severidad</th><td>Alta: afecta la confidencialidad y la integridad de la página donde el usuario escribe su contraseña.</td></tr>
+<tr><th>Prioridad (riesgo)</th><td>Alta: impacto 3 (alto) × probabilidad 2 (media) = 6 de 9. Solo ocurre al entrar por <code>http://</code> (dirección escrita a mano o enlace viejo), pero entonces ocurre siempre.</td></tr>
+<tr><th>Atributo ISO/IEC 25010</th><td>Seguridad: confidencialidad e integridad</td></tr>
+<tr><th>Ambiente donde se encontró</th><td>Sitio publicado <code>ganevel.corvelsa.com</code> (GitHub Pages), Edge en Windows 11 y <code>curl</code>, 13/10/2026</td></tr>
+<tr><th>Relacionado</th><td>SCRUM-57 (requerimientos no funcionales), SCRUM-59, CP-44, RNF-03</td></tr>
+</table>
+
+<h3>3.2 Pasos para reproducir</h3>
+<ol>
+<li>Escribir <code>http://ganevel.corvelsa.com</code> en la barra de direcciones, con <code>http</code> y sin la «s».</li>
+<li>Revisar la dirección final y el candado del navegador.</li>
+<li>Para comparar, abrir <code>http://ocr-api-3bi5lk4hta-uc.a.run.app/api/health</code>.</li>
+</ol>
+<table>
+<tr><th>Paso</th><th>Resultado esperado</th><th>Resultado obtenido</th></tr>
+<tr><td>1 y 2</td><td>Redirige a <code>https://ganevel.corvelsa.com</code> y muestra el candado</td><td class="bad">Responde <code>HTTP/1.1 200 OK</code> por <code>http://</code>, no redirige y el navegador marca «No seguro»</td></tr>
+<tr><td>3</td><td>Redirige a <code>https://</code></td><td class="ok"><code>302 Found</code> hacia <code>https://</code> (correcto)</td></tr>
+</table>
+<pre>curl -I http://ganevel.corvelsa.com
+HTTP/1.1 200 OK
+Server: GitHub.com
+Content-Type: text/html; charset=utf-8</pre>
+
+<h3>3.3 Análisis de causa raíz</h3>
+<ul>
+<li>En el repositorio de GitHub, <b>Settings → Pages → Enforce HTTPS</b> no estaba activada. El certificado del dominio sí existía, porque <code>https://ganevel.corvelsa.com</code> respondía con candado, pero GitHub Pages no obligaba a usarlo.</li>
+<li>La API no tenía el problema: Cloud Run redirige a HTTPS siempre, sin configuración.</li>
+<li>Por qué no se detectó antes: todos los enlaces del equipo usan <code>https://</code>, y los navegadores recuerdan la versión segura de un sitio ya visitado, así que el fallo solo se ve al escribir <code>http://</code> o al usar <code>curl</code>. Lo encontró la verificación de requerimientos no funcionales (SCRUM-57).</li>
+<li>Impacto: una página servida sin cifrar puede ser leída o alterada por alguien en la misma red (por ejemplo, un Wi-Fi público) antes de que el usuario escriba su correo y su contraseña. El inicio de sesión de Firebase viaja cifrado, pero el código de la página que lo llama no.</li>
+</ul>
+
+<h3>3.4 Corrección aplicada</h3>
+<p>Se activó <b>Enforce HTTPS</b> en Settings → Pages del repositorio. No requiere cambios de código ni volver a publicar el sitio: GitHub empieza a responder <code>301</code> hacia <code>https://</code> en todo el dominio.</p>
+
+<h3>3.5 Versión en que se corrigió</h3>
+<table class="kv">
+<tr><th>Código</th><td>Sin cambios (corrección de configuración)</td></tr>
+<tr><th>Configuración</th><td>GitHub Pages del repositorio, 13/10/2026</td></tr>
+</table>
+
+<h3>3.6 Verificación: <span style="color:var(--ok)">pasa</span></h3>
+<table>
+<tr><th>Fecha y hora (UTC)</th><th>Comprobación</th><th>Resultado</th></tr>
+<tr><td>13/10/2026 18:32</td><td><code>curl -I http://ganevel.corvelsa.com</code></td><td class="bad">Todavía <code>200 OK</code>, sin redirigir. GitHub tarda unos minutos en aplicar el cambio, y su caché guarda las páginas 10 minutos.</td></tr>
+<tr><td>13/10/2026 18:34</td><td>Dirección sin caché: <code>curl -I http://ganevel.corvelsa.com/login?nocache=…</code></td><td class="ok"><code>301 Moved Permanently</code> hacia <code>https://</code>. La corrección ya estaba activa; la página principal seguía saliendo de la caché (<code>X-Cache: HIT</code>, <code>Age: 520</code>).</td></tr>
+<tr><td>13/10/2026 18:36</td><td><code>curl -I http://ganevel.corvelsa.com</code></td><td class="ok"><code>301 Moved Permanently</code> con <code>Location: https://ganevel.corvelsa.com/</code> (<code>X-Cache: MISS</code>, <code>Age: 0</code>)</td></tr>
+<tr><td></td><td>Abrir <code>http://ganevel.corvelsa.com</code> en el navegador</td><td>Esperado: termina en <code>https://</code> con candado (adjuntar captura)</td></tr>
+</table>
+<pre>curl -I http://ganevel.corvelsa.com
+HTTP/1.1 301 Moved Permanently
+Server: GitHub.com
+Location: https://ganevel.corvelsa.com/
+X-Cache: MISS
+Date: Tue, 13 Oct 2026 18:36:57 GMT</pre>
+<p>La primera comprobación (18:32) seguía en <code>200</code> por la caché de GitHub, que guarda cada página 10 minutos. No fue una corrección fallida, así que el bug no se reabrió. Queda por adjuntar en Jira la captura del navegador en una ventana de incógnito, terminando en <code>https://</code> con candado; con eso pasa a <b>Cerrado</b>.</p>
+
+<h2>4. Métricas de bugs</h2>
 <p>Se actualizan conforme se agreguen bugs a este reporte.</p>
 <table>
 <tr><th>Severidad</th><th class="num">Total</th><th class="num">Corregidos</th><th class="num">Verificados</th></tr>
 <tr><td>Crítica</td><td class="num">0</td><td class="num">0</td><td class="num">0</td></tr>
-<tr><td>Alta</td><td class="num">0</td><td class="num">0</td><td class="num">0</td></tr>
+<tr><td>Alta</td><td class="num">1</td><td class="num">1</td><td class="num">1</td></tr>
 <tr><td>Media</td><td class="num">1</td><td class="num">1</td><td class="num">0</td></tr>
 <tr><td>Baja</td><td class="num">0</td><td class="num">0</td><td class="num">0</td></tr>
-<tr><th>Total</th><th class="num">1</th><th class="num">1</th><th class="num">0</th></tr>
+<tr><th>Total</th><th class="num">2</th><th class="num">2</th><th class="num">1</th></tr>
 </table>
 <table>
 <tr><th>Clasificación</th><th class="num">Total</th></tr>
 <tr><td>Error</td><td class="num">0</td></tr>
-<tr><td>Defecto</td><td class="num">1</td></tr>
+<tr><td>Defecto</td><td class="num">2</td></tr>
 <tr><td>Fallo</td><td class="num">0</td></tr>
 </table>
 <table class="kv">
-<tr><th>Tasa de reapertura</th><td>0 % (0 reabiertos de 1 corregido)</td></tr>
+<tr><th>Tasa de reapertura</th><td>0 % (0 reabiertos de 2 corregidos)</td></tr>
 </table>
 </main>
 </body>

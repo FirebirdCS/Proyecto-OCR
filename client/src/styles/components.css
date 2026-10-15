@@ -381,6 +381,23 @@ input[type='radio'] {
   white-space: nowrap;
 }
 
+/* A flex <td> stops being a table cell: its border drops out of line with the
+   rest of the row. Keep the cell a cell, shrink it to its buttons and space
+   them with margins instead of gap. */
+.table td.actions {
+  display: table-cell;
+  width: 1%;
+  text-align: right;
+}
+
+.table td.actions > * {
+  vertical-align: middle;
+}
+
+.table td.actions > * + * {
+  margin-left: 0.25rem;
+}
+
 /* ==== badges ==== */
 
 .badge {
