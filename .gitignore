@@ -102,3 +102,20 @@ samples/casos/limites/
 # Salidas de la verificación de SCRUM-112 (su contenido está en el reporte de depuración)
 docs/pruebas/evidencia/SCRUM-112/antes.txt
 docs/pruebas/evidencia/SCRUM-112/despues.txt
+
+# ---- Cypress (e2e/) ----
+# Credenciales de las cuentas de prueba; la plantilla es cypress.env.example.json.
+e2e/cypress.env.json
+# Evidencia de cada ejecución (videos y capturas) y el lote de comprobantes que genera.
+e2e/evidencia/
+e2e/cypress/downloads/
+samples/casos/e2e/
+
+# ---- JMeter (carga/) ----
+# Facturas generadas para cada ejecución y sus resultados (informe HTML, .jtl, log).
+carga/facturas/
+carga/resultados/
+
+# ---- Suite de QA ----
+# Informes de `pnpm qa` (uno por ejecución, con sus evidencias).
+qa/informes/
