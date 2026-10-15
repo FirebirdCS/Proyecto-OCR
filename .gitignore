@@ -102,3 +102,6 @@ samples/casos/limites/
 # Salidas de la verificación de SCRUM-112 (su contenido está en el reporte de depuración)
 docs/pruebas/evidencia/SCRUM-112/antes.txt
 docs/pruebas/evidencia/SCRUM-112/despues.txt
+
+# CP-18 inputs (10-15 MB each); regenerate with samples/generate_cp17_cp18.py
+samples/casos/cp17-cp18/cp18-*

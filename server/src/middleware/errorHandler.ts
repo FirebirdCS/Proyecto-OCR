@@ -1,8 +1,9 @@
 import type { NextFunction, Request, Response } from 'express';
+import multer from 'multer';
 import { ZodError } from 'zod';
 import { HttpError } from '../utils/httpError.js';
 import { validationMessage } from '../utils/validationMessage.js';
-import { isProduction } from '../config/env.js';
+import { env, isProduction } from '../config/env.js';
 
 export function notFound(_req: Request, res: Response): void {
   res.status(404).json({ error: 'No encontrado' });
@@ -17,6 +18,19 @@ export function errorHandler(
 ): void {
   if (error instanceof ZodError) {
     res.status(400).json({ error: validationMessage(error), details: error.flatten() });
+    return;
+  }
+
+  // multer's own errors used to fall through to the 500 below.
+  if (error instanceof multer.MulterError) {
+    if (error.code === 'LIMIT_FILE_SIZE') {
+      res.status(413).json({
+        error: `El archivo supera el máximo de ${env.OCR_MAX_UPLOAD_MB} MB.`,
+        details: { code: 'file_too_large', maxMb: env.OCR_MAX_UPLOAD_MB },
+      });
+      return;
+    }
+    res.status(400).json({ error: 'La subida no es válida. Envía un solo archivo en el campo «file».' });
     return;
   }
 

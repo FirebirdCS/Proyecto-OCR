@@ -14,12 +14,27 @@ import {
   scanReceipt,
 } from '../services/scoring.service.js';
 
+const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/tiff', 'application/pdf'];
+
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: env.OCR_MAX_UPLOAD_MB * 1024 * 1024 },
+  // busboy flags a file once it *reaches* fileSize, so the +1 lets a file of
+  // exactly OCR_MAX_UPLOAD_MB through. Oversized files become a 413 in errorHandler.
+  limits: { fileSize: env.OCR_MAX_UPLOAD_MB * 1024 * 1024 + 1 },
+  // Rejecting here (instead of cb(null, false)) stops the upload before it is
+  // buffered and tells the user which formats work, rather than "no file".
   fileFilter: (_req, file, cb) => {
-    const allowed = ['image/png', 'image/jpeg', 'image/webp', 'image/tiff', 'application/pdf'];
-    cb(null, allowed.includes(file.mimetype));
+    if (ALLOWED_TYPES.includes(file.mimetype)) {
+      cb(null, true);
+      return;
+    }
+    cb(
+      new HttpError(
+        415,
+        'Formato de archivo no admitido. Sube una imagen JPG, PNG, WebP o TIFF, o un PDF.',
+        { code: 'unsupported_file_type' },
+      ),
+    );
   },
 });
 
@@ -42,7 +57,7 @@ const scanBody = z.object({ campaignId: z.string().trim().min(1) });
 ocrRouter.post('/', requireRole('user'), upload.single('file'), async (req, res, next) => {
   try {
     if (!req.file) {
-      throw new HttpError(400, 'Expected a file upload in the "file" field');
+      throw new HttpError(400, 'Selecciona un archivo para subir.', { code: 'missing_file' });
     }
 
     const { campaignId } = scanBody.parse(req.body);

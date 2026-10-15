@@ -12,12 +12,28 @@ function isRunning(campaign: Campaign, now = Date.now()): boolean {
   return Date.parse(campaign.startsAt) <= now && now < Date.parse(campaign.endsAt);
 }
 
+const MAX_UPLOAD_MB = 10;
+const UPLOAD_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/tiff', 'application/pdf'];
+
 const REFUSALS: Record<string, string> = {
   duplicate_receipt: 'Este comprobante ya fue registrado. Cada comprobante suma puntos una sola vez.',
   not_participant: 'No participas en esta campaña.',
   campaign_not_running: 'Esta campaña no está vigente en este momento.',
   daily_limit: 'Alcanzaste el límite de comprobantes por día. Inténtalo de nuevo más tarde.',
+  unsupported_file_type: 'Formato de archivo no admitido. Sube una imagen JPG, PNG, WebP o TIFF, o un PDF.',
+  file_too_large: `El archivo supera el máximo de ${MAX_UPLOAD_MB} MB.`,
+  missing_file: 'Selecciona un archivo para subir.',
 };
+
+/**
+ * Checked here only to answer instantly instead of after a long upload; the
+ * server enforces both (OCR_MAX_UPLOAD_MB and its type list) — keep them in step.
+ */
+function rejectBeforeUpload(file: File): string | null {
+  if (!UPLOAD_TYPES.includes(file.type)) return REFUSALS.unsupported_file_type ?? null;
+  if (file.size > MAX_UPLOAD_MB * 1024 * 1024) return REFUSALS.file_too_large ?? null;
+  return null;
+}
 
 function scanErrorMessage(cause: unknown): string {
   if (cause instanceof ApiError) {
@@ -255,9 +271,15 @@ export function UserDashboard() {
     previewUrlRef.current = nextPreview;
     setPreviewUrl(nextPreview);
 
+    setResult(null);
+    const refusal = rejectBeforeUpload(file);
+    if (refusal) {
+      setError(refusal);
+      return;
+    }
+
     setBusy(true);
     setError(null);
-    setResult(null);
     try {
       const scanned = await api.ocr(file, campaignId);
       setResult(scanned);
