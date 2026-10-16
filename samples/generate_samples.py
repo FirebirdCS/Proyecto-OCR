@@ -27,7 +27,6 @@ import subprocess
 import zlib
 import sys
 import tempfile
-import time
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -224,27 +223,8 @@ def render(edge: Path, profile: Path, page: str, out: Path, *, size: tuple[int, 
             args += [f'--force-device-scale-factor={scale}', f'--window-size={size[0]},{size[1]}', f'--screenshot={out}']
         args.append(source.as_uri())
         subprocess.run(args, check=True, capture_output=True, timeout=120)
-        # Recent Edge builds hand the job to a background process and return at
-        # once, so the file shows up a second or two after msedge.exe exits.
-        wait_for_edge(out, profile)
     if not out.exists():
         sys.exit(f'Edge no generó {out.name}.')
-
-
-def wait_for_edge(out: Path, profile: Path, timeout: float = 60) -> None:
-    """Waits until `out` is written in full and Edge has let go of the profile."""
-    deadline = time.monotonic() + timeout
-    last_size = -1
-    while time.monotonic() < deadline:
-        size = out.stat().st_size if out.exists() else -1
-        if size > 0 and size == last_size:
-            break
-        last_size = size
-        time.sleep(0.25)
-    # Edge deletes the profile's lockfile on exit; the next render reuses the profile.
-    lockfile = profile / 'lockfile'
-    while lockfile.exists() and time.monotonic() < deadline:
-        time.sleep(0.25)
 
 
 # -------------------------------------------------------------------- cases

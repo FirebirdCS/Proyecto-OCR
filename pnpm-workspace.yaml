@@ -1,16 +1,13 @@
 packages:
   - client
   - server
-  - e2e
 
 allowBuilds:
-  cypress: true
   '@firebase/util': true
   esbuild: true
   protobufjs: true
 
 onlyBuiltDependencies:
-  - cypress
   - '@firebase/util'
   - esbuild
   - protobufjs
