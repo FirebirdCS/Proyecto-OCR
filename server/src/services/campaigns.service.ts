@@ -145,8 +145,30 @@ export async function updateCampaign(id: string, input: CampaignInput): Promise<
   return getCampaign(id);
 }
 
+// The only moves the editor offers. Anything else (draft → archived, active →
+// draft, …) would skip activation's checks or reopen a running campaign.
+const NEXT_STATUS: Record<CampaignStatus, CampaignStatus> = {
+  draft: 'active',
+  active: 'archived',
+  archived: 'draft',
+};
+
+const STATUS_NAMES: Record<CampaignStatus, string> = {
+  draft: 'Borrador',
+  active: 'Activa',
+  archived: 'Archivada',
+};
+
 export async function setCampaignStatus(id: string, status: CampaignStatus): Promise<Campaign> {
   const campaign = await getCampaign(id);
+
+  if (NEXT_STATUS[campaign.status] !== status) {
+    throw new HttpError(
+      409,
+      `Una campaña ${STATUS_NAMES[campaign.status]} solo puede pasar a ${STATUS_NAMES[NEXT_STATUS[campaign.status]]}`,
+      { code: 'invalid_transition' },
+    );
+  }
 
   if (status === 'active') {
     const problems = assertActivatable(campaign);

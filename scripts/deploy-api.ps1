@@ -15,8 +15,9 @@
   .\scripts\deploy-api.ps1
 
 .EXAMPLE
-  .\scripts\deploy-api.ps1 -ClientOrigins http://localhost:5173,https://ganevel.corvelsa.com `
-    -ClientAppUrl https://ganevel.corvelsa.com -SkipSetup
+  .\scripts\deploy-api.ps1 -SkipSetup
+  Defaults already point at https://ganevel.corvelsa.com; pass -ClientOrigins and
+  -ClientAppUrl only to deploy for another domain.
 #>
 param(
   [string]$Project = 'proyecto-ocr-d3ecd',
@@ -29,9 +30,11 @@ param(
   [string]$AppName = 'Plataforma OCR',
   # Sender for invite emails. The key itself goes in via set-resend-key.ps1.
   [string]$ResendFrom = 'CORVELSA <info@corvelsa.com>',
-  [string[]]$ClientOrigins = @('http://localhost:5173'),
-  # The site's full address including any sub-path; empty falls back to the first origin.
-  [string]$ClientAppUrl = '',
+  # Defaults are the live site: every deploy replaces all env vars, so a bare
+  # run used to drop the site's origin and break the site with CORS errors.
+  [string[]]$ClientOrigins = @('http://localhost:5173', 'https://ganevel.corvelsa.com'),
+  # The site's full address including any sub-path; invite links are built from it.
+  [string]$ClientAppUrl = 'https://ganevel.corvelsa.com',
   [string]$BootstrapAdminEmails = '',
   [int]$ScanDailyLimit = 20,
   [int]$ReceiptMaxUnits = 50,

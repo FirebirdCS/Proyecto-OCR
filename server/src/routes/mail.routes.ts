@@ -1,11 +1,13 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { requireAuth } from '../middleware/auth.js';
+import { requireAdmin, requireAuth } from '../middleware/auth.js';
 import { sendMail } from '../services/mail.service.js';
 
 export const mailRouter = Router();
 
-mailRouter.use(requireAuth);
+// Admins only: the sender is the company's address, so any signed-in user could
+// otherwise mail anyone in its name. Nothing in the client calls this today.
+mailRouter.use(requireAuth, requireAdmin);
 
 const sendSchema = z
   .object({
